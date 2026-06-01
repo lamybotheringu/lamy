@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lamy</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Baloo:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <header>
   <div class="brand">
     <img class="avatar" src="AVATAR01.PNG" alt="Avatar">
@@ -17,115 +20,136 @@
 </header>
 
 <nav>
-  <button onclick="show('home')">Home</button>
-  <button onclick="show('about')">About</button>
-  <button onclick="show('updates')">Updates</button>
-  <button onclick="show('youtube')">YouTube</button>
-  <button onclick="show('games')">Games</button>
-  <button onclick="show('chat')">Chat</button>
+  <button type="button" onclick="show('home')">Home</button>
+  <button type="button" onclick="show('about')">About</button>
+  <button type="button" onclick="show('updates')">Updates</button>
+  <button type="button" onclick="show('youtube')">YouTube</button>
+  <button type="button" onclick="show('games')">Games</button>
+  <button type="button" onclick="show('chat')">Chat</button>
 </nav>
 
 <main>
 
+<!-- HOME -->
 <section id="home">
   <h2>✨ Welcome</h2>
   <p>مرحبا بك في موقع Lamy 💗🎮</p>
 </section>
 
+<!-- ABOUT -->
 <section id="about" class="hidden">
   <h2>👤 About Me</h2>
   <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p>
 </section>
 
+<!-- UPDATES -->
 <section id="updates" class="hidden">
   <h2>📢 Updates</h2>
   <p>لايمي تجتاز إمتحان الباكالوريا 🚧</p>
 </section>
 
+<!-- YOUTUBE -->
 <section id="youtube" class="hidden">
   <h2>🎥 YouTube - تابعو مقاطعي على اليوتيوب</h2>
+
   <iframe src="https://www.youtube.com/embed/xtijJJNDp7M" allowfullscreen></iframe>
   <iframe src="https://www.youtube.com/embed/OwxwcN3fH1o" allowfullscreen></iframe>
   <iframe src="https://www.youtube.com/embed/NPSM8mjA7eY" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/uZkWKDacuuM" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/wVfHHJxc14U" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/4fGiQmx0N98" allowfullscreen></iframe>
 </section>
 
+<!-- GAMES -->
 <section id="games" class="hidden">
+
   <div class="games-container">
+
+    <!-- XO -->
     <div class="game-item">
       <h3>❌ XO Game</h3>
       <div id="xoWins" class="win-counter">Wins: 0</div>
       <div id="xoBoard"></div>
-      <button id="xoReset" class="game-button hidden" onclick="resetXO()">play again</button>
+      <button type="button" id="xoReset" class="game-button hidden" onclick="resetXO()">Play again</button>
       <div id="xoMessage" class="tree-message hidden"></div>
     </div>
 
+    <!-- CLICKER -->
     <div class="game-item">
       <h3>🖱️ Clicker Game</h3>
       <div id="treeVisualization" class="tree-viz">🌱</div>
-      <div id="clickScore" style="margin-top:12px">Score: 0</div>
-      <button class="game-button" onclick="clickMe()">Click me</button>
+      <div id="clickScore">Score: 0</div>
+
+      <button type="button" class="game-button" onclick="clickMe()">Click me</button>
+
       <div id="treeMessage" class="tree-message hidden">مبروك! حصلت على شجرة</div>
-      <button id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
+      <button type="button" id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
+
       <div id="treeCount" class="win-counter">Tree count: 0</div>
     </div>
 
+    <!-- MEMORY -->
     <div class="game-item">
       <h3>🧠 Memory Game</h3>
+
       <div class="memory-controls">
-        <button id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
-        <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
-        <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
+        <button type="button" id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
+        <button type="button" id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
+        <button type="button" id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
       </div>
+
       <p id="memoryStatus" class="memory-status">اختر مستوى للبدء</p>
       <div id="memoryBoard" class="memory-board"></div>
-      <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Play again</button>
+
+      <button type="button" id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">
+        Play again
+      </button>
+
       <div id="memoryWins" class="win-counter">Wins: 0</div>
     </div>
 
-    <!-- Bunny game (demo) - full-width box under other games -->
+    <!-- 🐰 BUNNY GAME -->
     <div class="game-item" id="bunnyGameItem">
+
       <h3>🐰 Bunny game (demo)</h3>
+
       <div id="bunnyGame" aria-label="bunny-game">
-        <!-- clouds: use cloud.PNG for parallax -->
+
         <img src="cloud.PNG" class="bg-cloud cloud-1" alt="cloud">
         <img src="cloud.PNG" class="bg-cloud cloud-2" alt="cloud">
         <img src="cloud.PNG" class="bg-cloud cloud-3" alt="cloud">
 
-        <!-- bunny player -->
         <img src="bunny.PNG" id="bunny" alt="bunny">
 
-        <!-- heart template (cloned by JS) -->
         <img src="heart.PNG" id="heartTemplate" class="collectible hidden" alt="heart">
 
-        <!-- red obstacle -->
-        <div id="redObstacle" class="obstacle" aria-hidden="true"></div>
+        <div id="redObstacle" class="obstacle"></div>
 
-        <!-- score -->
         <div id="bunnyScore" class="bunny-score">Score: 0</div>
 
-        <!-- overlay for game over -->
-        <div id="bunnyOverlay" class="bunny-overlay hidden" role="dialog" aria-hidden="true">
+        <div id="bunnyOverlay" class="bunny-overlay hidden">
           <div class="bunny-overlay-inner">
             <h2>Game Over</h2>
             <p id="bunnyFinalScore">Score: 0</p>
-            <button id="bunnyPlayAgain" class="game-button">Play Again</button>
+            <button type="button" id="bunnyPlayAgain" class="game-button">
+              Play Again
+            </button>
           </div>
         </div>
+
       </div>
-      <p style="margin-top:8px">Press SPACE to jump or tap the box</p>
+
+      <p>Press SPACE or tap to jump</p>
     </div>
 
   </div>
 </section>
 
+<!-- CHAT -->
 <section id="chat" class="hidden">
   <h2>💬 Chat</h2>
+
   <input id="name" placeholder="اسمك (مطلوب)">
   <input id="msg" placeholder="اكتب رسالتك">
-  <button onclick="send()">إرسال</button>
+  <button type="button" onclick="send()">إرسال</button>
+
   <div id="box"></div>
 </section>
 
@@ -134,6 +158,7 @@
 </footer>
 
 <script src="script.js"></script>
+
 </main>
 </body>
 </html>
