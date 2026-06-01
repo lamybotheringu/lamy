@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lamy</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Baloo:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <img class="avatar" src="AVATAR01.png" alt="Avatar">
+    <h1 class="logo">LAMY</h1>
+  </div>
+  <p>♥ نورتو يا لايميز ♥ 💗🎮</p>
+</header>
+
+<nav>
+  <button onclick="show('home')">Home</button>
+  <button onclick="show('about')">About</button>
+  <button onclick="show('updates')">Updates</button>
+  <button onclick="show('youtube')">YouTube</button>
+  <button onclick="show('games')">Games</button>
+  <button onclick="show('chat')">Chat</button>
+</nav>
+
+<main>
+
+<section id="home">
+  <h2>✨ Welcome</h2>
+  <p>مرحبا بك في موقع Lamy 💗🎮</p>
+</section>
+
+<section id="about" class="hidden">
+  <h2>👤 About Me</h2>
+  <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p>
+</section>
+
+<section id="updates" class="hidden">
+  <h2>📢 Updates</h2>
+  <p>لايمي تجتاز إمتحان الباكالوريا 🚧</p>
+</section>
+
+<section id="youtube" class="hidden">
+  <h2>🎥 YouTube</h2>
+
+  <iframe src="https://www.youtube.com/embed/xtijJJNDp7M"></iframe>
+  <iframe src="https://www.youtube.com/embed/OwxwcN3fH1o"></iframe>
+  <iframe src="https://www.youtube.com/embed/NPSM8mjA7eY"></iframe>
+  <iframe src="https://www.youtube.com/embed/uZkWKDacuuM"></iframe>
+  <iframe src="https://www.youtube.com/embed/uZkWKDacuuM"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=NPSM8mjA7eY"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=wVfHHJxc14U"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=4fGiQmx0N98"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=qt2IsiovhgU"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=MZJjw2PhqLI"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=SHHrgd6Kxx4"></iframe>
+  <iframe src="https://www.youtube.com/watch?v=oUeCOie6xMg"></iframe>
+
+</section>
+
+<section id="games" class="hidden">
+
+  <div class="games-container">
+    <div class="game-item">
+      <h3>❌ XO Game</h3>
+      <div id="xoWins" class="win-counter">Wins: 0</div>
+      <div id="xoBoard"></div>
+      <button id="xoReset" class="game-button hidden" onclick="resetXO()">Try again</button>
+    </div>
+    
+    <div class="game-item">
+      <h3>🖱️ Clicker Game</h3>
+      <button onclick="clickMe()">CLICK ME! 🌳</button>
+      <div id="treeVisualization" class="tree-viz">🌱</div>
+      <div id="clickScore">Score: 0</div>
+      <div id="treeMessage" class="tree-message hidden">You got the tree!</div>
+      <button id="treeRetry" class="game-button hidden" onclick="retryTree()">Try again</button>
+      <div id="treeCount" class="win-counter">Tree count: 0</div>
+    </div>
+    
+    <div class="game-item">
+      <h3>🧠 Memory Card Game</h3>
+      <div id="memoryWins" class="win-counter">Wins: 0</div>
+      <div class="memory-controls">
+        <button class="mode-button active" id="memoryEasy" onclick="setMemoryMode('easy')">Easy</button>
+        <button class="mode-button" id="memoryHard" onclick="setMemoryMode('hard')">Hard</button>
+        <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Try again</button>
+      </div>
+      <div id="memoryStatus" class="memory-status">اختر الوضع للبدء</div>
+      <div id="memoryBoard" class="memory-board"></div>
+    </div>
+  </div>
+
+</section>
+
+<section id="chat" class="hidden">
+  <h2>💬 Chat</h2>
+
+  <input id="name" placeholder="اسمك (مطلوب)">
+  <input id="msg" placeholder="اكتب رسالتك">
+  <button onclick="send()">إرسال</button>
+
+  <div id="box"></div>
+</section>
+
+</main>
+
+<footer>
+© Lamybotheringu - June 2026
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
