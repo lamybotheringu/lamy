@@ -322,8 +322,8 @@ function initApp(){
     if(document.getElementById("memoryBoard")){
       try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
     }
-    // initialize rabbit mini-game if present
-    try{ initRabbitGame(); } catch(e){ /* non-fatal */ }
+    // initialize bunny game if present
+    try{ initBunnyGame(); } catch(e){ /* non-fatal */ }
   } catch(initErr){
     console.error('Initialization error:', initErr);
   }
@@ -336,60 +336,134 @@ if (document.readyState === 'loading') {
   initApp();
 }
 
-/* Rabbit mini-game implementation */
-function initRabbitGame(){
-  const rabbit = document.getElementById('rabbit');
-  const scoreEl = document.getElementById('score');
-  const heart = document.getElementById('heart');
-  const star = document.getElementById('star');
-  if(!rabbit || !scoreEl || !heart || !star) return;
+/* ------------------ Bunny Game (demo) ------------------ */
+// Modular sections: state, rendering, movement, collisions, scoring
+function initBunnyGame(){
+  const container = document.getElementById('bunnyGame');
+  if(!container) return;
 
-  let isJumping = false;
-  let rscore = 0;
-  let hearts = 0;
+  // Elements
+  const bunnyEl = document.getElementById('bunny');
+  const obstacleEl = document.getElementById('redObstacle');
+  const heartTemplate = document.getElementById('heartTemplate');
+  const scoreEl = document.getElementById('bunnyScore');
+  const overlay = document.getElementById('bunnyOverlay');
+  const finalScore = document.getElementById('bunnyFinalScore');
+  const playAgainBtn = document.getElementById('bunnyPlayAgain');
 
-  function updateScore(){ scoreEl.innerText = 'Score: ' + rscore; }
+  // Game state
+  let running = false;
+  let lastTime = null;
+  let bunny = { y:16, vy:0, width:56, height:56 };
+  const gravity = 2000; // px/s^2
+  const jumpVel = 650; // px/s
+  let score = 0;
+  let hearts = []; // {el,x,y,w,h}
+  let obstacle = { x: container.clientWidth + 20, w:48, h:80, speed: 220 };
+  let spawnTimer = 0;
 
-  function jump(){
-    if(isJumping) return;
-    isJumping = true;
-    let bottom = parseInt(getComputedStyle(rabbit).bottom) || 0;
-    const max = 120;
-    const up = setInterval(()=>{
-      bottom += 8; rabbit.style.bottom = bottom + 'px';
-      if(bottom >= max){ clearInterval(up);
-        const down = setInterval(()=>{
-          bottom -= 8; rabbit.style.bottom = bottom + 'px';
-          if(bottom <= 0){ clearInterval(down); isJumping = false; rabbit.style.bottom = '0px'; }
-        },20);
-      }
-    },20);
+  function resetState(){
+    running = true; lastTime = null; score = 0; hearts = []; spawnTimer = 0; overlay.classList.add('hidden');
+    bunny.y = 16; bunny.vy = 0;
+    obstacle.x = container.clientWidth + 20;
+    updateScore();
+    // remove any leftover spawned hearts
+    Array.from(container.querySelectorAll('.collectible')).forEach(el=>{ if(el !== heartTemplate) el.remove(); });
   }
 
-  document.addEventListener('keydown', function(e){ if(e.code === 'Space') { e.preventDefault(); jump(); } });
+  function updateScore(){ if(scoreEl) scoreEl.textContent = 'Score: ' + score; }
 
-  // score ticker
-  setInterval(()=>{ rscore++; updateScore(); },1000);
+  function spawnHeart(){
+    const h = heartTemplate.cloneNode(true);
+    h.id = '';
+    h.classList.remove('hidden');
+    const startX = container.clientWidth + 20;
+    const minY = 60; const maxY = Math.max(60, container.clientHeight - 80);
+    const y = Math.floor(Math.random() * (maxY - minY)) + minY;
+    h.style.left = startX + 'px';
+    h.style.top = y + 'px';
+    container.appendChild(h);
+    hearts.push({ el: h, x: startX, y: y, w: 36, h: 36, speed: 180 });
+  }
 
-  // heart collision
-  setInterval(()=>{
-    const r = rabbit.getBoundingClientRect();
-    const h = heart.getBoundingClientRect();
-    if(!(r.right < h.left || r.left > h.right || r.bottom < h.top || r.top > h.bottom)){
-      hearts++; rscore += 5; updateScore();
-      heart.style.visibility = 'hidden';
-      setTimeout(()=>{ heart.style.visibility = 'visible'; },800);
+  function handleJump(){ if(!running) return; bunny.vy = jumpVel; }
+
+  // Click/tap to jump
+  container.addEventListener('click', ()=>{ handleJump(); });
+  document.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); handleJump(); } });
+
+  function rectsOverlap(a, b){
+    return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
+  }
+
+  function gameOver(){
+    running = false;
+    overlay.classList.remove('hidden');
+    finalScore.textContent = 'Score: ' + score;
+  }
+
+  function update(dt){
+    // bunny physics
+    bunny.vy -= gravity * dt;
+    bunny.y += bunny.vy * dt;
+    if(bunny.y < 16){ bunny.y = 16; bunny.vy = 0; }
+    // position bunny element
+    if(bunnyEl) bunnyEl.style.bottom = Math.max(0, Math.round(bunny.y)) + 'px';
+
+    // move obstacle
+    obstacle.x -= obstacle.speed * dt;
+    if(obstacleEl) obstacleEl.style.left = Math.max(-200, Math.round(obstacle.x)) + 'px';
+    // spawn new obstacle if offscreen
+    if(obstacle.x < - (obstacle.w + 60)){
+      obstacle.x = container.clientWidth + (100 + Math.random()*200);
+      // randomize speed slightly
+      obstacle.speed = 180 + Math.random()*160;
     }
-  },100);
 
-  // star collision
-  setInterval(()=>{
-    const r = rabbit.getBoundingClientRect();
-    const s = star.getBoundingClientRect();
-    if(!(r.right < s.left || r.left > s.right || r.bottom < s.top || r.top > s.bottom)){
-      rscore = 0; updateScore();
-      star.style.visibility = 'hidden';
-      setTimeout(()=>{ star.style.visibility = 'visible'; },800);
+    // hearts movement
+    for(let i = hearts.length -1; i>=0; i--){
+      const h = hearts[i];
+      h.x -= h.speed * dt;
+      if(h.el) h.el.style.left = Math.round(h.x) + 'px';
+      // remove offscreen
+      if(h.x < -100){ if(h.el) h.el.remove(); hearts.splice(i,1); continue; }
+      // collision with bunny
+      const bunnyRect = { x: 28, y: bunny.y, w: bunny.width, h: bunny.height };
+      const heartRect = { x: h.x, y: h.y, w: h.w, h: h.h };
+      if(rectsOverlap(bunnyRect, heartRect)){
+        // collect
+        score += 5; updateScore();
+        if(h.el) h.el.remove(); hearts.splice(i,1);
+      }
     }
-  },100);
+
+    // obstacle collision
+    const bunnyRectC = { x:28, y: bunny.y, w: bunny.width, h: bunny.height };
+    const obsRect = { x: obstacle.x, y:16, w: obstacle.w, h: obstacle.h };
+    if(rectsOverlap(bunnyRectC, obsRect)){
+      gameOver();
+    }
+  }
+
+  function loop(ts){
+    if(!lastTime) lastTime = ts; const dt = Math.min(0.05, (ts - lastTime)/1000); lastTime = ts;
+    if(running) update(dt);
+    // spawn heart occasionally
+    spawnTimer += dt;
+    if(spawnTimer > 1.6){ spawnTimer = 0; if(Math.random() > 0.3) spawnHeart(); }
+    requestAnimationFrame(loop);
+  }
+
+  playAgainBtn.addEventListener('click', ()=>{ resetState(); });
+
+  // initial reset and start
+  resetState();
+  requestAnimationFrame(loop);
 }
+
+// init on load if bunny area exists
+try{ if(document.readyState !== 'loading') initBunnyGame(); else window.addEventListener('DOMContentLoaded', initBunnyGame); }catch(e){console.error(e);} 
+
+/* ------------------ End Bunny Game ------------------ */
+
+/* old Rabbit game removed */
