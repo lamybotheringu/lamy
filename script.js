@@ -1,325 +1,421 @@
-const chatStorageKey = "lamyChatMessages";
-const chatNameKey = "lamyChatName";
-
-function show(id){
-  document.querySelectorAll("section").forEach(s=>{
-    s.classList.add("hidden");
-  });
-  const target = document.getElementById(id);
-  if(target) target.classList.remove("hidden");
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#1b1b1b;
+  color:#ff4fd8;
+  direction:rtl;
+  text-align:center;
 }
 
-function addChatMessage(name, msg, save = true){
-  const box = document.getElementById("box");
-  if(!box){ console.warn('chat box not found'); return; }
-  const div = document.createElement("div");
-  div.className = "chat-message";
-  div.textContent = name + ": " + msg;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  if(save) saveChatMessages();
+main{
+  padding:20px;
+  max-width:1200px;
+  margin:0 auto;
 }
 
-function saveChatMessages(){
-  const box = document.getElementById("box");
-  const messages = Array.from(box.querySelectorAll(".chat-message")).map(el => {
-    const text = el.textContent;
-    const split = text.indexOf(": ");
-    return {
-      name: split !== -1 ? text.slice(0, split) : text,
-      msg: split !== -1 ? text.slice(split + 2) : ""
-    };
-  });
-  localStorage.setItem(chatStorageKey, JSON.stringify(messages));
+header{
+  padding:20px;
+  border-bottom:2px solid #ff4fd8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
 }
 
-function loadChatMessages(){
-  const stored = localStorage.getItem(chatStorageKey);
-  if(stored){
-    try {
-      const messages = JSON.parse(stored);
-      messages.forEach(m => addChatMessage(m.name, m.msg, false));
-    } catch (e) {
-      console.error(e);
-    }
+header p{
+  font-size: 18px;
+  font-family:'Pixel AE', monospace;
+  line-height:1.4;
+  margin:0;
+}
+
+.brand{
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+}
+
+.avatar{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.logo{
+  font-family:'Orbitron', sans-serif;
+  font-size:44px;
+}
+
+h2, h3{
+  font-family:'Baloo', sans-serif;
+  font-weight:700;
+}
+
+.tree-viz {
+  font-size: 64px;
+  margin: 20px 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.tree-message {
+  font-size: 20px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
+}
+
+.tree-message.hidden {
+  display: none;
+}
+
+.win-counter {
+  font-size: 16px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
+}
+
+nav{
+  padding:16px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  direction:ltr;
+}
+
+nav button{
+  background:#ff4fd8;
+  border:none;
+  padding:10px 14px;
+  margin:0;
+  cursor:pointer;
+  border-radius:12px;
+  font-weight:bold;
+  color:#1b1b1b;
+  font-size:16px;
+}
+
+section{
+  padding:24px 0;
+}
+
+section h2{
+  margin-top:0;
+}
+
+.games-container{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:20px;
+  margin-top:24px;
+}
+
+.game-item{
+  flex:1;
+  min-width:280px;
+  max-width:350px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.game-item h3{
+  margin-top:0;
+  margin-bottom:16px;
+}
+
+/* Rabbit mini-game styles */
+#game{
+  width:500px;
+  height:200px;
+  margin:auto;
+  position:relative;
+  overflow:hidden;
+  border:2px solid #ff4fd8;
+  background:#000;
+}
+
+#rabbit{
+  width:30px;
+  height:30px;
+  background:white;
+  position:absolute;
+  bottom:0;
+  left:50px;
+  border-radius:4px;
+}
+
+#star{
+  width:20px;
+  height:20px;
+  background:gold;
+  position:absolute;
+  bottom:0;
+  right:-20px;
+  animation: moveStar 2s infinite linear;
+}
+
+#heart{
+  width:18px;
+  height:18px;
+  background:#ff4fd8;
+  position:absolute;
+  bottom:80px;
+  right:-20px;
+  animation: moveHeart 3s infinite linear;
+  border-radius:50%;
+}
+
+@keyframes moveStar{
+  0%{right:-20px;}
+  100%{right:520px;}
+}
+
+@keyframes moveHeart{
+  0%{right:-20px;}
+  100%{right:520px;}
+}
+
+#score{
+  position:absolute;
+  top:5px;
+  left:10px;
+  color:white;
+}
+
+/* Keep games container tall enough to avoid page reflow when memory expands */
+.games-container{
+  min-height:520px;
+}
+
+/* Make memory board fixed height so page doesn't shift */
+#memoryBoard{
+  max-height:340px;
+  overflow:auto;
+}
+
+.hidden{
+  display:none;
+}
+
+iframe{
+  width:300px;
+  height:180px;
+  margin:10px;
+  border:none;
+}
+
+#xoBoard{
+  display:grid;
+  grid-template-columns:repeat(3,60px);
+  gap:5px;
+  justify-content:center;
+  margin:16px auto;
+}
+
+.cell{
+  width:60px;
+  height:60px;
+  background:#222;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+  cursor:pointer;
+  border-radius:10px;
+  border:1px solid #333;
+}
+
+#xoReset{
+  display:block;
+  margin:16px auto;
+  padding:12px 18px;
+  background:#ff4fd8;
+  color:#1b1b1b;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#xoReset.hidden{
+  display:none;
+}
+
+.memory-controls{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:18px auto 12px;
+}
+
+.mode-button,
+.game-button{
+  background:#ff4fd8;
+  border:none;
+  color:#1b1b1b;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.mode-button.active{
+  box-shadow:0 0 0 3px rgba(255,79,216,0.25);
+}
+
+.memory-status{
+  color:#ff4fd8;
+  margin:0 auto 12px;
+  max-width:560px;
+}
+
+.memory-board{
+  display:grid;
+  grid-template-columns:repeat(4, 80px);
+  gap:12px;
+  justify-content:center;
+  margin:0 auto 20px;
+}
+
+.memory-card{
+  width:80px;
+  height:100px;
+  background:#222;
+  color:#ff4fd8;
+  border:2px solid #333;
+  border-radius:16px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:36px;
+  cursor:pointer;
+  transition:transform 0.2s ease, background 0.2s ease;
+}
+
+.memory-card.flipped,
+.memory-card.matched{
+  background:#ffffff;
+  color:#1b1b1b;
+  transform:scale(1.02);
+}
+
+.memory-card.matched{
+  border-color:#ff4fd8;
+}
+
+@media (max-width:720px){
+  .memory-board{
+    grid-template-columns:repeat(4, 64px);
+    gap:10px;
   }
-  const savedName = localStorage.getItem(chatNameKey);
-  if(savedName){
-    const nameEl = document.getElementById("name");
-    if(nameEl) nameEl.value = savedName;
+
+  .memory-card{
+    width:64px;
+    height:84px;
+    font-size:28px;
   }
 }
 
-function send(){
-  const nameField = document.getElementById("name");
-  const msgField = document.getElementById("msg");
-  const name = nameField.value.trim();
-  const msg = msgField.value.trim();
+#chat .chat-panel{
+  max-width:560px;
+  margin:0 auto;
+  background:#121212;
+  border:1px solid #333;
+  border-radius:16px;
+  padding:18px;
+  display:grid;
+  gap:16px;
+}
 
-  if(name === ""){
-    alert("الاسم مطلوب!");
-    return;
+#name,
+#msg{
+  padding:8px 10px;
+  margin:5px;
+  border:1px solid #ff4fd8;
+  border-radius:6px;
+  background:#222;
+  color:white;
+  font-size:14px;
+  outline:none;
+}
+
+#name{
+  width:180px;
+}
+
+#msg{
+  width:250px;
+}
+
+#name::placeholder,
+#msg::placeholder{
+  color:#bfbfbf;
+}
+
+#chat button{
+  background:#ff4fd8;
+  border:none;
+  padding:8px 14px;
+  margin:5px;
+  border-radius:6px;
+  color:#1b1b1b;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#box{
+  min-height:220px;
+  max-height:340px;
+  overflow-y:auto;
+  background:#111;
+  border:1px solid #333;
+  border-radius:14px;
+  padding:16px;
+  margin-top:14px;
+}
+
+#box .chat-message{
+  padding:10px 14px;
+  margin-bottom:10px;
+  background:rgba(255,79,216,0.14);
+  border:1px solid rgba(255,79,216,0.22);
+  border-radius:12px;
+  color:#ffffff;
+  word-break:break-word;
+}
+
+footer{
+  padding:16px 20px;
+  border-top:2px solid #ff4fd8;
+  text-align:center;
+}
+
+@media (max-width:720px){
+  nav{
+    gap:8px;
   }
 
-  if(msg === ""){
-    alert("لا يمكنك ترك رسالة فارغة");
-    return;
+  nav button{
+    flex:1 1 calc(50% - 8px);
   }
 
-  localStorage.setItem(chatNameKey, name);
-  addChatMessage(name, msg);
-  msgField.value = "";
-}
+  iframe{
+    width:100%;
+    max-width:100%;
+  }
 
-/* CLICKER */
-let score = 0;
-let treeWins = 0;
-function clickMe(){
-  score++;
-  document.getElementById("clickScore").textContent = "Score: " + score;
-  
-  // Tree growth logic
-  let treeStage = "🌱";
-  if(score >= 100) treeStage = "🌳";
-  else if(score >= 75) treeStage = "🌳";
-  else if(score >= 50) treeStage = "🌲";
-  else if(score >= 25) treeStage = "🌿";
-  
-  document.getElementById("treeVisualization").textContent = treeStage;
-  
-  // Show message when reaching 100 clicks
-  if(score === 100){
-    document.getElementById("treeMessage").classList.remove("hidden");
-    document.getElementById("treeRetry").classList.remove("hidden");
-    treeWins++;
-    document.getElementById("treeCount").textContent = "Tree count: " + treeWins;
+  #chat .chat-inputs{
+    grid-template-columns:1fr;
   }
 }
-
-function retryTree(){
-  score = 0;
-  document.getElementById("clickScore").textContent = "Score: 0";
-  document.getElementById("treeVisualization").textContent = "🌱";
-  document.getElementById("treeMessage").classList.add("hidden");
-  document.getElementById("treeRetry").classList.add("hidden");
-}
-
-/* XO */
-let board = ["","","","","","","","",""];
-let xoWins = 0;
-let xoGameOver = false;
-
-function draw(){
-  const b = document.getElementById("xoBoard");
-  if(!b) return;
-  b.innerHTML = "";
-
-  board.forEach((c,i)=>{
-    const d = document.createElement("div");
-    d.className = "cell";
-    d.textContent = c;
-    d.onclick = ()=>play(i);
-    b.appendChild(d);
-  });
-}
-
-const winLines = [
-  [0,1,2], [3,4,5], [6,7,8],
-  [0,3,6], [1,4,7], [2,5,8],
-  [0,4,8], [2,4,6]
-];
-
-function play(i){
-  if(board[i] === "" && !xoGameOver){
-    board[i] = "X";
-    let winner = checkWinner();
-    if(!winner){
-      bot();
-      winner = checkWinner();
-    }
-    draw();
-    if(winner){
-      if(winner === "X"){
-        handleXOResult("win");
-      } else {
-        handleXOResult("lose");
-      }
-      xoGameOver = true;
-    } else if(isBoardFull()){
-      handleXOResult("draw");
-      xoGameOver = true;
-    }
-    updateXOReset();
-  }
-}
-
-function bot(){
-  if(isGameFinished() || xoGameOver) return;
-  const empty = board.map((v,i)=>v === "" ? i : null).filter(v=>v !== null);
-  const pick = empty[Math.floor(Math.random() * empty.length)];
-  if(pick !== undefined) board[pick] = "O";
-}
-
-function checkWinner(){
-  for(const [a,b,c] of winLines){
-    if(board[a] && board[a] === board[b] && board[a] === board[c]){
-      return board[a];
-    }
-  }
-  return null;
-}
-
-function isBoardFull(){
-  return board.every(cell => cell !== "");
-}
-
-function isGameFinished(){
-  return Boolean(checkWinner() || isBoardFull());
-}
-
-function updateXOReset(){
-  const resetButton = document.getElementById("xoReset");
-  if(!resetButton) return;
-  if(isGameFinished()){
-    resetButton.classList.remove("hidden");
-  } else {
-    resetButton.classList.add("hidden");
-  }
-}
-
-function handleXOResult(result){
-  const message = document.getElementById("xoMessage");
-  if(result === "win"){
-    xoWins++;
-    document.getElementById("xoWins").textContent = "Wins: " + xoWins;
-    message.textContent = "You won!";
-  } else if(result === "lose"){
-    message.textContent = "You lost!";
-  } else if(result === "draw"){
-    message.textContent = "Draw!";
-  }
-  message.classList.remove("hidden");
-}
-
-function clearXOMessage(){
-  const message = document.getElementById("xoMessage");
-  message.textContent = "";
-  message.classList.add("hidden");
-}
-
-function resetXO(){
-  board = ["","","","","","","","",""];
-  xoGameOver = false;
-  draw();
-  updateXOReset();
-  clearXOMessage();
-}
-
-const memoryEmojis = ["🩷","🌸","🍣","😝","🌹","🎥","🎮","🎧","🐰","🐇"];
-let memoryMode = "easy";
-let memoryBoardState = [];
-let memoryFlipped = [];
-let memoryMatched = [];
-let memoryLocked = false;
-let memoryWins = 0;
-function setMemoryMode(mode){
-  memoryMode = mode;
-  const easyBtn = document.getElementById("memoryEasy");
-  const medBtn = document.getElementById("memoryMedium");
-  const hardBtn = document.getElementById("memoryHard");
-  if(easyBtn) easyBtn.classList.toggle("active", mode === "easy");
-  if(medBtn) medBtn.classList.toggle("active", mode === "medium");
-  if(hardBtn) hardBtn.classList.toggle("active", mode === "hard");
-  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 7 أزواج" : "الوضع الصعب: 10 أزواج");
-  const statusEl = document.getElementById("memoryStatus");
-  if(statusEl) statusEl.textContent = statusText;
-  startMemoryGame();
-}
-
-function startMemoryGame(){
-  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
-  let emojis = memoryEmojis.slice(0, count);
-  // Ensure we have enough unique emojis by repeating if array is shorter than requested
-  if(emojis.length < count){
-    let i = 0;
-    while(emojis.length < count){
-      emojis.push(memoryEmojis[i % memoryEmojis.length]);
-      i++;
-    }
-  }
-  const pairs = [...emojis, ...emojis];
-  memoryBoardState = pairs.sort(() => Math.random() - 0.5);
-  memoryFlipped = [];
-  memoryMatched = [];
-  memoryLocked = false;
-  renderMemoryBoard();
-  console.log('startMemoryGame', {mode: memoryMode, pairs: memoryBoardState.length, uniqueEmojis: emojis.length});
-  const statusEl = document.getElementById("memoryStatus");
-  if(statusEl) statusEl.textContent = "ابدأ الاختيار وافتح البطاقات بنفسك";
-}
-
-function renderMemoryBoard(){
-  const board = document.getElementById("memoryBoard");
-  if(!board) return;
-  board.innerHTML = "";
-  memoryBoardState.forEach((emoji, idx) => {
-    const card = document.createElement("button");
-    card.className = "memory-card" + (memoryMatched.includes(idx) ? " matched" : "") + (memoryFlipped.includes(idx) ? " flipped" : "");
-    card.textContent = memoryFlipped.includes(idx) || memoryMatched.includes(idx) ? emoji : "";
-    card.onclick = () => flipMemoryCard(idx);
-    board.appendChild(card);
-  });
-}
-
-function flipMemoryCard(index){
-  if(memoryLocked || memoryFlipped.includes(index) || memoryMatched.includes(index)) return;
-  memoryFlipped.push(index);
-  renderMemoryBoard();
-  if(memoryFlipped.length === 2){
-    memoryLocked = true;
-    setTimeout(checkMemoryMatch, 700);
-  }
-}
-
-function checkMemoryMatch(){
-  const [first, second] = memoryFlipped;
-  if(memoryBoardState[first] === memoryBoardState[second]){
-    memoryMatched.push(first, second);
-    const statusEl = document.getElementById("memoryStatus");
-    if(statusEl) statusEl.textContent = "مبارك! تم العثور على زوج.";
-  } else {
-    const statusEl = document.getElementById("memoryStatus");
-    if(statusEl) statusEl.textContent = "حاول مرة أخرى.";
-  }
-  memoryFlipped = [];
-  memoryLocked = false;
-  renderMemoryBoard();
-  if(memoryMatched.length === memoryBoardState.length){
-    memoryWins++;
-    const winsEl = document.getElementById("memoryWins");
-    if(winsEl) winsEl.textContent = "Wins: " + memoryWins;
-    const statusEl2 = document.getElementById("memoryStatus");
-    if(statusEl2) statusEl2.textContent = "انتهت اللعبة! اضغط play again للعب مرة أخرى";
-    const retryEl = document.getElementById("memoryRetry");
-    if(retryEl) retryEl.classList.remove("hidden");
-  }
-}
-
-function retryMemoryGame(){
-  startMemoryGame();
-  const retryEl = document.getElementById("memoryRetry");
-  if(retryEl) retryEl.classList.add("hidden");
-}
-
-window.addEventListener("DOMContentLoaded", ()=>{
-  try{
-    draw();
-    loadChatMessages();
-    updateXOReset();
-    if(document.getElementById("memoryBoard")){
-      try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
-    }
-  } catch(initErr){
-    console.error('Initialization error:', initErr);
-  }
-});
