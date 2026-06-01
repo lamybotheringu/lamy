@@ -5,11 +5,13 @@ function show(id){
   document.querySelectorAll("section").forEach(s=>{
     s.classList.add("hidden");
   });
-  document.getElementById(id).classList.remove("hidden");
+  const target = document.getElementById(id);
+  if(target) target.classList.remove("hidden");
 }
 
 function addChatMessage(name, msg, save = true){
   const box = document.getElementById("box");
+  if(!box){ console.warn('chat box not found'); return; }
   const div = document.createElement("div");
   div.className = "chat-message";
   div.textContent = name + ": " + msg;
@@ -42,7 +44,10 @@ function loadChatMessages(){
     }
   }
   const savedName = localStorage.getItem(chatNameKey);
-  if(savedName) document.getElementById("name").value = savedName;
+  if(savedName){
+    const nameEl = document.getElementById("name");
+    if(nameEl) nameEl.value = savedName;
+  }
 }
 
 function send(){
@@ -106,6 +111,7 @@ let xoGameOver = false;
 
 function draw(){
   const b = document.getElementById("xoBoard");
+  if(!b) return;
   b.innerHTML = "";
 
   board.forEach((c,i)=>{
@@ -173,6 +179,7 @@ function isGameFinished(){
 
 function updateXOReset(){
   const resetButton = document.getElementById("xoReset");
+  if(!resetButton) return;
   if(isGameFinished()){
     resetButton.classList.remove("hidden");
   } else {
@@ -296,10 +303,14 @@ function retryMemoryGame(){
 }
 
 window.addEventListener("DOMContentLoaded", ()=>{
-  draw();
-  loadChatMessages();
-  updateXOReset();
-  if(document.getElementById("memoryBoard")){
-    try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
+  try{
+    draw();
+    loadChatMessages();
+    updateXOReset();
+    if(document.getElementById("memoryBoard")){
+      try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
+    }
+  } catch(initErr){
+    console.error('Initialization error:', initErr);
   }
 });
