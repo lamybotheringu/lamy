@@ -1,370 +1,480 @@
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#1b1b1b;
-  color:#ff4fd8;
-  direction:rtl;
-  text-align:center;
+/* ================= GLOBAL RESETS & STYLING ================= */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #1b1b1b;
+  color: #ff4fd8;
+  direction: rtl; /* Support for Arabic UI context */
+  text-align: center;
 }
 
-main{
-  padding:20px;
-  max-width:1200px;
-  margin:0 auto;
+main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-header{
-  padding:20px;
-  border-bottom:2px solid #ff4fd8;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
+/* ================= TYPOGRAPHY & HEADINGS ================= */
+h2, h3 {
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
 }
 
-header p{
-  font-size:18px;
-  font-family:'Pixel AE', monospace;
-  line-height:1.4;
-  margin:0;
+/* ================= HEADER BRANDING ================= */
+header {
+  padding: 20px;
+  border-bottom: 2px solid #ff4fd8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-.brand{
-  display:inline-flex;
-  align-items:center;
-  gap:14px;
+header p {
+  font-size: 18px;
+  font-family: 'Pixel AE', monospace;
+  line-height: 1.4;
+  margin: 0;
 }
 
-.avatar{
-  width:100px;
-  height:100px;
-  border-radius:50%;
-  object-fit:cover;
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.logo{
-  font-family:'Orbitron', sans-serif;
-  font-size:44px;
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-h2, h3{
-  font-family:'Baloo', sans-serif;
-  font-weight:700;
+.logo {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 44px;
 }
 
-/* ================= NAV ================= */
-
-nav{
-  padding:16px;
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-  direction:ltr;
+/* ================= NAVIGATION INTERFACE ================= */
+nav {
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  direction: ltr; /* Keeps structural nav layout order standard */
 }
 
-nav button{
-  background:#ff4fd8;
-  border:none;
-  padding:10px 14px;
-  cursor:pointer;
-  border-radius:12px;
-  font-weight:bold;
-  color:#1b1b1b;
-  font-size:16px;
+nav button {
+  background: #ff4fd8;
+  border: none;
+  padding: 10px 14px;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #1b1b1b;
+  font-size: 16px;
 }
 
-/* ================= SECTIONS ================= */
-
-section{
-  padding:24px 0;
+/* ================= CORE ARCHITECTURE ================= */
+section {
+  padding: 24px 0;
 }
 
-.hidden{
-  display:none;
+section h2 {
+  margin-top: 0;
 }
 
-/* ================= GAMES ================= */
-
-.games-container{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:20px;
-  margin-top:24px;
-  min-height:520px;
+.games-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 24px;
+  min-height: 520px; /* Prevents visual jumping during system rendering */
 }
 
-.game-item{
-  flex:1;
-  min-width:280px;
-  max-width:350px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+.game-item {
+  background: #111;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ff4fd8;
+  flex: 1;
+  min-width: 280px;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.game-item h3{
-  margin:0 0 16px 0;
+.game-item h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
 }
 
-/* ================= XO ================= */
-
-#xoBoard{
-  display:grid;
-  grid-template-columns:repeat(3,60px);
-  gap:5px;
-  justify-content:center;
-  margin:16px auto;
+.hidden {
+  display: none !important;
 }
 
-.cell{
-  width:60px;
-  height:60px;
-  background:#222;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:22px;
-  cursor:pointer;
-  border-radius:10px;
-  border:1px solid #333;
+/* ================= CLICKER GAME (TREE progression MODULE) ================= */
+.tree-viz {
+  font-size: 64px;
+  margin: 20px 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-/* ================= CLICKER ================= */
-
-.tree-viz{
-  font-size:64px;
-  margin:20px 0;
+.tree-message {
+  font-size: 20px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
 }
 
-.win-counter{
-  margin-top:10px;
+.win-counter {
+  font-size: 16px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
 }
 
-/* ================= MEMORY ================= */
+/* ================= XO STRATEGY GAME ================= */
+#xoBoard {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  gap: 5px;
+  justify-content: center;
+  margin: 16px auto;
+}
 
-.memory-controls{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  margin:18px 0 12px;
+.cell {
+  width: 60px;
+  height: 60px;
+  background: #222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+#xoReset {
+  display: block;
+  margin: 16px auto;
+  padding: 12px 18px;
+  background: #ff4fd8;
+  color: #1b1b1b;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ================= MATRIX MEMORY MATCH GAME ================= */
+.memory-controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px auto 12px;
 }
 
 .mode-button,
-.game-button{
-  background:#ff4fd8;
-  border:none;
-  color:#1b1b1b;
-  padding:12px 18px;
-  border-radius:12px;
-  font-weight:bold;
-  cursor:pointer;
+.game-button {
+  background: #ff4fd8;
+  border: none;
+  color: #1b1b1b;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.memory-board{
-  display:grid;
-  grid-template-columns:repeat(4,80px);
-  gap:12px;
-  justify-content:center;
-  margin:0 auto 20px;
+.mode-button.active {
+  box-shadow: 0 0 0 3px rgba(255, 79, 216, 0.25);
 }
 
-.memory-card{
-  width:80px;
-  height:100px;
-  background:#222;
-  color:#ff4fd8;
-  border:2px solid #333;
-  border-radius:16px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:36px;
-  cursor:pointer;
+.memory-status {
+  color: #ff4fd8;
+  margin: 0 auto 12px;
+  max-width: 560px;
+}
+
+#memoryBoard {
+  display: grid;
+  grid-template-columns: repeat(4, 80px);
+  gap: 12px;
+  justify-content: center;
+  margin: 0 auto 20px;
+  max-height: 340px;
+  overflow: auto;
+}
+
+.memory-card {
+  width: 80px;
+  height: 100px;
+  background: #222;
+  color: #ff4fd8;
+  border: 2px solid #333;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .memory-card.flipped,
-.memory-card.matched{
-  background:#fff;
-  color:#1b1b1b;
+.memory-card.matched {
+  background: #ffffff;
+  color: #1b1b1b;
+  transform: scale(1.02);
 }
 
-/* ================= BUNNY GAME ================= */
-
-#bunnyGameItem{
-  flex:0 0 100%;
-  max-width:100%;
-  background:linear-gradient(180deg,#0f0f12,#050506);
-  padding:12px;
-  border-radius:12px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.45);
+.memory-card.matched {
+  border-color: #ff4fd8;
 }
 
-/* MATCH CHAT SIZE */
-#bunnyGame{
-  position:relative;
-  width:100%;
-  max-width:560px;
-  min-height:340px;
-  margin:12px auto;
-  background:#111;
-  border-radius:14px;
-  padding:12px;
-  overflow:hidden;
-  border:1px solid #ff4fd8;
+/* ================= BUNNY RUNNER INTERACTIVE ARCADE ================= */
+#bunnyGameItem {
+  flex: 0 0 100%;
+  max-width: 100%;
+  order: 999; /* Forces side scrolling games down underneath layout modules */
+  background: linear-gradient(180deg, #0f0f12, #050506);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+  margin-top: 8px;
 }
 
-/* CLOUDS */
-.bg-cloud{
-  position:absolute;
-  top:10px;
-  width:180px;
-  opacity:0.8;
-  pointer-events:none;
+#bunnyGameItem h3 { 
+  width: 100%; 
+  text-align: center; 
 }
 
-.cloud-1{ animation:cloudMove 18s linear infinite; }
-.cloud-2{ top:50px; width:220px; animation:cloudMove 26s linear infinite; }
-.cloud-3{ top:30px; width:160px; animation:cloudMove 22s linear infinite; }
-
-@keyframes cloudMove{
-  0%{ transform:translateX(-30%); }
-  100%{ transform:translateX(130%); }
+#bunnyGame {
+  position: relative;
+  min-height: 220px;
+  max-height: 340px;
+  width: 100%;
+  background: #111;
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid #ff4fd8;
 }
 
-/* BUNNY */
-#bunny{
-  position:absolute;
-  left:28px;
-  bottom:16px;
-  width:56px;
-  height:56px;
-  z-index:6;
+/* Parallax Cloud Element Vector Simulations */
+.bg-cloud { 
+  position: absolute; 
+  top: 12px; 
+  width: 180px; 
+  opacity: 0.9; 
+  pointer-events: none; 
 }
 
-/* HEARTS */
-.collectible{
-  position:absolute;
-  width:36px;
-  height:36px;
-  z-index:5;
+.cloud-1 { top: 18px; animation: cloudMove 18s linear infinite; }
+.cloud-2 { top: 56px; width: 220px; opacity: 0.85; animation: cloudMove 26s linear infinite; }
+.cloud-3 { top: 34px; width: 160px; opacity: 0.95; animation: cloudMove 22s linear infinite; }
+
+/* Backward compatibility mapping from legacy cloud engine elements */
+.cloud {
+  position: absolute;
+  top: 20px;
+  width: 120px;
+  opacity: 0.6;
+  animation: cloudMove 12s linear infinite;
+}
+.c2 { top: 60px; animation-duration: 18s; }
+.c3 { top: 100px; animation-duration: 25s; }
+
+@keyframes cloudMove { 
+  0% { transform: translateX(-30%); } 
+  100% { transform: translateX(130%); } 
 }
 
-/* OBSTACLE (FIXED) */
-.obstacle{
-  position:absolute;
-  width:48px;
-  height:80px;
-  left:100%;
-  bottom:16px;
-  background:#d32f2f;
-  border-radius:6px;
-  z-index:4;
+/* Bunny Entity */
+#bunny { 
+  position: absolute; 
+  left: 28px; 
+  bottom: 16px; 
+  width: 56px; 
+  height: 56px; 
+  z-index: 6; 
+  user-select: none; 
 }
 
-/* SCORE */
-.bunny-score{
-  position:absolute;
-  top:8px;
-  left:12px;
-  color:#fff;
-  z-index:10;
+/* Heart Collectibles */
+.collectible { 
+  position: absolute; 
+  width: 36px; 
+  height: 36px; 
+  z-index: 5; 
 }
 
-/* GAME OVER */
-.bunny-overlay{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,0.6);
-  z-index:20;
+/* Combat Hazard Spike Block */
+#obstacle,
+.obstacle { 
+  position: absolute; 
+  width: 48px; 
+  height: 80px; 
+  right: -60px; 
+  bottom: 16px; 
+  background: #d32f2f; 
+  border-radius: 6px; 
+  z-index: 4; 
 }
 
-.bunny-overlay-inner{
-  background:#0b0b0b;
-  border:2px solid #ff4fd8;
-  padding:18px;
-  border-radius:12px;
-  color:#fff;
+/* Metrics Displays & Score Overlays */
+.bunny-score { 
+  position: absolute; 
+  top: 8px; 
+  left: 12px; 
+  color: #fff; 
+  z-index: 10; 
+  font-weight: 700; 
 }
 
-/* ================= CHAT ================= */
-
-#chat .chat-panel{
-  max-width:560px;
-  margin:0 auto;
-  background:#121212;
-  border:1px solid #333;
-  border-radius:16px;
-  padding:18px;
+#gameOver,
+.bunny-overlay { 
+  position: absolute; 
+  inset: 0; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: rgba(0, 0, 0, 0.6); 
+  z-index: 20; 
+  flex-direction: column;
 }
 
-#name, #msg{
-  padding:10px 12px;
-  margin:6px;
-  border:1px solid #ff4fd8;
-  border-radius:8px;
-  background:#222;
-  color:white;
-  outline:none;
+.bunny-overlay-inner { 
+  background: #0b0b0b; 
+  border: 2px solid #ff4fd8; 
+  padding: 18px 22px; 
+  border-radius: 12px; 
+  text-align: center; 
+  color: #fff; 
 }
 
-#box{
-  min-height:220px;
-  max-height:340px;
-  overflow-y:auto;
-  background:#111;
-  border:1px solid #333;
-  border-radius:14px;
-  padding:16px;
-  margin-top:14px;
+/* ================= COMMUNICATIONS MODULAR HUB ================= */
+#chat .chat-panel,
+.chat-like-box {
+  max-width: 560px;
+  margin: 0 auto;
+  background: #121212;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
 }
 
-#box .chat-message{
-  padding:10px 14px;
-  margin-bottom:10px;
-  background:rgba(255,79,216,0.14);
-  border:1px solid rgba(255,79,216,0.22);
-  border-radius:12px;
-  color:#fff;
+#name,
+#msg {
+  padding: 8px 10px;
+  margin: 5px;
+  border: 1px solid #ff4fd8;
+  border-radius: 6px;
+  background: #222;
+  color: white;
+  font-size: 14px;
+  outline: none;
 }
 
-/* ================= IFRAME ================= */
+#name { width: 180px; }
+#msg  { width: 250px; }
 
-iframe{
-  width:100%;
-  max-width:320px;
-  height:180px;
-  margin:10px;
-  border:none;
-  border-radius:10px;
+#name::placeholder,
+#msg::placeholder {
+  color: #bfbfbf;
 }
 
-/* ================= FOOTER ================= */
-
-footer{
-  padding:16px;
-  border-top:2px solid #ff4fd8;
+#chat button {
+  background: #ff4fd8;
+  border: none;
+  padding: 8px 14px;
+  margin: 5px;
+  border-radius: 6px;
+  color: #1b1b1b;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-/* ================= MOBILE ================= */
+#chat #box,
+#box {
+  min-height: 220px;
+  max-height: 340px;
+  overflow-y: auto;
+  max-width: 560px;
+  margin: 14px auto 0;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 16px;
+}
 
-@media (max-width:720px){
-  .memory-board{
-    grid-template-columns:repeat(4,64px);
+#box .chat-message {
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: rgba(255, 79, 216, 0.14);
+  border: 1px solid rgba(255, 79, 216, 0.22);
+  border-radius: 12px;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+/* ================= IFRAME MEDIA ELEMENT ================= */
+iframe {
+  width: 300px;
+  height: 180px;
+  margin: 10px;
+  border: none;
+}
+
+/* ================= APP FOOTER MODULE ================= */
+footer {
+  padding: 16px 20px;
+  border-top: 2px solid #ff4fd8;
+  text-align: center;
+}
+
+/* ================= MEDIA RESPONSIVE PIPELINES ================= */
+@media (max-width: 720px) {
+  nav {
+    gap: 8px;
   }
 
-  .memory-card{
-    width:64px;
-    height:84px;
-    font-size:28px;
+  nav button {
+    flex: 1 1 calc(50% - 8px);
   }
 
-  nav button{
-    flex:1 1 calc(50% - 8px);
+  #memoryBoard {
+    grid-template-columns: repeat(4, 64px);
+    gap: 10px;
+  }
+
+  .memory-card {
+    width: 64px;
+    height: 84px;
+    font-size: 28px;
+  }
+
+  iframe {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #chat .chat-inputs {
+    grid-template-columns: 1fr;
   }
 }
