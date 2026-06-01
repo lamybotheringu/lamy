@@ -102,6 +102,7 @@ function retryTree(){
 /* XO */
 let board = ["","","","","","","","",""];
 let xoWins = 0;
+let xoGameOver = false;
 
 function draw(){
   const b = document.getElementById("xoBoard");
@@ -123,7 +124,7 @@ const winLines = [
 ];
 
 function play(i){
-  if(board[i] === "" && !isGameFinished()){
+  if(board[i] === "" && !xoGameOver){
     board[i] = "X";
     let winner = checkWinner();
     if(!winner){
@@ -131,20 +132,28 @@ function play(i){
       winner = checkWinner();
     }
     draw();
-    updateXOReset();
     if(winner){
       if(winner === "X"){
         handleXOResult("win");
       } else {
         handleXOResult("lose");
       }
+      xoGameOver = true;
     } else if(isBoardFull()){
       handleXOResult("draw");
+      xoGameOver = true;
     }
+    updateXOReset();
   }
 }
 
 function bot(){
+  if(isGameFinished() || xoGameOver) return;
+  const empty = board.map((v,i)=>v === "" ? i : null).filter(v=>v !== null);
+  const pick = empty[Math.floor(Math.random() * empty.length)];
+  if(pick !== undefined) board[pick] = "O";
+}
+
   if(isGameFinished()) return;
   const empty = board.map((v,i)=>v === "" ? i : null).filter(v=>v !== null);
   const pick = empty[Math.floor(Math.random() * empty.length)];
@@ -199,6 +208,7 @@ function clearXOMessage(){
 
 function resetXO(){
   board = ["","","","","","","","",""];
+  xoGameOver = false;
   draw();
   updateXOReset();
   clearXOMessage();
