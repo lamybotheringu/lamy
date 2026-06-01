@@ -311,11 +311,14 @@ function retryMemoryGame(){
   if(retryEl) retryEl.classList.add("hidden");
 }
 
-window.addEventListener("DOMContentLoaded", ()=>{
+function initApp(){
   try{
     draw();
     loadChatMessages();
     updateXOReset();
+    // ensure clicker UI shows current score
+    const clickEl = document.getElementById('clickScore'); if(clickEl) clickEl.textContent = "Score: " + score;
+    // init memory
     if(document.getElementById("memoryBoard")){
       try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
     }
@@ -324,7 +327,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
   } catch(initErr){
     console.error('Initialization error:', initErr);
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initApp);
+} else {
+  // DOM already ready
+  initApp();
+}
 
 /* Rabbit mini-game implementation */
 function initRabbitGame(){
