@@ -208,7 +208,7 @@ function resetXO(){
   clearXOMessage();
 }
 
-const memoryEmojis = ["🩷","🌸","🍣","😝","🌹","🎥","🎮","🎧","🐰"];
+const memoryEmojis = ["🩷","🌸","🍣","😝","🌹","🎥","🎮","🎧","🐰","🐇"];
 let memoryMode = "easy";
 let memoryBoardState = [];
 let memoryFlipped = [];
@@ -216,25 +216,29 @@ let memoryMatched = [];
 let memoryLocked = false;let memoryWins = 0;
 function setMemoryMode(mode){
   memoryMode = mode;
-  document.getElementById("memoryEasy").classList.toggle("active", mode === "easy");
-  document.getElementById("memoryHard").classList.toggle("active", mode === "hard");
-  document.getElementById("memoryStatus").textContent = mode === "easy" ? "الوضع السهل: 4 أزواج" : "الوضع الصعب: 7 أزواج";
+  const easyBtn = document.getElementById("memoryEasy");
+  const medBtn = document.getElementById("memoryMedium");
+  const hardBtn = document.getElementById("memoryHard");
+  if(easyBtn) easyBtn.classList.toggle("active", mode === "easy");
+  if(medBtn) medBtn.classList.toggle("active", mode === "medium");
+  if(hardBtn) hardBtn.classList.toggle("active", mode === "hard");
+  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 5 أزواج" : "الوضع الصعب: 7 أزواج");
+  const statusEl = document.getElementById("memoryStatus");
+  if(statusEl) statusEl.textContent = statusText;
   startMemoryGame();
 }
 
 function startMemoryGame(){
-  const count = memoryMode === "easy" ? 4 : 7;
-  let emojis = memoryEmojis.slice(0, count);
-  if(memoryMode === "hard"){
-    ["🎧","🐰"].forEach(e => { if(!emojis.includes(e)) emojis.push(e); });
-  }
+  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 5 : 7);
+  const emojis = memoryEmojis.slice(0, count);
   const pairs = [...emojis, ...emojis];
   memoryBoardState = pairs.sort(() => Math.random() - 0.5);
   memoryFlipped = [];
   memoryMatched = [];
   memoryLocked = false;
   renderMemoryBoard();
-  document.getElementById("memoryStatus").textContent = "ابدأ الاختيار وافتح البطاقات بنفسك";
+  const statusEl = document.getElementById("memoryStatus");
+  if(statusEl) statusEl.textContent = "ابدأ الاختيار وافتح البطاقات بنفسك";
 }
 
 function renderMemoryBoard(){
