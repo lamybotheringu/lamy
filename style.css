@@ -150,75 +150,6 @@ section h2{
   text-align:center;
 }
 
-/* Rabbit mini-game styles */
-#game{
-  width:100%;
-  max-width:1100px;
-  height:340px;
-  margin:auto;
-  position:relative;
-  overflow:hidden;
-  border:3px solid #ff4fd8;
-  background:linear-gradient(180deg,#000 0%, #0b0b0b 100%);
-  display:flex;
-  align-items:flex-end;
-  justify-content:flex-start;
-  padding:12px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.6);
-}
-
-#rabbit{
-  width:40px;
-  height:40px;
-  background:#ff4fd8;
-  position:absolute;
-  bottom:10px;
-  left:20px;
-  border-radius:8px;
-  z-index:5;
-  box-shadow:0 4px 10px rgba(0,0,0,0.6);
-}
-
-#star{
-  width:20px;
-  height:20px;
-  background:gold;
-  position:absolute;
-  bottom:20px;
-  right:-40px;
-  animation: moveStar 2s infinite linear;
-  border-radius:4px;
-}
-
-#heart{
-  width:20px;
-  height:20px;
-  background:#ff4fd8;
-  position:absolute;
-  bottom:100px;
-  right:-40px;
-  animation: moveHeart 3s infinite linear;
-  border-radius:50%;
-  box-shadow:0 2px 6px rgba(0,0,0,0.5);
-}
-
-@keyframes moveStar{
-  0%{right:-40px;}
-  100%{right:calc(100% + 40px);} 
-}
-
-@keyframes moveHeart{
-  0%{right:-40px;}
-  100%{right:calc(100% + 40px);} 
-}
-
-#score{
-  position:absolute;
-  top:5px;
-  left:10px;
-  color:white;
-}
-
 /* Keep games container tall enough to avoid page reflow when memory expands */
 .games-container{
   min-height:520px;
@@ -411,6 +342,94 @@ iframe{
   padding:16px;
   margin-top:14px;
 }
+
+/* Bunny game styling - match chat box sizing and pink outline */
+#bunnyGame{
+  position:relative;
+  min-height:220px;
+  max-height:340px;
+  width:100%;
+  background:#111;
+  border-radius:14px;
+  padding:16px;
+  margin-top:12px;
+  overflow:hidden;
+  border:2px solid #ff4fd8; /* pink outline similar to inputs */
+}
+
+.bg-cloud{
+  position:absolute;
+  top:12px;
+  width:180px;
+  opacity:0.9;
+  pointer-events:none;
+}
+.cloud-1{ top:18px; animation:cloudMove 18s linear infinite; }
+.cloud-2{ top:56px; width:220px; opacity:0.85; animation:cloudMove 26s linear infinite; }
+.cloud-3{ top:34px; width:160px; opacity:0.95; animation:cloudMove 22s linear infinite; }
+
+@keyframes cloudMove{
+  0%{ transform:translateX(-20%); }
+  100%{ transform:translateX(120%); }
+}
+
+#bunny{
+  position:absolute;
+  left:28px;
+  bottom:16px;
+  width:56px;
+  height:56px;
+  z-index:6;
+  user-select:none;
+}
+
+.collectible{
+  position:absolute;
+  width:36px;
+  height:36px;
+  z-index:5;
+}
+
+.obstacle{
+  position:absolute;
+  width:48px;
+  height:80px;
+  right:-60px;
+  bottom:16px;
+  background:#d32f2f; /* red obstacle */
+  border-radius:6px;
+  z-index:4;
+}
+
+.bunny-score{
+  position:absolute;
+  top:8px;
+  left:12px;
+  color:#fff;
+  z-index:10;
+  font-weight:700;
+}
+
+.bunny-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.6);
+  z-index:20;
+}
+
+.bunny-overlay-inner{
+  background:#0b0b0b;
+  border:2px solid #ff4fd8;
+  padding:18px 22px;
+  border-radius:12px;
+  text-align:center;
+  color:#fff;
+}
+
+.hidden{ display:none; }
 
 #box .chat-message{
   padding:10px 14px;
