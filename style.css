@@ -135,23 +135,31 @@ section h2{
 
 /* Rabbit mini-game styles */
 #game{
-  width:500px;
+  width:100%;
+  max-width:500px;
   height:200px;
   margin:auto;
   position:relative;
   overflow:hidden;
-  border:2px solid #ff4fd8;
-  background:#000;
+  border:3px solid #ff4fd8;
+  background:linear-gradient(180deg,#000 0%, #0b0b0b 100%);
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  padding:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.6);
 }
 
 #rabbit{
-  width:30px;
-  height:30px;
-  background:white;
+  width:40px;
+  height:40px;
+  background:#ff4fd8;
   position:absolute;
-  bottom:0;
-  left:50px;
-  border-radius:4px;
+  bottom:10px;
+  left:20px;
+  border-radius:8px;
+  z-index:5;
+  box-shadow:0 4px 10px rgba(0,0,0,0.6);
 }
 
 #star{
@@ -159,30 +167,32 @@ section h2{
   height:20px;
   background:gold;
   position:absolute;
-  bottom:0;
-  right:-20px;
+  bottom:20px;
+  right:-40px;
   animation: moveStar 2s infinite linear;
+  border-radius:4px;
 }
 
 #heart{
-  width:18px;
-  height:18px;
+  width:20px;
+  height:20px;
   background:#ff4fd8;
   position:absolute;
-  bottom:80px;
-  right:-20px;
+  bottom:100px;
+  right:-40px;
   animation: moveHeart 3s infinite linear;
   border-radius:50%;
+  box-shadow:0 2px 6px rgba(0,0,0,0.5);
 }
 
 @keyframes moveStar{
-  0%{right:-20px;}
-  100%{right:520px;}
+  0%{right:-40px;}
+  100%{right:calc(100% + 40px);} 
 }
 
 @keyframes moveHeart{
-  0%{right:-20px;}
-  100%{right:520px;}
+  0%{right:-40px;}
+  100%{right:calc(100% + 40px);} 
 }
 
 #score{
