@@ -1,165 +1,137 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lamy</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Baloo:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Hub & Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
-  <div class="brand">
-    <img class="avatar" src="AVATAR01.PNG" alt="Avatar">
-    <h1 class="logo">LAMY</h1>
-  </div>
-  <p>♥ نورتو يا لايميز ♥</p>
-</header>
+    <header>
+        <div class="brand">
+            <div class="logo">LAMY HUB</div>
+        </div>
+        <p>مرحباً بك في المنصة! تصفح الألعاب المحدثة بالكامل وتواصل عبر الدردشة الحية.</p>
+    </header>
 
-<nav>
-  <button type="button" onclick="show('home')">Home</button>
-  <button type="button" onclick="show('about')">About</button>
-  <button type="button" onclick="show('updates')">Updates</button>
-  <button type="button" onclick="show('youtube')">YouTube</button>
-  <button type="button" onclick="show('games')">Games</button>
-  <button type="button" onclick="show('chat')">Chat</button>
-</nav>
+    <nav>
+        <button onclick="show('home')">Home</button>
+        <button onclick="show('about')">About</button>
+        <button onclick="show('updates')">Updates</button>
+        <button onclick="show('youtube')">YouTube</button>
+        <button onclick="show('games')">Games</button>
+        <button onclick="show('bunnyGameSection')">Bunny Game (Demo)</button>
+        <button onclick="show('chat')">Chat</button>
+    </nav>
 
-<main>
+    <main>
 
-<!-- HOME -->
-<section id="home">
-  <h2>✨ Welcome</h2>
-  <p>مرحبا بك في موقع Lamy 💗🎮</p>
-</section>
+        <section id="home">
+            <h2>الصفحة الرئيسية</h2>
+            <p>اختر أحد الأقسام من القائمة العلوية لبدء التجربة الممتعة.</p>
+        </section>
 
-<!-- ABOUT -->
-<section id="about" class="hidden">
-  <h2>👤 About Me</h2>
-  <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p>
-</section>
+        <section id="about" class="hidden">
+            <h2>حول المنصة</h2>
+            <p>منصة ألعاب مصغرة متطورة ومطورة باستخدام أحدث تقنيات الويب النظيفة.</p>
+        </section>
 
-<!-- UPDATES -->
-<section id="updates" class="hidden">
-  <h2>📢 Updates</h2>
-  <p>لايمي تجتاز إمتحان الباكالوريا 🚧</p>
-</section>
+        <section id="updates" class="hidden">
+            <h2>التحديثات الأخيرة</h2>
+            <p>تم فصل لعبة الأرنب بشكل مستقل بالكامل عن لوحة الألعاب وإصلاح نظام التصادم!</p>
+        </section>
 
-<!-- YOUTUBE -->
-<section id="youtube" class="hidden">
-  <h2>🎥 YouTube - تابعو مقاطعي على اليوتيوب</h2>
+        <section id="youtube" class="hidden">
+            <h2>قناة اليوتيوب</h2>
+            <iframe src="https://www.youtube.com/embed/sample-stream" title="YouTube video player"></iframe>
+        </section>
 
-  <iframe src="https://www.youtube.com/embed/xtijJJNDp7M" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/OwxwcN3fH1o" allowfullscreen></iframe>
-  <iframe src="https://www.youtube.com/embed/NPSM8mjA7eY" allowfullscreen></iframe>
-</section>
+        <section id="games" class="hidden">
+            <h2>مصفوفة الألعاب المشتركة</h2>
+            <div class="games-container">
 
-<!-- GAMES -->
-<section id="games" class="hidden">
+                <div class="game-item">
+                    <h3>لعبة النقر والشجرة 🌱</h3>
+                    <div id="treeVisualization" class="tree-viz">🌱</div>
+                    <div id="clickScore">Score: 0</div>
+                    <div id="treeCount" class="win-counter">Tree count: 0</div>
+                    <p id="treeMessage" class="tree-message hidden">تهانينا! لقد نمت شجرتك بالكامل! 🎉</p>
+                    <button class="game-button" onclick="clickMe()" style="margin-top: 15px;">Click Me!</button>
+                    <button id="treeRetry" class="mode-button hidden" onclick="retryTree()" style="margin-top: 10px; background: #666; color: white;">إعادة بناء الشجرة</button>
+                </div>
 
-  <div class="games-container">
+                <div class="game-item">
+                    <h3>لعبة إكس أو الذكية (XO)</h3>
+                    <div id="xoWins" class="win-counter">Wins: 0</div>
+                    <div id="xoBoard"></div>
+                    <p id="xoMessage" class="memory-status hidden"></p>
+                    <button id="xoReset" class="hidden" onclick="resetXO()">لعب مجدداً</button>
+                </div>
 
-    <!-- XO -->
-    <div class="game-item">
-      <h3>❌ XO Game</h3>
-      <div id="xoWins" class="win-counter">Wins: 0</div>
-      <div id="xoBoard"></div>
-      <button type="button" id="xoReset" class="game-button hidden" onclick="resetXO()">Play again</button>
-      <div id="xoMessage" class="tree-message hidden"></div>
-    </div>
+                <div class="game-item">
+                    <h3>لعبة الذاكرة وتطابق البطاقات</h3>
+                    <div id="memoryWins" class="win-counter">Wins: 0</div>
+                    <div class="memory-controls">
+                        <button id="memoryEasy" class="mode-button active" onclick="setMemoryMode('easy')">سهل</button>
+                        <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">متوسط</button>
+                        <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">صعب</button>
+                    </div>
+                    <div id="memoryStatus" class="memory-status">اختر مستوى الصعوبة لبدء التحدي</div>
+                    <div id="memoryBoard" class="memory-board"></div>
+                    <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Play Again</button>
+                </div>
 
-    <!-- CLICKER -->
-    <div class="game-item">
-      <h3>🖱️ Clicker Game</h3>
-      <div id="treeVisualization" class="tree-viz">🌱</div>
-      <div id="clickScore">Score: 0</div>
+            </div>
+        </section>
 
-      <button type="button" class="game-button" onclick="clickMe()">Click me</button>
+        <section id="bunnyGameSection" class="hidden">
+            <h2>Bunny game (demo) 🐰</h2>
+            
+            <div id="bunnyGame">
+                <div id="bunnyScore" class="bunny-score">Score: 0</div>
 
-      <div id="treeMessage" class="tree-message hidden">مبروك! حصلت على شجرة</div>
-      <button type="button" id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
+                <div class="bg-cloud cloud-1">☁️</div>
+                <div class="bg-cloud cloud-2">☁️</div>
+                <div class="bg-cloud cloud-3">☁️</div>
 
-      <div id="treeCount" class="win-counter">Tree count: 0</div>
-    </div>
+                <div id="bunny">🐰</div>
 
-    <!-- MEMORY -->
-    <div class="game-item">
-      <h3>🧠 Memory Game</h3>
+                <div id="heartTemplate" class="collectible hidden">💖</div>
 
-      <div class="memory-controls">
-        <button type="button" id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
-        <button type="button" id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
-        <button type="button" id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
-      </div>
+                <div id="redObstacle" class="obstacle"></div>
 
-      <p id="memoryStatus" class="memory-status">اختر مستوى للبدء</p>
-      <div id="memoryBoard" class="memory-board"></div>
+                <div id="bunnyOverlay" class="bunny-overlay hidden" aria-hidden="true">
+                    <div class="bunny-overlay-inner">
+                        <h3>Game Over</h3>
+                        <p id="bunnyFinalScore">Score: 0</p>
+                        <button id="bunnyPlayAgain" class="game-button">Play Again</button>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 15px; font-weight: bold; color: #ff4fd8;">اضغط على زر المسافة (SPACE) أو انقر مباشرة داخل نافذة اللعبة لتقفز!</p>
+        </section>
 
-      <button type="button" id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">
-        Play again
-      </button>
+        <section id="chat" class="hidden">
+            <h2>غرفة الدردشة الجماعية الحية</h2>
+            <div class="chat-panel">
+                <div class="chat-inputs">
+                    <input type="text" id="name" placeholder="اكتب اسمك هنا..." maxlength="20">
+                    <input type="text" id="msg" placeholder="اكتب رسالتك النصية..." maxlength="120">
+                    <button onclick="send()">إرسال الرسالة</button>
+                </div>
+                <div id="box"></div>
+            </div>
+        </section>
 
-      <div id="memoryWins" class="win-counter">Wins: 0</div>
-    </div>
+    </main>
 
- <!-- BUNNY GAME (NEW SECTION) -->
-<section id="bunny" class="hidden">
+    <footer>
+        <p>&copy; 2026 Lamy Arcade Hub Platform. All rights reserved.</p>
+    </footer>
 
-  <div class="chat-like-box">
-
-    <h2>🐰 Bunny game (demo)</h2>
-
-    <div id="bunnyGame">
-
-      <!-- clouds -->
-      <img src="cloud.PNG" class="cloud c1">
-      <img src="cloud.PNG" class="cloud c2">
-      <img src="cloud.PNG" class="cloud c3">
-
-      <!-- bunny -->
-      <img src="bunny.PNG" id="bunny">
-
-      <!-- heart -->
-      <img src="heart.PNG" id="heartTemplate" class="hidden">
-
-      <!-- obstacle -->
-      <div id="obstacle"></div>
-
-      <div id="bunnyScore">Score: 0</div>
-
-      <!-- game over -->
-      <div id="gameOver" class="hidden">
-        <h2>Game Over</h2>
-        <p id="finalScore"></p>
-        <button onclick="restartBunny()">Play Again</button>
-      </div>
-
-    </div>
-  </div>
-
-</section>
-
-
-<!-- CHAT -->
-<section id="chat" class="hidden">
-  <h2>💬 Chat</h2>
-
-  <input id="name" placeholder="اسمك (مطلوب)">
-  <input id="msg" placeholder="اكتب رسالتك">
-  <button type="button" onclick="send()">إرسال</button>
-
-  <div id="box"></div>
-</section>
-
-<footer>
-  © Lamybotheringu - June 2026
-</footer>
-
-<script src="script.js"></script>
-
-</main>
+    <script src="script.js"></script>
 </body>
 </html>
