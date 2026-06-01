@@ -1,4 +1,4 @@
-﻿const chatStorageKey = "lamyChatMessages";
+const chatStorageKey = "lamyChatMessages";
 const chatNameKey = "lamyChatName";
 
 function show(id){
