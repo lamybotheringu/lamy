@@ -133,66 +133,6 @@ section h2{
   margin-bottom:16px;
 }
 
-/* Bunny game full-width item */
-#bunnyGameItem{
-  flex:0 0 100%;
-  max-width:100%;
-  order:999;
-  background:linear-gradient(180deg,#0f0f12, #050506);
-  padding:12px;
-  border-radius:12px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.45);
-  margin-top:8px;
-}
-
-#bunnyGameItem h3{ width:100%; text-align:center; }
-
-/* Bunny game container matching chat box size */
-#bunnyGame{
-  position:relative;
-  min-height:220px;
-  max-height:340px;
-  width:100%;
-  background:#111;
-  border-radius:14px;
-  padding:12px;
-  margin-top:12px;
-  overflow:hidden;
-  border:1px solid #ff4fd8;
-}
-
-/* clouds (parallax) */
-.bg-cloud{ position:absolute; top:12px; width:180px; opacity:0.9; pointer-events:none; }
-.cloud-1{ top:18px; animation:cloudMove 18s linear infinite; }
-.cloud-2{ top:56px; width:220px; opacity:0.85; animation:cloudMove 26s linear infinite; }
-.cloud-3{ top:34px; width:160px; opacity:0.95; animation:cloudMove 22s linear infinite; }
-@keyframes cloudMove{ 0%{ transform:translateX(-30%); } 100%{ transform:translateX(130%); } }
-
-/* bunny player */
-#bunny{ position:absolute; left:28px; bottom:16px; width:56px; height:56px; z-index:6; user-select:none; }
-
-/* collectibles */
-.collectible{ position:absolute; width:36px; height:36px; z-index:5; }
-
-/* red obstacle */
-.obstacle{ position:absolute; width:48px; height:80px; right:-60px; bottom:16px; background:#d32f2f; border-radius:6px; z-index:4; }
-
-/* score & overlay */
-.bunny-score{ position:absolute; top:8px; left:12px; color:#fff; z-index:10; font-weight:700; }
-.bunny-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); z-index:20; }
-.bunny-overlay-inner{ background:#0b0b0b; border:2px solid #ff4fd8; padding:18px 22px; border-radius:12px; text-align:center; color:#fff; }
-
-/* Keep games container tall enough to avoid page reflow when memory expands */
-.games-container{
-  min-height:520px;
-}
-
-/* Make memory board fixed height so page doesn't shift */
-#memoryBoard{
-  max-height:340px;
-  overflow:auto;
-}
-
 .hidden{
   display:none;
 }
