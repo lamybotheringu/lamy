@@ -213,7 +213,8 @@ let memoryMode = "easy";
 let memoryBoardState = [];
 let memoryFlipped = [];
 let memoryMatched = [];
-let memoryLocked = false;let memoryWins = 0;
+let memoryLocked = false;
+let memoryWins = 0;
 function setMemoryMode(mode){
   memoryMode = mode;
   const easyBtn = document.getElementById("memoryEasy");
@@ -243,6 +244,7 @@ function startMemoryGame(){
 
 function renderMemoryBoard(){
   const board = document.getElementById("memoryBoard");
+  if(!board) return;
   board.innerHTML = "";
   memoryBoardState.forEach((emoji, idx) => {
     const card = document.createElement("button");
@@ -267,29 +269,37 @@ function checkMemoryMatch(){
   const [first, second] = memoryFlipped;
   if(memoryBoardState[first] === memoryBoardState[second]){
     memoryMatched.push(first, second);
-    document.getElementById("memoryStatus").textContent = "مبارك! تم العثور على زوج.";
+    const statusEl = document.getElementById("memoryStatus");
+    if(statusEl) statusEl.textContent = "مبارك! تم العثور على زوج.";
   } else {
-    document.getElementById("memoryStatus").textContent = "حاول مرة أخرى.";
+    const statusEl = document.getElementById("memoryStatus");
+    if(statusEl) statusEl.textContent = "حاول مرة أخرى.";
   }
   memoryFlipped = [];
   memoryLocked = false;
   renderMemoryBoard();
   if(memoryMatched.length === memoryBoardState.length){
     memoryWins++;
-    document.getElementById("memoryWins").textContent = "Wins: " + memoryWins;
-    document.getElementById("memoryStatus").textContent = "انتهت اللعبة! اضغط Try again للعب مرة أخرى";
-    document.getElementById("memoryRetry").classList.remove("hidden");
+    const winsEl = document.getElementById("memoryWins");
+    if(winsEl) winsEl.textContent = "Wins: " + memoryWins;
+    const statusEl2 = document.getElementById("memoryStatus");
+    if(statusEl2) statusEl2.textContent = "انتهت اللعبة! اضغط Try again للعب مرة أخرى";
+    const retryEl = document.getElementById("memoryRetry");
+    if(retryEl) retryEl.classList.remove("hidden");
   }
 }
 
 function retryMemoryGame(){
   startMemoryGame();
-  document.getElementById("memoryRetry").classList.add("hidden");
+  const retryEl = document.getElementById("memoryRetry");
+  if(retryEl) retryEl.classList.add("hidden");
 }
 
 window.addEventListener("DOMContentLoaded", ()=>{
   draw();
   loadChatMessages();
   updateXOReset();
-  setMemoryMode(memoryMode);
+  if(document.getElementById("memoryBoard")){
+    try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
+  }
 });
