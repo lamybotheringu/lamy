@@ -230,7 +230,7 @@ function setMemoryMode(mode){
   if(easyBtn) easyBtn.classList.toggle("active", mode === "easy");
   if(medBtn) medBtn.classList.toggle("active", mode === "medium");
   if(hardBtn) hardBtn.classList.toggle("active", mode === "hard");
-  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 6 أزواج" : "الوضع الصعب: 10 أزواج");
+  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 7 أزواج" : "الوضع الصعب: 10 أزواج");
   const statusEl = document.getElementById("memoryStatus");
   if(statusEl) statusEl.textContent = statusText;
   startMemoryGame();
@@ -299,7 +299,7 @@ function checkMemoryMatch(){
     const winsEl = document.getElementById("memoryWins");
     if(winsEl) winsEl.textContent = "Wins: " + memoryWins;
     const statusEl2 = document.getElementById("memoryStatus");
-    if(statusEl2) statusEl2.textContent = "انتهت اللعبة! اضغط Try again للعب مرة أخرى";
+    if(statusEl2) statusEl2.textContent = "انتهت اللعبة! اضغط play again للعب مرة أخرى";
     const retryEl = document.getElementById("memoryRetry");
     if(retryEl) retryEl.classList.remove("hidden");
   }
