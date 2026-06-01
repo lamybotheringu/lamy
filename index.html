@@ -105,42 +105,43 @@
       <div id="memoryWins" class="win-counter">Wins: 0</div>
     </div>
 
-    <!-- 🐰 BUNNY GAME -->
-    <div class="game-item" id="bunnyGameItem">
+ <!-- BUNNY GAME (NEW SECTION) -->
+<section id="bunny" class="hidden">
 
-      <h3>🐰 Bunny game (demo)</h3>
+  <div class="chat-like-box">
 
-      <div id="bunnyGame" aria-label="bunny-game">
+    <h2>🐰 Bunny game (demo)</h2>
 
-        <img src="cloud.PNG" class="bg-cloud cloud-1" alt="cloud">
-        <img src="cloud.PNG" class="bg-cloud cloud-2" alt="cloud">
-        <img src="cloud.PNG" class="bg-cloud cloud-3" alt="cloud">
+    <div id="bunnyGame">
 
-        <img src="bunny.PNG" id="bunny" alt="bunny">
+      <!-- clouds -->
+      <img src="cloud.PNG" class="cloud c1">
+      <img src="cloud.PNG" class="cloud c2">
+      <img src="cloud.PNG" class="cloud c3">
 
-        <img src="heart.PNG" id="heartTemplate" class="collectible hidden" alt="heart">
+      <!-- bunny -->
+      <img src="bunny.PNG" id="bunny">
 
-        <div id="redObstacle" class="obstacle"></div>
+      <!-- heart -->
+      <img src="heart.PNG" id="heartTemplate" class="hidden">
 
-        <div id="bunnyScore" class="bunny-score">Score: 0</div>
+      <!-- obstacle -->
+      <div id="obstacle"></div>
 
-        <div id="bunnyOverlay" class="bunny-overlay hidden">
-          <div class="bunny-overlay-inner">
-            <h2>Game Over</h2>
-            <p id="bunnyFinalScore">Score: 0</p>
-            <button type="button" id="bunnyPlayAgain" class="game-button">
-              Play Again
-            </button>
-          </div>
-        </div>
+      <div id="bunnyScore">Score: 0</div>
 
+      <!-- game over -->
+      <div id="gameOver" class="hidden">
+        <h2>Game Over</h2>
+        <p id="finalScore"></p>
+        <button onclick="restartBunny()">Play Again</button>
       </div>
 
-      <p>Press SPACE or tap to jump</p>
     </div>
-
   </div>
+
 </section>
+
 
 <!-- CHAT -->
 <section id="chat" class="hidden">
