@@ -133,11 +133,28 @@ section h2{
   margin-bottom:16px;
 }
 
+/* Put the rabbit game under other games and make it full-width */
+#rabbitGameItem{
+  flex:0 0 100%;
+  max-width:100%;
+  order:999;
+  background:linear-gradient(180deg,#0f0f12, #050506);
+  padding:16px;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.5);
+  margin-top:8px;
+}
+
+#rabbitGameItem h3{
+  width:100%;
+  text-align:center;
+}
+
 /* Rabbit mini-game styles */
 #game{
   width:100%;
-  max-width:500px;
-  height:200px;
+  max-width:1100px;
+  height:340px;
   margin:auto;
   position:relative;
   overflow:hidden;
