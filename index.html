@@ -73,3 +73,46 @@
     
     <div class="game-item">
       <div id="treeVisualization" class="tree-viz">🌱</div>
+      <div id="clickScore" style="margin-top:12px">Score: 0</div>
+      <button class="game-button" onclick="clickMe()">Click me</button>
+      <div id="treeMessage" class="tree-message hidden">تهانينا! شجرة نمت</div>
+      <button id="treeRetry" class="game-button hidden" onclick="retryTree()">Try again</button>
+      <div id="treeCount" class="win-counter">Tree count: 0</div>
+    </div>
+
+    <div class="game-item">
+      <h3>🧠 Memory</h3>
+      <div class="memory-controls">
+        <button id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
+        <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
+        <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
+      </div>
+      <p id="memoryStatus" class="memory-status">اختر مستوى للبدء</p>
+      <div id="memoryBoard" class="memory-board"></div>
+      <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Try again</button>
+      <div id="memoryWins" class="win-counter">Wins: 0</div>
+    </div>
+  </div>
+
+</section>
+
+<section id="chat" class="hidden">
+  <h2>💬 Chat</h2>
+  <div class="chat-panel">
+    <div class="chat-inputs">
+      <input id="name" placeholder="اسمك" />
+      <input id="msg" placeholder="اكتب رسالة" />
+      <button onclick="send()">Send</button>
+    </div>
+    <div id="box"></div>
+  </div>
+</section>
+
+<footer>
+  <p>© Lamy</p>
+</footer>
+
+<script src="script.js"></script>
+</main>
+</body>
+</html>
