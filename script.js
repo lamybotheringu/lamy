@@ -1,469 +1,411 @@
-const chatStorageKey = "lamyChatMessages";
-const chatNameKey = "lamyChatName";
-
-function show(id){
-  document.querySelectorAll("section").forEach(s=>{
-    s.classList.add("hidden");
-  });
-  const target = document.getElementById(id);
-  if(target) target.classList.remove("hidden");
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#1b1b1b;
+  color:#ff4fd8;
+  direction:rtl;
+  text-align:center;
 }
 
-function addChatMessage(name, msg, save = true){
-  const box = document.getElementById("box");
-  if(!box){ console.warn('chat box not found'); return; }
-  const div = document.createElement("div");
-  div.className = "chat-message";
-  div.textContent = name + ": " + msg;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  if(save) saveChatMessages();
+main{
+  padding:20px;
+  max-width:1200px;
+  margin:0 auto;
 }
 
-function saveChatMessages(){
-  const box = document.getElementById("box");
-  const messages = Array.from(box.querySelectorAll(".chat-message")).map(el => {
-    const text = el.textContent;
-    const split = text.indexOf(": ");
-    return {
-      name: split !== -1 ? text.slice(0, split) : text,
-      msg: split !== -1 ? text.slice(split + 2) : ""
-    };
-  });
-  localStorage.setItem(chatStorageKey, JSON.stringify(messages));
+header{
+  padding:20px;
+  border-bottom:2px solid #ff4fd8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
 }
 
-function loadChatMessages(){
-  const stored = localStorage.getItem(chatStorageKey);
-  if(stored){
-    try {
-      const messages = JSON.parse(stored);
-      messages.forEach(m => addChatMessage(m.name, m.msg, false));
-    } catch (e) {
-      console.error(e);
-    }
+header p{
+  font-size: 18px;
+  font-family:'Pixel AE', monospace;
+  line-height:1.4;
+  margin:0;
+}
+
+.brand{
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+}
+
+.avatar{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.logo{
+  font-family:'Orbitron', sans-serif;
+  font-size:44px;
+}
+
+h2, h3{
+  font-family:'Baloo', sans-serif;
+  font-weight:700;
+}
+
+.tree-viz {
+  font-size: 64px;
+  margin: 20px 0;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.tree-message {
+  font-size: 20px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
+}
+
+.tree-message.hidden {
+  display: none;
+}
+
+.win-counter {
+  font-size: 16px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-family: 'Baloo', sans-serif;
+  font-weight: 700;
+}
+
+nav{
+  padding:16px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  direction:ltr;
+}
+
+nav button{
+  background:#ff4fd8;
+  border:none;
+  padding:10px 14px;
+  margin:0;
+  cursor:pointer;
+  border-radius:12px;
+  font-weight:bold;
+  color:#1b1b1b;
+  font-size:16px;
+}
+
+section{
+  padding:24px 0;
+}
+
+section h2{
+  margin-top:0;
+}
+
+.games-container{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:20px;
+  margin-top:24px;
+}
+
+.game-item{
+  flex:1;
+  min-width:280px;
+  max-width:350px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.game-item h3{
+  margin-top:0;
+  margin-bottom:16px;
+}
+
+/* Bunny game full-width item */
+#bunnyGameItem{
+  flex:0 0 100%;
+  max-width:100%;
+  order:999;
+  background:linear-gradient(180deg,#0f0f12, #050506);
+  padding:12px;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.45);
+  margin-top:8px;
+}
+
+#bunnyGameItem h3{ width:100%; text-align:center; }
+
+/* Bunny game container matching chat box size */
+#bunnyGame{
+  position:relative;
+  min-height:220px;
+  max-height:340px;
+  width:100%;
+  background:#111;
+  border-radius:14px;
+  padding:12px;
+  margin-top:12px;
+  overflow:hidden;
+  border:1px solid #ff4fd8;
+}
+
+/* clouds (parallax) */
+.bg-cloud{ position:absolute; top:12px; width:180px; opacity:0.9; pointer-events:none; }
+.cloud-1{ top:18px; animation:cloudMove 18s linear infinite; }
+.cloud-2{ top:56px; width:220px; opacity:0.85; animation:cloudMove 26s linear infinite; }
+.cloud-3{ top:34px; width:160px; opacity:0.95; animation:cloudMove 22s linear infinite; }
+@keyframes cloudMove{ 0%{ transform:translateX(-30%); } 100%{ transform:translateX(130%); } }
+
+/* bunny player */
+#bunny{ position:absolute; left:28px; bottom:16px; width:56px; height:56px; z-index:6; user-select:none; }
+
+/* collectibles */
+.collectible{ position:absolute; width:36px; height:36px; z-index:5; }
+
+/* red obstacle */
+.obstacle{ position:absolute; width:48px; height:80px; right:-60px; bottom:16px; background:#d32f2f; border-radius:6px; z-index:4; }
+
+/* score & overlay */
+.bunny-score{ position:absolute; top:8px; left:12px; color:#fff; z-index:10; font-weight:700; }
+.bunny-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); z-index:20; }
+.bunny-overlay-inner{ background:#0b0b0b; border:2px solid #ff4fd8; padding:18px 22px; border-radius:12px; text-align:center; color:#fff; }
+
+/* Keep games container tall enough to avoid page reflow when memory expands */
+.games-container{
+  min-height:520px;
+}
+
+/* Make memory board fixed height so page doesn't shift */
+#memoryBoard{
+  max-height:340px;
+  overflow:auto;
+}
+
+.hidden{
+  display:none;
+}
+
+iframe{
+  width:300px;
+  height:180px;
+  margin:10px;
+  border:none;
+}
+
+#xoBoard{
+  display:grid;
+  grid-template-columns:repeat(3,60px);
+  gap:5px;
+  justify-content:center;
+  margin:16px auto;
+}
+
+.cell{
+  width:60px;
+  height:60px;
+  background:#222;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+  cursor:pointer;
+  border-radius:10px;
+  border:1px solid #333;
+}
+
+#xoReset{
+  display:block;
+  margin:16px auto;
+  padding:12px 18px;
+  background:#ff4fd8;
+  color:#1b1b1b;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#xoReset.hidden{
+  display:none;
+}
+
+.memory-controls{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:18px auto 12px;
+}
+
+.mode-button,
+.game-button{
+  background:#ff4fd8;
+  border:none;
+  color:#1b1b1b;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.mode-button.active{
+  box-shadow:0 0 0 3px rgba(255,79,216,0.25);
+}
+
+.memory-status{
+  color:#ff4fd8;
+  margin:0 auto 12px;
+  max-width:560px;
+}
+
+.memory-board{
+  display:grid;
+  grid-template-columns:repeat(4, 80px);
+  gap:12px;
+  justify-content:center;
+  margin:0 auto 20px;
+}
+
+.memory-card{
+  width:80px;
+  height:100px;
+  background:#222;
+  color:#ff4fd8;
+  border:2px solid #333;
+  border-radius:16px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:36px;
+  cursor:pointer;
+  transition:transform 0.2s ease, background 0.2s ease;
+}
+
+.memory-card.flipped,
+.memory-card.matched{
+  background:#ffffff;
+  color:#1b1b1b;
+  transform:scale(1.02);
+}
+
+.memory-card.matched{
+  border-color:#ff4fd8;
+}
+
+@media (max-width:720px){
+  .memory-board{
+    grid-template-columns:repeat(4, 64px);
+    gap:10px;
   }
-  const savedName = localStorage.getItem(chatNameKey);
-  if(savedName){
-    const nameEl = document.getElementById("name");
-    if(nameEl) nameEl.value = savedName;
-  }
-}
 
-function send(){
-  const nameField = document.getElementById("name");
-  const msgField = document.getElementById("msg");
-  const name = nameField.value.trim();
-  const msg = msgField.value.trim();
-
-  if(name === ""){
-    alert("الاسم مطلوب!");
-    return;
-  }
-
-  if(msg === ""){
-    alert("لا يمكنك ترك رسالة فارغة");
-    return;
-  }
-
-  localStorage.setItem(chatNameKey, name);
-  addChatMessage(name, msg);
-  msgField.value = "";
-}
-
-/* CLICKER */
-let score = 0;
-let treeWins = 0;
-function clickMe(){
-  score++;
-  document.getElementById("clickScore").textContent = "Score: " + score;
-  
-  // Tree growth logic
-  let treeStage = "🌱";
-  if(score >= 100) treeStage = "🌳";
-  else if(score >= 75) treeStage = "🌳";
-  else if(score >= 50) treeStage = "🌲";
-  else if(score >= 25) treeStage = "🌿";
-  
-  document.getElementById("treeVisualization").textContent = treeStage;
-  
-  // Show message when reaching 100 clicks
-  if(score === 100){
-    document.getElementById("treeMessage").classList.remove("hidden");
-    document.getElementById("treeRetry").classList.remove("hidden");
-    treeWins++;
-    document.getElementById("treeCount").textContent = "Tree count: " + treeWins;
-  }
-}
-
-function retryTree(){
-  score = 0;
-  document.getElementById("clickScore").textContent = "Score: 0";
-  document.getElementById("treeVisualization").textContent = "🌱";
-  document.getElementById("treeMessage").classList.add("hidden");
-  document.getElementById("treeRetry").classList.add("hidden");
-}
-
-/* XO */
-let board = ["","","","","","","","",""];
-let xoWins = 0;
-let xoGameOver = false;
-
-function draw(){
-  const b = document.getElementById("xoBoard");
-  if(!b) return;
-  b.innerHTML = "";
-
-  board.forEach((c,i)=>{
-    const d = document.createElement("div");
-    d.className = "cell";
-    d.textContent = c;
-    d.onclick = ()=>play(i);
-    b.appendChild(d);
-  });
-}
-
-const winLines = [
-  [0,1,2], [3,4,5], [6,7,8],
-  [0,3,6], [1,4,7], [2,5,8],
-  [0,4,8], [2,4,6]
-];
-
-function play(i){
-  if(board[i] === "" && !xoGameOver){
-    board[i] = "X";
-    let winner = checkWinner();
-    if(!winner){
-      bot();
-      winner = checkWinner();
-    }
-    draw();
-    if(winner){
-      if(winner === "X"){
-        handleXOResult("win");
-      } else {
-        handleXOResult("lose");
-      }
-      xoGameOver = true;
-    } else if(isBoardFull()){
-      handleXOResult("draw");
-      xoGameOver = true;
-    }
-    updateXOReset();
-  }
-}
-
-function bot(){
-  if(isGameFinished() || xoGameOver) return;
-  const empty = board.map((v,i)=>v === "" ? i : null).filter(v=>v !== null);
-  const pick = empty[Math.floor(Math.random() * empty.length)];
-  if(pick !== undefined) board[pick] = "O";
-}
-
-function checkWinner(){
-  for(const [a,b,c] of winLines){
-    if(board[a] && board[a] === board[b] && board[a] === board[c]){
-      return board[a];
-    }
-  }
-  return null;
-}
-
-function isBoardFull(){
-  return board.every(cell => cell !== "");
-}
-
-function isGameFinished(){
-  return Boolean(checkWinner() || isBoardFull());
-}
-
-function updateXOReset(){
-  const resetButton = document.getElementById("xoReset");
-  if(!resetButton) return;
-  if(isGameFinished()){
-    resetButton.classList.remove("hidden");
-  } else {
-    resetButton.classList.add("hidden");
-  }
-}
-
-function handleXOResult(result){
-  const message = document.getElementById("xoMessage");
-  if(result === "win"){
-    xoWins++;
-    document.getElementById("xoWins").textContent = "Wins: " + xoWins;
-    message.textContent = "You won!";
-  } else if(result === "lose"){
-    message.textContent = "You lost!";
-  } else if(result === "draw"){
-    message.textContent = "Draw!";
-  }
-  message.classList.remove("hidden");
-}
-
-function clearXOMessage(){
-  const message = document.getElementById("xoMessage");
-  message.textContent = "";
-  message.classList.add("hidden");
-}
-
-function resetXO(){
-  board = ["","","","","","","","",""];
-  xoGameOver = false;
-  draw();
-  updateXOReset();
-  clearXOMessage();
-}
-
-const memoryEmojis = ["🩷","🌸","🍣","😝","🌹","🎥","🎮","🎧","🐰","🐇"];
-let memoryMode = "easy";
-let memoryBoardState = [];
-let memoryFlipped = [];
-let memoryMatched = [];
-let memoryLocked = false;
-let memoryWins = 0;
-function setMemoryMode(mode){
-  memoryMode = mode;
-  const easyBtn = document.getElementById("memoryEasy");
-  const medBtn = document.getElementById("memoryMedium");
-  const hardBtn = document.getElementById("memoryHard");
-  if(easyBtn) easyBtn.classList.toggle("active", mode === "easy");
-  if(medBtn) medBtn.classList.toggle("active", mode === "medium");
-  if(hardBtn) hardBtn.classList.toggle("active", mode === "hard");
-  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 6 أزواج" : "الوضع الصعب: 10 أزواج");
-  const statusEl = document.getElementById("memoryStatus");
-  if(statusEl) statusEl.textContent = statusText;
-  startMemoryGame();
-}
-
-function startMemoryGame(){
-  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
-  let emojis = memoryEmojis.slice(0, count);
-  // Ensure we have enough unique emojis by repeating if array is shorter than requested
-  if(emojis.length < count){
-    let i = 0;
-    while(emojis.length < count){
-      emojis.push(memoryEmojis[i % memoryEmojis.length]);
-      i++;
-    }
-  }
-  const pairs = [...emojis, ...emojis];
-  memoryBoardState = pairs.sort(() => Math.random() - 0.5);
-  memoryFlipped = [];
-  memoryMatched = [];
-  memoryLocked = false;
-  renderMemoryBoard();
-  console.log('startMemoryGame', {mode: memoryMode, pairs: memoryBoardState.length, uniqueEmojis: emojis.length});
-  const statusEl = document.getElementById("memoryStatus");
-  if(statusEl) statusEl.textContent = "ابدأ الاختيار وافتح البطاقات بنفسك";
-}
-
-function renderMemoryBoard(){
-  const board = document.getElementById("memoryBoard");
-  if(!board) return;
-  board.innerHTML = "";
-  memoryBoardState.forEach((emoji, idx) => {
-    const card = document.createElement("button");
-    card.className = "memory-card" + (memoryMatched.includes(idx) ? " matched" : "") + (memoryFlipped.includes(idx) ? " flipped" : "");
-    card.textContent = memoryFlipped.includes(idx) || memoryMatched.includes(idx) ? emoji : "";
-    card.onclick = () => flipMemoryCard(idx);
-    board.appendChild(card);
-  });
-}
-
-function flipMemoryCard(index){
-  if(memoryLocked || memoryFlipped.includes(index) || memoryMatched.includes(index)) return;
-  memoryFlipped.push(index);
-  renderMemoryBoard();
-  if(memoryFlipped.length === 2){
-    memoryLocked = true;
-    setTimeout(checkMemoryMatch, 700);
-  }
-}
-
-function checkMemoryMatch(){
-  const [first, second] = memoryFlipped;
-  if(memoryBoardState[first] === memoryBoardState[second]){
-    memoryMatched.push(first, second);
-    const statusEl = document.getElementById("memoryStatus");
-    if(statusEl) statusEl.textContent = "مبارك! تم العثور على زوج.";
-  } else {
-    const statusEl = document.getElementById("memoryStatus");
-    if(statusEl) statusEl.textContent = "حاول مرة أخرى.";
-  }
-  memoryFlipped = [];
-  memoryLocked = false;
-  renderMemoryBoard();
-  if(memoryMatched.length === memoryBoardState.length){
-    memoryWins++;
-    const winsEl = document.getElementById("memoryWins");
-    if(winsEl) winsEl.textContent = "Wins: " + memoryWins;
-    const statusEl2 = document.getElementById("memoryStatus");
-    if(statusEl2) statusEl2.textContent = "انتهت اللعبة! اضغط play again للعب مرة أخرى";
-    const retryEl = document.getElementById("memoryRetry");
-    if(retryEl) retryEl.classList.remove("hidden");
-  }
-}
-
-function retryMemoryGame(){
-  startMemoryGame();
-  const retryEl = document.getElementById("memoryRetry");
-  if(retryEl) retryEl.classList.add("hidden");
-}
-
-function initApp(){
-  try{
-    draw();
-    loadChatMessages();
-    updateXOReset();
-    // ensure clicker UI shows current score
-    const clickEl = document.getElementById('clickScore'); if(clickEl) clickEl.textContent = "Score: " + score;
-    // init memory
-    if(document.getElementById("memoryBoard")){
-      try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
-    }
-    // initialize bunny game if present
-    try{ initBunnyGame(); } catch(e){ /* non-fatal */ }
-  } catch(initErr){
-    console.error('Initialization error:', initErr);
+  .memory-card{
+    width:64px;
+    height:84px;
+    font-size:28px;
   }
 }
 
-if (document.readyState === 'loading') {
-  window.addEventListener('DOMContentLoaded', initApp);
-} else {
-  // DOM already ready
-  initApp();
+#chat .chat-panel{
+  max-width:560px;
+  margin:0 auto;
+  background:#121212;
+  border:1px solid #333;
+  border-radius:16px;
+  padding:18px;
+  display:grid;
+  gap:16px;
 }
 
-/* ------------------ Bunny Game (demo) ------------------ */
-// Modular sections: state, rendering, movement, collisions, scoring
-function initBunnyGame(){
-  const container = document.getElementById('bunnyGame');
-  if(!container) return;
-
-  // Elements
-  const bunnyEl = document.getElementById('bunny');
-  const obstacleEl = document.getElementById('redObstacle');
-  const heartTemplate = document.getElementById('heartTemplate');
-  const scoreEl = document.getElementById('bunnyScore');
-  const overlay = document.getElementById('bunnyOverlay');
-  const finalScore = document.getElementById('bunnyFinalScore');
-  const playAgainBtn = document.getElementById('bunnyPlayAgain');
-
-  // Game state
-  let running = false;
-  let lastTime = null;
-  let bunny = { y:16, vy:0, width:56, height:56 };
-  const gravity = 2000; // px/s^2
-  const jumpVel = 650; // px/s
-  let score = 0;
-  let hearts = []; // {el,x,y,w,h}
-  let obstacle = { x: container.clientWidth + 20, w:48, h:80, speed: 220 };
-  let spawnTimer = 0;
-
-  function resetState(){
-    running = true; lastTime = null; score = 0; hearts = []; spawnTimer = 0; overlay.classList.add('hidden');
-    bunny.y = 16; bunny.vy = 0;
-    obstacle.x = container.clientWidth + 20;
-    updateScore();
-    // remove any leftover spawned hearts
-    Array.from(container.querySelectorAll('.collectible')).forEach(el=>{ if(el !== heartTemplate) el.remove(); });
-  }
-
-  function updateScore(){ if(scoreEl) scoreEl.textContent = 'Score: ' + score; }
-
-  function spawnHeart(){
-    const h = heartTemplate.cloneNode(true);
-    h.id = '';
-    h.classList.remove('hidden');
-    const startX = container.clientWidth + 20;
-    const minY = 60; const maxY = Math.max(60, container.clientHeight - 80);
-    const y = Math.floor(Math.random() * (maxY - minY)) + minY;
-    h.style.left = startX + 'px';
-    h.style.top = y + 'px';
-    container.appendChild(h);
-    hearts.push({ el: h, x: startX, y: y, w: 36, h: 36, speed: 180 });
-  }
-
-  function handleJump(){ if(!running) return; bunny.vy = jumpVel; }
-
-  // Click/tap to jump
-  container.addEventListener('click', ()=>{ handleJump(); });
-  document.addEventListener('keydown', (e)=>{ if(e.code === 'Space'){ e.preventDefault(); handleJump(); } });
-
-  function rectsOverlap(a, b){
-    return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
-  }
-
-  function gameOver(){
-    running = false;
-    overlay.classList.remove('hidden');
-    finalScore.textContent = 'Score: ' + score;
-  }
-
-  function update(dt){
-    // bunny physics
-    bunny.vy -= gravity * dt;
-    bunny.y += bunny.vy * dt;
-    if(bunny.y < 16){ bunny.y = 16; bunny.vy = 0; }
-    // position bunny element
-    if(bunnyEl) bunnyEl.style.bottom = Math.max(0, Math.round(bunny.y)) + 'px';
-
-    // move obstacle
-    obstacle.x -= obstacle.speed * dt;
-    if(obstacleEl) obstacleEl.style.left = Math.max(-200, Math.round(obstacle.x)) + 'px';
-    // spawn new obstacle if offscreen
-    if(obstacle.x < - (obstacle.w + 60)){
-      obstacle.x = container.clientWidth + (100 + Math.random()*200);
-      // randomize speed slightly
-      obstacle.speed = 180 + Math.random()*160;
-    }
-
-    // hearts movement
-    for(let i = hearts.length -1; i>=0; i--){
-      const h = hearts[i];
-      h.x -= h.speed * dt;
-      if(h.el) h.el.style.left = Math.round(h.x) + 'px';
-      // remove offscreen
-      if(h.x < -100){ if(h.el) h.el.remove(); hearts.splice(i,1); continue; }
-      // collision with bunny
-      const bunnyRect = { x: 28, y: bunny.y, w: bunny.width, h: bunny.height };
-      const heartRect = { x: h.x, y: h.y, w: h.w, h: h.h };
-      if(rectsOverlap(bunnyRect, heartRect)){
-        // collect
-        score += 5; updateScore();
-        if(h.el) h.el.remove(); hearts.splice(i,1);
-      }
-    }
-
-    // obstacle collision
-    const bunnyRectC = { x:28, y: bunny.y, w: bunny.width, h: bunny.height };
-    const obsRect = { x: obstacle.x, y:16, w: obstacle.w, h: obstacle.h };
-    if(rectsOverlap(bunnyRectC, obsRect)){
-      gameOver();
-    }
-  }
-
-  function loop(ts){
-    if(!lastTime) lastTime = ts; const dt = Math.min(0.05, (ts - lastTime)/1000); lastTime = ts;
-    if(running) update(dt);
-    // spawn heart occasionally
-    spawnTimer += dt;
-    if(spawnTimer > 1.6){ spawnTimer = 0; if(Math.random() > 0.3) spawnHeart(); }
-    requestAnimationFrame(loop);
-  }
-
-  playAgainBtn.addEventListener('click', ()=>{ resetState(); });
-
-  // initial reset and start
-  resetState();
-  requestAnimationFrame(loop);
+#name,
+#msg{
+  padding:8px 10px;
+  margin:5px;
+  border:1px solid #ff4fd8;
+  border-radius:6px;
+  background:#222;
+  color:white;
+  font-size:14px;
+  outline:none;
 }
 
-// init on load if bunny area exists
-try{ if(document.readyState !== 'loading') initBunnyGame(); else window.addEventListener('DOMContentLoaded', initBunnyGame); }catch(e){console.error(e);} 
+#name{
+  width:180px;
+}
 
-/* ------------------ End Bunny Game ------------------ */
+#msg{
+  width:250px;
+}
 
-/* old Rabbit game removed */
+#name::placeholder,
+#msg::placeholder{
+  color:#bfbfbf;
+}
+
+#chat button{
+  background:#ff4fd8;
+  border:none;
+  padding:8px 14px;
+  margin:5px;
+  border-radius:6px;
+  color:#1b1b1b;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#box{
+  min-height:220px;
+  max-height:340px;
+  overflow-y:auto;
+  background:#111;
+  border:1px solid #333;
+  border-radius:14px;
+  padding:16px;
+  margin-top:14px;
+}
+
+#box .chat-message{
+  padding:10px 14px;
+  margin-bottom:10px;
+  background:rgba(255,79,216,0.14);
+  border:1px solid rgba(255,79,216,0.22);
+  border-radius:12px;
+  color:#ffffff;
+  word-break:break-word;
+}
+
+footer{
+  padding:16px 20px;
+  border-top:2px solid #ff4fd8;
+  text-align:center;
+}
+
+@media (max-width:720px){
+  nav{
+    gap:8px;
+  }
+
+  nav button{
+    flex:1 1 calc(50% - 8px);
+  }
+
+  iframe{
+    width:100%;
+    max-width:100%;
+  }
+
+  #chat .chat-inputs{
+    grid-template-columns:1fr;
+  }
+}
