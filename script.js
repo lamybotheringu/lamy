@@ -125,11 +125,22 @@ const winLines = [
 function play(i){
   if(board[i] === "" && !isGameFinished()){
     board[i] = "X";
-    if(!checkWinner()){
+    let winner = checkWinner();
+    if(!winner){
       bot();
+      winner = checkWinner();
     }
     draw();
     updateXOReset();
+    if(winner){
+      if(winner === "X"){
+        handleXOResult("win");
+      } else {
+        handleXOResult("lose");
+      }
+    } else if(isBoardFull()){
+      handleXOResult("draw");
+    }
   }
 }
 
@@ -166,15 +177,31 @@ function updateXOReset(){
   }
 }
 
-function resetXO(){
-  board = ["","","","","","","","",""];
-  const winner = checkWinner();
-  if(winner === "X"){
+function handleXOResult(result){
+  const message = document.getElementById("xoMessage");
+  if(result === "win"){
     xoWins++;
     document.getElementById("xoWins").textContent = "Wins: " + xoWins;
+    message.textContent = "You won!";
+  } else if(result === "lose"){
+    message.textContent = "You lost!";
+  } else if(result === "draw"){
+    message.textContent = "Draw!";
   }
+  message.classList.remove("hidden");
+}
+
+function clearXOMessage(){
+  const message = document.getElementById("xoMessage");
+  message.textContent = "";
+  message.classList.add("hidden");
+}
+
+function resetXO(){
+  board = ["","","","","","","","",""];
   draw();
   updateXOReset();
+  clearXOMessage();
 }
 
 const memoryEmojis = ["🩷","🌸","🍣","😝","🌹","🎥","🎮"];
