@@ -230,14 +230,14 @@ function setMemoryMode(mode){
   if(easyBtn) easyBtn.classList.toggle("active", mode === "easy");
   if(medBtn) medBtn.classList.toggle("active", mode === "medium");
   if(hardBtn) hardBtn.classList.toggle("active", mode === "hard");
-  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 5 أزواج" : "الوضع الصعب: 7 أزواج");
+  const statusText = mode === "easy" ? "الوضع السهل: 4 أزواج" : (mode === "medium" ? "الوضع المتوسط: 5 أزواج" : "الوضع الصعب: 8 أزواج");
   const statusEl = document.getElementById("memoryStatus");
   if(statusEl) statusEl.textContent = statusText;
   startMemoryGame();
 }
 
 function startMemoryGame(){
-  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 5 : 7);
+  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 5 : 8);
   const emojis = memoryEmojis.slice(0, count);
   const pairs = [...emojis, ...emojis];
   memoryBoardState = pairs.sort(() => Math.random() - 0.5);
