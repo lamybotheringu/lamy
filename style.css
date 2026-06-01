@@ -1,10 +1,12 @@
-/* ================= GLOBAL RESETS & STYLING ================= */
+/* ==========================================================================
+   1. GLOBAL RESETS & GENERAL STYLING
+   ========================================================================== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #1b1b1b;
   color: #ff4fd8;
-  direction: rtl; /* Support for Arabic UI context */
+  direction: rtl; /* Layout flow optimized for Arabic text context */
   text-align: center;
 }
 
@@ -14,13 +16,26 @@ main {
   margin: 0 auto;
 }
 
-/* ================= TYPOGRAPHY & HEADINGS ================= */
 h2, h3 {
-  font-family: 'Baloo', sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   font-weight: 700;
 }
 
-/* ================= HEADER BRANDING ================= */
+.hidden {
+  display: none !important;
+}
+
+iframe {
+  width: 300px;
+  height: 180px;
+  margin: 10px;
+  border: none;
+}
+
+
+/* ==========================================================================
+   2. HEADER & BRANDING PLATFORM
+   ========================================================================== */
 header {
   padding: 20px;
   border-bottom: 2px solid #ff4fd8;
@@ -32,7 +47,6 @@ header {
 
 header p {
   font-size: 18px;
-  font-family: 'Pixel AE', monospace;
   line-height: 1.4;
   margin: 0;
 }
@@ -43,26 +57,23 @@ header p {
   gap: 14px;
 }
 
-.avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 .logo {
   font-family: 'Orbitron', sans-serif;
   font-size: 44px;
+  letter-spacing: 2px;
 }
 
-/* ================= NAVIGATION INTERFACE ================= */
+
+/* ==========================================================================
+   3. STRUCTURAL NAVIGATION INTERFACE
+   ========================================================================== */
 nav {
   padding: 16px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
-  direction: ltr; /* Keeps structural nav layout order standard */
+  direction: ltr; /* Keeps structural layout button rendering direction uniform */
 }
 
 nav button {
@@ -75,15 +86,25 @@ nav button {
   font-weight: bold;
   color: #1b1b1b;
   font-size: 16px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-/* ================= CORE ARCHITECTURE ================= */
+nav button:hover {
+  opacity: 0.9;
+  transform: scale(1.04);
+}
+
+
+/* ==========================================================================
+   4. MULTI-GAMES MATRIX GRID LAYOUT
+   ========================================================================== */
 section {
   padding: 24px 0;
 }
 
 section h2 {
   margin-top: 0;
+  margin-bottom: 20px;
 }
 
 .games-container {
@@ -92,13 +113,13 @@ section h2 {
   flex-wrap: wrap;
   gap: 20px;
   margin-top: 24px;
-  min-height: 520px; /* Prevents visual jumping during system rendering */
+  min-height: 520px; /* Prevents container jump shifts during game initialization switching */
 }
 
 .game-item {
   background: #111;
-  padding: 15px;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: 14px;
   border: 1px solid #ff4fd8;
   flex: 1;
   min-width: 280px;
@@ -106,6 +127,7 @@ section h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .game-item h3 {
@@ -113,11 +135,17 @@ section h2 {
   margin-bottom: 16px;
 }
 
-.hidden {
-  display: none !important;
+.win-counter {
+  font-size: 16px;
+  color: #ff4fd8;
+  margin-top: 10px;
+  font-weight: 700;
 }
 
-/* ================= CLICKER GAME (TREE progression MODULE) ================= */
+
+/* ==========================================================================
+   5. COMPONENT GAME: PROGRESSIVE CLICKER TREE
+   ========================================================================== */
 .tree-viz {
   font-size: 64px;
   margin: 20px 0;
@@ -129,22 +157,16 @@ section h2 {
 }
 
 .tree-message {
-  font-size: 20px;
+  font-size: 18px;
   color: #ff4fd8;
   margin-top: 10px;
-  font-family: 'Baloo', sans-serif;
   font-weight: 700;
 }
 
-.win-counter {
-  font-size: 16px;
-  color: #ff4fd8;
-  margin-top: 10px;
-  font-family: 'Baloo', sans-serif;
-  font-weight: 700;
-}
 
-/* ================= XO STRATEGY GAME ================= */
+/* ==========================================================================
+   6. COMPONENT GAME: TIC-TAC-TOE (XO SYSTEM)
+   ========================================================================== */
 #xoBoard {
   display: grid;
   grid-template-columns: repeat(3, 60px);
@@ -160,10 +182,15 @@ section h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 22px;
+  font-size: 24px;
   cursor: pointer;
   border-radius: 10px;
   border: 1px solid #333;
+  color: #ffffff;
+}
+
+.cell:hover {
+  background: #2a2a2a;
 }
 
 #xoReset {
@@ -178,7 +205,10 @@ section h2 {
   cursor: pointer;
 }
 
-/* ================= MATRIX MEMORY MATCH GAME ================= */
+
+/* ==========================================================================
+   7. COMPONENT GAME: MATCHING GRID MEMORY MATRIX
+   ========================================================================== */
 .memory-controls {
   display: flex;
   justify-content: center;
@@ -192,43 +222,42 @@ section h2 {
   background: #ff4fd8;
   border: none;
   color: #1b1b1b;
-  padding: 12px 18px;
+  padding: 10px 16px;
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
 }
 
 .mode-button.active {
-  box-shadow: 0 0 0 3px rgba(255, 79, 216, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 79, 216, 0.45);
 }
 
 .memory-status {
   color: #ff4fd8;
   margin: 0 auto 12px;
   max-width: 560px;
+  font-size: 14px;
 }
 
-#memoryBoard {
+.memory-board {
   display: grid;
-  grid-template-columns: repeat(4, 80px);
-  gap: 12px;
+  grid-template-columns: repeat(4, 70px);
+  gap: 10px;
   justify-content: center;
   margin: 0 auto 20px;
-  max-height: 340px;
-  overflow: auto;
 }
 
 .memory-card {
-  width: 80px;
-  height: 100px;
+  width: 70px;
+  height: 90px;
   background: #222;
   color: #ff4fd8;
   border: 2px solid #333;
-  border-radius: 16px;
+  border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 36px;
+  font-size: 32px;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
 }
@@ -244,129 +273,130 @@ section h2 {
   border-color: #ff4fd8;
 }
 
-/* ================= BUNNY RUNNER INTERACTIVE ARCADE ================= */
-#bunnyGameItem {
-  flex: 0 0 100%;
-  max-width: 100%;
-  order: 999; /* Forces side scrolling games down underneath layout modules */
-  background: linear-gradient(180deg, #0f0f12, #050506);
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-  margin-top: 8px;
-}
 
-#bunnyGameItem h3 { 
-  width: 100%; 
-  text-align: center; 
+/* ==========================================================================
+   8. STANDALONE INDEPENDENT SYSTEM: BUNNY GAME (DEMO)
+   ========================================================================== */
+#bunnyGameSection {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 10px;
 }
 
 #bunnyGame {
   position: relative;
-  min-height: 220px;
-  max-height: 340px;
+  height: 300px;
   width: 100%;
-  background: #111;
+  background: linear-gradient(180deg, #130022, #0d0d1a);
   border-radius: 14px;
-  padding: 12px;
-  margin-top: 12px;
   overflow: hidden;
-  border: 1px solid #ff4fd8;
+  border: 2px solid #ff4fd8;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
-/* Parallax Cloud Element Vector Simulations */
-.bg-cloud { 
-  position: absolute; 
-  top: 12px; 
-  width: 180px; 
-  opacity: 0.9; 
-  pointer-events: none; 
+/* Character Box Node Configuration using text/emojis to avoid broken image asset footprint bugs */
+#bunny {
+  position: absolute;
+  left: 40px;
+  bottom: 16px;
+  width: 40px;
+  height: 40px;
+  font-size: 36px;
+  line-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  user-select: none;
+}
+
+/* Dynamic Item Spawners Prefabs Component */
+.collectible {
+  position: absolute;
+  font-size: 28px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+/* Enemy/Hazard Collision Spike Target Block Node */
+#obstacle,
+.obstacle {
+  position: absolute;
+  width: 35px;
+  height: 55px;
+  right: -50px;
+  bottom: 16px; /* Bound tracking set on point coordinate system floor baseline */
+  background: #ff3333;
+  border-radius: 6px;
+  border: 2px solid #ff9999;
+  box-shadow: 0 0 12px rgba(255, 51, 51, 0.7);
+  z-index: 4;
+}
+
+/* Background Scene Parallax Nodes Configuration Engine */
+.bg-cloud {
+  position: absolute;
+  font-size: 32px;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .cloud-1 { top: 18px; animation: cloudMove 18s linear infinite; }
-.cloud-2 { top: 56px; width: 220px; opacity: 0.85; animation: cloudMove 26s linear infinite; }
-.cloud-3 { top: 34px; width: 160px; opacity: 0.95; animation: cloudMove 22s linear infinite; }
+.cloud-2 { top: 56px; animation: cloudMove 26s linear infinite; }
+.cloud-3 { top: 34px; animation: cloudMove 22s linear infinite; }
 
-/* Backward compatibility mapping from legacy cloud engine elements */
-.cloud {
-  position: absolute;
-  top: 20px;
-  width: 120px;
-  opacity: 0.6;
-  animation: cloudMove 12s linear infinite;
-}
+/* Backward legacy mapping classes integration support rules */
+.cloud { position: absolute; top: 20px; font-size: 32px; opacity: 0.2; animation: cloudMove 12s linear infinite; }
 .c2 { top: 60px; animation-duration: 18s; }
 .c3 { top: 100px; animation-duration: 25s; }
 
-@keyframes cloudMove { 
-  0% { transform: translateX(-30%); } 
-  100% { transform: translateX(130%); } 
+@keyframes cloudMove {
+  0% { transform: translateX(-50px); }
+  100% { transform: translateX(650px); }
 }
 
-/* Bunny Entity */
-#bunny { 
-  position: absolute; 
-  left: 28px; 
-  bottom: 16px; 
-  width: 56px; 
-  height: 56px; 
-  z-index: 6; 
-  user-select: none; 
+/* Score Tracker Displays */
+.bunny-score {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  color: #fff;
+  z-index: 10;
+  font-weight: 700;
+  font-size: 16px;
 }
 
-/* Heart Collectibles */
-.collectible { 
-  position: absolute; 
-  width: 36px; 
-  height: 36px; 
-  z-index: 5; 
-}
-
-/* Combat Hazard Spike Block */
-#obstacle,
-.obstacle { 
-  position: absolute; 
-  width: 48px; 
-  height: 80px; 
-  right: -60px; 
-  bottom: 16px; 
-  background: #d32f2f; 
-  border-radius: 6px; 
-  z-index: 4; 
-}
-
-/* Metrics Displays & Score Overlays */
-.bunny-score { 
-  position: absolute; 
-  top: 8px; 
-  left: 12px; 
-  color: #fff; 
-  z-index: 10; 
-  font-weight: 700; 
-}
-
+/* Game Over Modal Screens */
 #gameOver,
-.bunny-overlay { 
-  position: absolute; 
-  inset: 0; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  background: rgba(0, 0, 0, 0.6); 
-  z-index: 20; 
+.bunny-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 20;
 }
 
-.bunny-overlay-inner { 
-  background: #0b0b0b; 
-  border: 2px solid #ff4fd8; 
-  padding: 18px 22px; 
-  border-radius: 12px; 
-  text-align: center; 
-  color: #fff; 
+.bunny-overlay-inner {
+  background: #0b0b0b;
+  border: 2px solid #ff4fd8;
+  padding: 24px 32px;
+  border-radius: 14px;
+  text-align: center;
+  color: #fff;
 }
 
-/* ================= COMMUNICATIONS MODULAR HUB ================= */
+
+/* ==========================================================================
+   9. MASSIVE CENTRAL HUB COMMUNICATIONS CHANNEL (CHAT PANEL)
+   ========================================================================== */
 #chat .chat-panel,
 .chat-like-box {
   max-width: 560px;
@@ -375,24 +405,32 @@ section h2 {
   border: 1px solid #333;
   border-radius: 16px;
   padding: 18px;
-  display: grid;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#chat .chat-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
 }
 
 #name,
 #msg {
-  padding: 8px 10px;
-  margin: 5px;
+  padding: 10px 12px;
   border: 1px solid #ff4fd8;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #222;
   color: white;
   font-size: 14px;
   outline: none;
 }
 
-#name { width: 180px; }
-#msg  { width: 250px; }
+#name { width: 140px; }
+#msg  { flex: 1; min-width: 200px; }
 
 #name::placeholder,
 #msg::placeholder {
@@ -402,53 +440,49 @@ section h2 {
 #chat button {
   background: #ff4fd8;
   border: none;
-  padding: 8px 14px;
-  margin: 5px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
   color: #1b1b1b;
   font-weight: bold;
   cursor: pointer;
 }
 
-#chat #box,
 #box {
   min-height: 220px;
   max-height: 340px;
   overflow-y: auto;
-  max-width: 560px;
-  margin: 14px auto 0;
   background: #111;
   border: 1px solid #333;
   border-radius: 14px;
   padding: 16px;
+  text-align: right;
 }
 
 #box .chat-message {
   padding: 10px 14px;
   margin-bottom: 10px;
-  background: rgba(255, 79, 216, 0.14);
-  border: 1px solid rgba(255, 79, 216, 0.22);
+  background: rgba(255, 79, 216, 0.12);
+  border: 1px solid rgba(255, 79, 216, 0.2);
   border-radius: 12px;
   color: #ffffff;
   word-break: break-word;
 }
 
-/* ================= IFRAME MEDIA ELEMENT ================= */
-iframe {
-  width: 300px;
-  height: 180px;
-  margin: 10px;
-  border: none;
-}
 
-/* ================= APP FOOTER MODULE ================= */
+/* ==========================================================================
+   10. APP MASTER FOOTER
+   ========================================================================== */
 footer {
   padding: 16px 20px;
   border-top: 2px solid #ff4fd8;
   text-align: center;
+  margin-top: 40px;
 }
 
-/* ================= MEDIA RESPONSIVE PIPELINES ================= */
+
+/* ==========================================================================
+   11. MEDIA CONTRAST VIEWPORT RESPONSIVE PIPELINES
+   ========================================================================== */
 @media (max-width: 720px) {
   nav {
     gap: 8px;
@@ -456,25 +490,23 @@ footer {
 
   nav button {
     flex: 1 1 calc(50% - 8px);
+    font-size: 14px;
+    padding: 8px 10px;
   }
 
-  #memoryBoard {
-    grid-template-columns: repeat(4, 64px);
-    gap: 10px;
+  .memory-board {
+    grid-template-columns: repeat(4, 60px);
+    gap: 8px;
   }
 
   .memory-card {
-    width: 64px;
-    height: 84px;
-    font-size: 28px;
+    width: 60px;
+    height: 80px;
+    font-size: 26px;
   }
 
   iframe {
     width: 100%;
     max-width: 100%;
-  }
-
-  #chat .chat-inputs {
-    grid-template-columns: 1fr;
   }
 }
