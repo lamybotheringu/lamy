@@ -23,7 +23,7 @@ header{
 }
 
 header p{
-  font: size 18px;px;
+  font-size: 18px;
   font-family:'Pixel AE', monospace;
   line-height:1.4;
   margin:0;
