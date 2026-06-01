@@ -238,13 +238,22 @@ function setMemoryMode(mode){
 
 function startMemoryGame(){
   const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
-  const emojis = memoryEmojis.slice(0, count);
+  let emojis = memoryEmojis.slice(0, count);
+  // Ensure we have enough unique emojis by repeating if array is shorter than requested
+  if(emojis.length < count){
+    let i = 0;
+    while(emojis.length < count){
+      emojis.push(memoryEmojis[i % memoryEmojis.length]);
+      i++;
+    }
+  }
   const pairs = [...emojis, ...emojis];
   memoryBoardState = pairs.sort(() => Math.random() - 0.5);
   memoryFlipped = [];
   memoryMatched = [];
   memoryLocked = false;
   renderMemoryBoard();
+  console.log('startMemoryGame', {mode: memoryMode, pairs: memoryBoardState.length, uniqueEmojis: emojis.length});
   const statusEl = document.getElementById("memoryStatus");
   if(statusEl) statusEl.textContent = "ابدأ الاختيار وافتح البطاقات بنفسك";
 }
