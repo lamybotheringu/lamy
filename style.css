@@ -345,7 +345,7 @@ footer{
   }
 }
 
-/* YouTube FIX (works properly + keeps border visible) */
+/* YouTube FIX */
 .video-frame{
   display:inline-block;
   margin:10px;
@@ -372,4 +372,39 @@ footer{
     height:auto;
     aspect-ratio:16/9;
   }
+
+  nav{
+    gap:8px;
+  }
+
+  nav button{
+    flex:1 1 calc(50% - 8px);
+  }
+
+  #chat .chat-inputs{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ⭐ accounts box (IMPORTANT: خارج media) */
+.accounts-box{
+  display:inline-block;
+  margin-top:14px;
+  padding:14px 20px;
+  border-radius:16px;
+
+  background:#ffd1e8; /* pastel pink */
+  border:2px solid #ff9fcf;
+
+  color:#7a1f4b;
+  font-weight:bold;
+  text-decoration:none;
+
+  box-shadow:0 4px 12px rgba(255, 105, 180, 0.25);
+  transition:0.2s ease;
+}
+
+.accounts-box:hover{
+  transform:scale(1.05);
+  background:#ffc2df;
 }
