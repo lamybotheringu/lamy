@@ -105,8 +105,15 @@ nav button{
 
 section{
   padding:24px 0;
+  transition:0.25s ease;
 }
 
+/* حركة خفيفة عند المرور */
+section:hover{
+  transform:translateY(-3px);
+}
+
+/* العناوين تبقى كما هي */
 section h2{
   margin-top:0;
 }
