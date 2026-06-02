@@ -12,30 +12,29 @@
 
 <header>
   <h1>🐰 Bunny Game (Demo)</h1>
+
+  <!-- optional: back button -->
+  <button onclick="location.href='index.html'" class="game-button">
+    ⬅ Back to site
+  </button>
 </header>
 
 <button id="startBtn" class="game-button">Start Game</button>
 
 <div id="game">
 
-  <!-- clouds -->
   <img src="cloud.png" class="cloud c1">
   <img src="cloud.png" class="cloud c2">
   <img src="cloud.png" class="cloud c3">
 
-  <!-- player -->
   <img src="bunny.png" id="bunny">
 
-  <!-- obstacle -->
   <div id="obstacle"></div>
 
-  <!-- hearts container (better than single template) -->
-  <div id="hearts"></div>
+  <img src="heart.png" id="heartTemplate" class="hidden">
 
-  <!-- score -->
   <div id="score">Score: 0</div>
 
-  <!-- game over -->
   <div id="gameOver" class="hidden">
     <h2>Game Over</h2>
     <p id="finalScore"></p>
