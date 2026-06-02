@@ -343,16 +343,14 @@ footer{
   iframe{
     width:100%;
     max-width:100%;
-    border:2px solid #ff4fd8;
-    border-radius:12px;
   }
 
   #chat .chat-inputs{
     grid-template-columns:1fr;
   }
-  
 }
-  #chat .chat-inputs{
-    grid-template-columns:1fr;
-  }
+
+iframe{
+  border:2px solid #ff4fd8;
+  border-radius:12px;
 }
