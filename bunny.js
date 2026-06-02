@@ -21,15 +21,30 @@ const jumpPower = -12;
 let obsX = 600;
 let hearts = [];
 
+let loopId = null; // 🔥 مهم جداً
+
 function startGame(){
+
+  // stop old loop if exists
+  if(loopId){
+    cancelAnimationFrame(loopId);
+    loopId = null;
+  }
+
   running = true;
+
+  // reset everything
   score = 0;
   y = 0;
   velocity = 0;
   obsX = game.clientWidth + 100;
+  hearts = [];
 
   scoreEl.textContent = "Score: 0";
   gameOverUI.classList.add("hidden");
+
+  bunny.style.bottom = "0px";
+  obstacle.style.left = obsX + "px";
 
   loop();
 }
@@ -57,13 +72,24 @@ function spawnHeart(){
 }
 
 function collide(a,b){
-  return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  return !(
+    a.right < b.left ||
+    a.left > b.right ||
+    a.bottom < b.top ||
+    a.top > b.bottom
+  );
 }
 
 function gameOver(){
   running = false;
+
   gameOverUI.classList.remove("hidden");
   finalScore.textContent = "Score: " + score;
+
+  if(loopId){
+    cancelAnimationFrame(loopId);
+    loopId = null;
+  }
 }
 
 function loop(){
@@ -80,7 +106,7 @@ function loop(){
 
   bunny.style.bottom = y + "px";
 
-  // obstacle movement
+  // obstacle
   obsX -= 3;
   if(obsX < -100){
     obsX = game.clientWidth + 200;
@@ -88,12 +114,13 @@ function loop(){
 
   obstacle.style.left = obsX + "px";
 
-  // obstacle collision
+  // collision
   const bBox = bunny.getBoundingClientRect();
   const oBox = obstacle.getBoundingClientRect();
 
   if(collide(bBox, oBox)){
     gameOver();
+    return;
   }
 
   // hearts
@@ -111,11 +138,12 @@ function loop(){
     }
   });
 
+  // spawn hearts
   if(Math.random() < 0.02){
     spawnHeart();
   }
 
-  requestAnimationFrame(loop);
+  loopId = requestAnimationFrame(loop);
 }
 
 // controls
