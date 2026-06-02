@@ -105,13 +105,13 @@ nav button{
 
 section{
   padding:24px 0;
-  transition:0.2s ease;
-  will-change: transform;
+  transition:all 0.2s ease;
+  display:block;
 }
 
-/* نفس حركة زر "جميع حساباتي" */
 section:hover{
   transform:scale(1.02);
+  filter:brightness(1.1);
 }
 
 .games-container{
