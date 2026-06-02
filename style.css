@@ -101,6 +101,15 @@ nav button{
   font-weight:bold;
   color:#1b1b1b;
   font-size:16px;
+
+  transition:0.2s ease;
+}
+
+/* نفس تأثير زر accounts-box */
+nav button:hover{
+  transform:scale(1.05);
+  background:#ffc2df;
+  box-shadow:0 6px 14px rgba(255, 105, 180, 0.25);
 }
 
 section{
