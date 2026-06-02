@@ -387,23 +387,29 @@ footer{
 }
 
 .accounts-box{
-  display:inline-block !important;
+  display:inline-block;
 
   margin-top:16px;
   padding:14px 22px;
 
   background:#ffd1e8;
   border:2px solid #ff9fcf;
-
   border-radius:16px;
 
   color:#7a1f4b !important;
-  font-weight:bold;
   text-decoration:none !important;
 
   box-shadow:0 6px 14px rgba(255, 105, 180, 0.25);
-
   transition:0.2s ease;
+}
+
+/* مهم جدًا: كل حالات الرابط */
+.accounts-box:link,
+.accounts-box:visited,
+.accounts-box:hover,
+.accounts-box:active{
+  color:#7a1f4b !important;
+  text-decoration:none !important;
 }
 
 .accounts-box:hover{
