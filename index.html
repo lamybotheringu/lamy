@@ -25,6 +25,7 @@
   <button onclick="show('youtube')">YouTube</button>
   <button onclick="show('games')">Games</button>
   <button onclick="show('chat')">Chat</button>
+  <button onclick="show('bunny')">Bunny Game(demo)</button>
 </nav>
 
 <main>
@@ -129,6 +130,35 @@
 
 </section>
 
+<section id="bunny" class="hidden">
+  <h2>🐰 Bunny Game (demo)</h2>
+
+  <div id="bunnyGame" class="bunny-game">
+
+    <div id="bunnyScore">Score: 0</div>
+
+    <!-- cloud background -->
+    <div class="cloud-layer"></div>
+
+    <!-- bunny -->
+    <img id="bunny" src="bunny.png" class="bunny-player">
+
+    <!-- obstacle -->
+    <div id="redObstacle" class="bunny-obstacle"></div>
+
+    <!-- heart template -->
+    <img id="heartTemplate" src="heart.png" class="hidden">
+
+    <!-- game over -->
+    <div id="bunnyOverlay" class="bunny-overlay hidden">
+      <h2>Game Over 💔</h2>
+      <p id="bunnyFinalScore"></p>
+      <button id="bunnyPlayAgain">Play Again</button>
+    </div>
+
+  </div>
+</section>
+  
 <section id="chat" class="hidden">
   <h2>💬 Chat</h2>
 
