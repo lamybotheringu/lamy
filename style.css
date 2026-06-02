@@ -340,17 +340,26 @@ footer{
     flex:1 1 calc(50% - 8px);
   }
 
-  iframe{
-    width:100%;
-    max-width:100%;
-  }
-
   #chat .chat-inputs{
     grid-template-columns:1fr;
   }
 }
 
-iframe{
+/* YouTube fix (WRAPPER METHOD - required) */
+.video-frame{
+  display:inline-block;
+  margin:10px;
+  padding:4px;
   border:2px solid #ff4fd8;
-  border-radius:12px;
+  border-radius:14px;
+  box-shadow:0 0 12px rgba(255,79,216,0.6);
+  background:#111;
+  overflow:hidden;
+}
+
+.video-frame iframe{
+  display:block;
+  width:300px;
+  height:180px;
+  border:none;
 }
