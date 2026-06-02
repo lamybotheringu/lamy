@@ -6,8 +6,8 @@
   <title>Lamy</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Baloo:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="bunny.css">
 </head>
-<script src="bunny.js"></script>
 <body>
 
 <header>
@@ -25,8 +25,8 @@
   <button onclick="show('youtube')">YouTube</button>
   <button onclick="show('games')">Games</button>
 
-  <button onclick="location.href='bunny.html'">
-  🐇<span style="opacity:0.7;font-size:12px">(DEMO)</span>
+  <button onclick="show('bunny-game')">
+    🐇<span style="opacity:0.7;font-size:12px">(DEMO)</span>
   </button>
 
   <button onclick="show('chat')">Chat</button>
@@ -41,10 +41,10 @@
   
 <section id="about" class="hidden">
   <h2>👤 About Me</h2>
-  <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p>
+  <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p> 
 
   <a href="https://linktr.ee/lamybotheringu" target="_blank" class="accounts-box" style="font-family: '0 Titr', 'B Titr', 'Titr', sans-serif; font-weight: bold;">
-  جميع حساباتي 🩷
+    جميع حساباتي 🩷
   </a>
 </section>
 
@@ -134,6 +134,34 @@
 
 </section>
 
+<section id="bunny-game" class="hidden">
+  <h2>bunny game (demo)</h2>
+  
+  <div id="game" style="position: relative; width: 100%; max-width: 600px; height: 300px; background: #222; margin: 20px auto; overflow: hidden; border: 2px solid #ff4da6;">
+    <img src="cloud.png" class="cloud c1">
+    <img src="cloud.png" class="cloud c2">
+    <img src="cloud.png" class="cloud c3">
+
+    <img src="bunny.png" id="bunny">
+
+    <div id="obstacle"></div>
+
+    <img src="heart.png" id="heartTemplate" class="hidden" style="position: absolute; width: 30px; height: 30px;">
+
+    <div id="score">Hearts : 0</div>
+
+    <div id="startScreen" class="overlay">
+      <h2>Press Space to Start</h2>
+    </div>
+
+    <div id="gameOver" class="overlay hidden">
+      <h2>Game Over</h2>
+      <p id="finalScore"></p>
+      <button id="restartBtn">Play Again</button>
+    </div>
+  </div>
+</section>
+
 <section id="chat" class="hidden">
   <h2>💬 Chat</h2>
 
@@ -149,6 +177,7 @@
 </footer>
 
 <script src="script.js"></script>
+<script src="bunny.js"></script>
 </main>
 </body>
 </html>
