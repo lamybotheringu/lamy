@@ -399,29 +399,37 @@ footer{
   display:inline-block;
 
   margin-top:16px;
-  padding:14px 22px;
+  padding:12px 18px;
 
-  background:#ffd1e8;
-  border:2px solid #ff9fcf;
-  border-radius:16px;
+  background:#eaeaea;
+  border:1px solid #bdbdbd;
+  border-radius:6px;
 
-  color:#7a1f4b !important;
+  color:#1b1b1b !important;
   text-decoration:none !important;
 
-  box-shadow:0 6px 14px rgba(255, 105, 180, 0.25);
-  transition:0.2s ease;
+  box-shadow:none;
+  transition:0.15s ease;
+  font-family:Arial, sans-serif;
 }
 
-/* مهم جدًا: كل حالات الرابط */
+/* كل حالات الرابط */
 .accounts-box:link,
 .accounts-box:visited,
 .accounts-box:hover,
 .accounts-box:active{
-  color:#7a1f4b !important;
+  color:#1b1b1b !important;
   text-decoration:none !important;
 }
 
+/* hover بسيط جدًا */
 .accounts-box:hover{
-  transform:scale(1.05);
-  background:#ffc2df;
+  background:#f5f5f5;
+  border-color:#9e9e9e;
+}
+
+/* click feel (Windows-like) */
+.accounts-box:active{
+  background:#dcdcdc;
+  transform:translateY(1px);
 }
