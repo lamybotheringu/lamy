@@ -386,21 +386,23 @@ footer{
   }
 }
 
-/* ⭐ accounts box (IMPORTANT: خارج media) */
 .accounts-box{
-  display:inline-block;
-  margin-top:14px;
-  padding:14px 20px;
-  border-radius:16px;
+  display:inline-block !important;
 
-  background:#ffd1e8; /* pastel pink */
+  margin-top:16px;
+  padding:14px 22px;
+
+  background:#ffd1e8;
   border:2px solid #ff9fcf;
 
-  color:#7a1f4b;
-  font-weight:bold;
-  text-decoration:none;
+  border-radius:16px;
 
-  box-shadow:0 4px 12px rgba(255, 105, 180, 0.25);
+  color:#7a1f4b !important;
+  font-weight:bold;
+  text-decoration:none !important;
+
+  box-shadow:0 6px 14px rgba(255, 105, 180, 0.25);
+
   transition:0.2s ease;
 }
 
