@@ -105,13 +105,10 @@ nav button{
 
 section{
   padding:24px 0;
-  transition:all 0.2s ease;
-  display:block;
 }
 
-section:hover{
-  transform:scale(1.02);
-  filter:brightness(1.1);
+section h2{
+  margin-top:0;
 }
 
 .games-container{
