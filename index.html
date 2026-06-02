@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Baloo:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-
+<script src="bunny.js"></script>
 <body>
 
 <header>
@@ -24,10 +24,10 @@
   <button onclick="show('updates')">Updates</button>
   <button onclick="show('youtube')">YouTube</button>
   <button onclick="show('games')">Games</button>
-  <button onclick="show('chat')">Chat</button>
   <button onclick="show('bunny')">(demo)</button>
+  <button onclick="show('chat')">Chat</button>
 </nav>
-
+  
 <main>
 
 <section id="home">
@@ -130,34 +130,9 @@
 
 </section>
 
-<section id="bunny" class="hidden">
-  <h2>🐰 Bunny Game (demo)</h2>
-
-  <div id="bunnyGame" class="bunny-game">
-
-    <div id="bunnyScore">Score: 0</div>
-
-    <!-- cloud background -->
-    <div class="cloud-layer"></div>
-
-    <!-- bunny -->
-    <img id="bunny" src="bunny.png" class="bunny-player">
-
-    <!-- obstacle -->
-    <div id="redObstacle" class="bunny-obstacle"></div>
-
-    <!-- heart template -->
-    <img id="heartTemplate" src="heart.png" class="hidden">
-
-    <!-- game over -->
-    <div id="bunnyOverlay" class="bunny-overlay hidden">
-      <h2>Game Over 💔</h2>
-      <p id="bunnyFinalScore"></p>
-      <button id="bunnyPlayAgain">Play Again</button>
-    </div>
-
-  </div>
-</section>
+<button onclick="location.href='bunny.html'">
+  🐰 Bunny Game
+</button>
   
 <section id="chat" class="hidden">
   <h2>💬 Chat</h2>
