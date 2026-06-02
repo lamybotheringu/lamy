@@ -311,15 +311,28 @@ function retryMemoryGame(){
   if(retryEl) retryEl.classList.add("hidden");
 }
 
-window.addEventListener("DOMContentLoaded", ()=>{
-  try{
+window.addEventListener("DOMContentLoaded", () => {
+  try {
     draw();
     loadChatMessages();
     updateXOReset();
-    if(document.getElementById("memoryBoard")){
-      try { setMemoryMode(memoryMode); } catch(e){ console.error('memory init failed', e); }
+
+    if (document.getElementById("memoryBoard")) {
+      try {
+        setMemoryMode(memoryMode);
+      } catch (e) {
+        console.error("memory init failed", e);
+      }
     }
-  } catch(initErr){
-    console.error('Initialization error:', initErr);
+  } catch (initErr) {
+    console.error("Initialization error:", initErr);
+  }
+});
+
+/* hash navigation */
+window.addEventListener("load", () => {
+  const hash = location.hash.replace("#", "");
+  if (hash) {
+    show(hash);
   }
 });
