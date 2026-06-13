@@ -153,7 +153,7 @@
 
       <div id="memorySaveNameContainer" class="hidden" style="margin-top: 15px; padding: 10px; border: 2px dashed #ff4fd8;">
         <p style="font-size: 13px; color: #fff; margin: 0 0 8px 0;">🎉 رائع! دخلت صدارة الجولة الحالية، اكتب اسمك لتسجيله:</p>
-        <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 5px; width: 60%;">
+        <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 6px; width: 60%;">
         <button class="toggle-button" onclick="submitMemoryHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
       </div>
 
@@ -211,7 +211,7 @@
 
   <input id="name" placeholder="اسمك (مطلوب)">
   <input id="msg" placeholder="اكتب رسالتك">
-  <button id="sendBtn">إرسال</button>
+  <button id="sendBtn" onclick="send()">إرسال</button>
 
   <div id="box"></div>
 </section>
@@ -225,6 +225,15 @@
 
 <script src="script.js"></script>
 <script src="bunny.js"></script>
+
+<script>
+  window.addEventListener("keydown", function(e) {
+    if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
+      e.stopPropagation(); 
+    }
+  }, true);
+</script>
+
 </main>
 </body>
 </html>
