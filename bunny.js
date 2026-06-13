@@ -1,6 +1,3 @@
-// متغير عالمي لحفظ السكور للفايربيز
-let temporaryBunnyScore = 0;
-
 window.addEventListener("DOMContentLoaded", () => {
   const game = document.getElementById("game");
   const bunny = document.getElementById("bunny");
@@ -54,11 +51,6 @@ window.addEventListener("DOMContentLoaded", () => {
     if (scoreEl) scoreEl.textContent = "Hearts: 0";
     
     gameOverUI.classList.add("hidden");
-    
-    // إخفاء صندوق حفظ الاسم عند البدء من جديد
-    const saveContainer = document.getElementById("bunnySaveNameContainer");
-    if (saveContainer) saveContainer.classList.add("hidden");
-
     if (startScreen) {
       startScreen.classList.add("hidden");
     }
@@ -86,18 +78,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-function gameOver() {
+  function gameOver() {
     running = false;
     gameOverUI.classList.remove("hidden");
     finalScore.textContent = "القلوب المجمعة : " + heartsCount;
-
-    // تحديث السكور المؤقت
-    temporaryBunnyScore = heartsCount;
-
-    // إظهار واجهة حفظ الاسم إذا جمعتِ قلوباً
-    if (heartsCount > 0) {
-      document.getElementById("bunnySaveNameContainer").classList.remove("hidden");
-    }
   }
 
   function spawnHeart() {
@@ -193,8 +177,6 @@ function gameOver() {
 
   // MASTER KEYBOARD LISTENER (Handles Start, Jump, and Restart)
   document.addEventListener("keydown", (e) => {
-    if (document.activeElement.tagName === "INPUT") return; // تجاهل إذا كان يكتب اسمه
-
     if (e.code === "Space") {
       e.preventDefault(); 
       
@@ -209,8 +191,7 @@ function gameOver() {
   });
 
   // SCREEN INTERACTION FALLBACKS
-  game.addEventListener("click", (e) => {
-    if (e.target.id === "restartBtn" || e.target.closest("#gameOver")) return;
+  game.addEventListener("click", () => {
     if (!gameStartedOnce) {
       startGame();
     } else {
@@ -223,73 +204,4 @@ function gameOver() {
       if (!gameStartedOnce) startGame();
     });
   }
-
-  // تشغيل الاستماع للفايربيز فوراً عند تحميل الصفحة
-  if (typeof listenToBunnyLeaderboard === "function") {
-    listenToBunnyLeaderboard();
-  }
 });
-
-// =================================================================
-// 🏆 وظائف الفايربيز (خارج نطاق الـ DOMContentLoaded لتعمل مع أزرار الـ HTML)
-// =================================================================
-
-function checkBunnyLeaderboardEligibility(scoreToCheck) {
-  if (typeof database === "undefined") return;
-  database.ref("bunny_leaderboard").once("value", (snapshot) => {
-    let records = [];
-    if (snapshot.exists()) {
-      snapshot.forEach(child => {
-        records.push(child.val());
-      });
-    }
-    if (records.length < 5 || scoreToCheck > Math.min(...records.map(r => r.score))) {
-      const saveContainer = document.getElementById("bunnySaveNameContainer");
-      if (saveContainer) saveContainer.classList.remove("hidden");
-    }
-  });
-}
-
-function submitBunnyHighScore() {
-  const nameInput = document.getElementById("bunnyLeaderboardNameInput");
-  if (!nameInput || typeof database === "undefined") return;
-
-  const chosenName = nameInput.value.trim();
-  if (!chosenName) {
-    alert("أدخلي اسمكِ أولاً لتسجيل السكور! 🩷");
-    return;
-  }
-
-  database.ref("bunny_leaderboard").push({
-    name: chosenName,
-    score: temporaryBunnyScore
-  }).then(() => {
-    const saveContainer = document.getElementById("bunnySaveNameContainer");
-    if (saveContainer) saveContainer.classList.add("hidden");
-    nameInput.value = "";
-  }).catch(err => console.error("حدث خطأ في الفايربيز:", err));
-}
-
-function listenToBunnyLeaderboard() {
-  if (typeof database === "undefined") return;
-  database.ref("bunny_leaderboard").orderByChild("score").limitToLast(5).on("value", (snapshot) => {
-    const view = document.getElementById("bunnyLeaderboardView");
-    if (!view) return;
-
-    let leaderboardList = [];
-    snapshot.forEach((childSnapshot) => {
-      leaderboardList.push(childSnapshot.val());
-    });
-
-    leaderboardList.sort((a, b) => b.score - a.score);
-
-    if (leaderboardList.length === 0) {
-      view.textContent = "لا توجد نتائج مسجلة في هذه اللعبة بعد.";
-      return;
-    }
-
-    view.innerHTML = leaderboardList.map((player, index) => {
-      return `${index + 1}. <b>${player.name}</b>: ${player.score} قلب 🩷<br>`;
-    }).join("");
-  });
-}
