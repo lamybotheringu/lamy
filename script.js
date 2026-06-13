@@ -255,84 +255,85 @@ let memoryMatched = [];
 let memoryLocked = false;
 let memoryWins = 0;
 
-function switchMemoryMatchMode(matchMode) {
-  activeMemoryMode = matchMode;
-  document.getElementById("memoryPlaySolo").classList.toggle("active", matchMode === "solo");
-  document.getElementById("memoryPlayOnline").classList.toggle("active", matchMode === "online");
-  
-  const diffControls = document.getElementById("memoryDifficultyControls");
-  const leaderboardBox = document.getElementById("memoryLeaderboardContainer");
-  const saveNameBox = document.getElementById("memorySaveNameContainer");
-  
-  memoryFlipped = [];
-  memoryMatched = [];
-  memoryLocked = false;
-  document.getElementById("memoryBoard").innerHTML = "";
-  if (saveNameBox) saveNameBox.classList.add("hidden");
+// =================================================================
+// 🧠 محرك الذاكرة (إصدار نهائي ومنقح)
+// =================================================================
 
-  if (matchMode === "solo") {
-    memoryRoomRef.off("value");
-    diffControls.classList.remove("hidden");
-    leaderboardBox.classList.remove("hidden");
-    setMemoryMode(memoryMode);
-  } else {
-    diffControls.classList.add("hidden");
-    leaderboardBox.classList.add("hidden");
+function switchMemoryMatchMode(matchMode) {
+    activeMemoryMode = matchMode;
+    document.getElementById("memoryPlaySolo").classList.toggle("active", matchMode === "solo");
+    document.getElementById("memoryPlayOnline").classList.toggle("active", matchMode === "online");
     
-    updateMemoryStatus("جاري البحث عن خصم..");
-    listenToOnlineMemoryRoom(); 
-    joinMemoryGameOnline(); 
-  }
+    // تنظيف اللوحة
+    document.getElementById("memoryBoard").innerHTML = "";
+
+    const diffControls = document.getElementById("memoryDifficultyControls");
+    const leaderboardBox = document.getElementById("memoryLeaderboardContainer");
+
+    if (matchMode === "solo") {
+        memoryRoomRef.off(); // إيقاف مراقبة الأونلاين
+        diffControls.classList.remove("hidden");
+        leaderboardBox.classList.remove("hidden");
+        
+        // إزالة نص البحث عن خصم فوراً عند العودة للسولو
+        updateMemoryStatus(""); 
+        
+        setMemoryMode(memoryMode);
+    } else {
+        // --- وضع الأونلاين ---
+        diffControls.classList.add("hidden");
+        leaderboardBox.classList.add("hidden");
+        memoryMode = "hard"; 
+        
+        updateMemoryStatus("جاري البحث عن خصم..");
+        joinMemoryGameOnline();
+    }
 }
 
 function setMemoryMode(mode) {
-  memoryMode = mode;
-  document.getElementById("memoryEasy").classList.toggle("active", mode === "easy");
-  document.getElementById("memoryMedium").classList.toggle("active", mode === "medium");
-  document.getElementById("memoryHard").classList.toggle("active", mode === "hard");
-  
-  document.getElementById("memoryLeaderboardTitle").textContent = `🏆 لوحة الصدارة (${mode.toUpperCase()})`;
-  
-  updateMemoryStatus(""); 
-  startMemoryGame();
-  updateMemoryLeaderboardView(); 
+    memoryMode = mode;
+    document.getElementById("memoryEasy").classList.toggle("active", mode === "easy");
+    document.getElementById("memoryMedium").classList.toggle("active", mode === "medium");
+    document.getElementById("memoryHard").classList.toggle("active", mode === "hard");
+    document.getElementById("memoryLeaderboardTitle").textContent = `🏆 لوحة الصدارة (${mode.toUpperCase()})`;
+    
+    startMemoryGame();
+    updateMemoryLeaderboardView(); 
 }
 
 function startMemoryGame() {
-  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
-  let emojis = memoryEmojis.slice(0, count);
-  const pairs = [...emojis, ...emojis];
-  memoryBoardState = pairs.sort(() => Math.random() - 0.5);
-  memoryFlipped = []; memoryMatched = []; memoryLocked = false;
-  renderMemoryBoard();
-  
-  const retryEl = document.getElementById("memoryRetry");
-  if (retryEl) retryEl.classList.add("hidden");
+    const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
+    let emojis = memoryEmojis.slice(0, count);
+    const pairs = [...emojis, ...emojis];
+    memoryBoardState = pairs.sort(() => Math.random() - 0.5);
+    memoryFlipped = []; memoryMatched = []; memoryLocked = false;
+    renderMemoryBoard();
+    
+    const retryEl = document.getElementById("memoryRetry");
+    if (retryEl) retryEl.classList.add("hidden");
 }
 
 function joinMemoryGameOnline() {
     let identityName = localStorage.getItem(chatNameKey) || "خصم مجهول";
     
-    // إجبار الصعوبة
-    memoryMode = "hard"; 
-    updateMemoryStatus("وضع الأونلاين (Hard Mode) - جاري البحث...");
+    memoryRoomRef.off(); // تنظيف أي مستمع قديم
 
     memoryRoomRef.once("value", (snapshot) => {
         let room = snapshot.val() || {};
 
-        // إذا كانت الغرفة فارغة أو منتهية، ننتظر فقط (بدون إضافة اسمك لقاعدة البيانات فوراً)
+        // 1. إذا لم تكن هناك غرفة أو اللعبة انتهت، ننشئ غرفة جديدة
         if (!room.p1_name || room.gameState === "finished") {
-            updateMemoryStatus("في انتظار خصم... ");
-            // هنا لا نضع p1_name إلا عندما يضغط الطرف الآخر على الانضمام
-            return; 
-        }
-
-        // إذا وجدنا خصماً ينتظر (p1 موجود و p2 فارغ)
-        if (room.p1_name && !room.p2_name) {
-            myMemoryPlayerSymbol = "p2";
-            let emojis = memoryEmojis.slice(0, 10); // 10 للـ Hard
+            memoryRoomRef.set({
+                p1_name: identityName,
+                p2_name: "",
+                gameState: "waiting",
+                board: []
+            });
+        } 
+        // 2. إذا وجدنا p1 ينتظر، ننضم إليه
+        else if (room.p1_name && !room.p2_name && room.p1_name !== identityName) {
+            let emojis = memoryEmojis.slice(0, 10);
             const board = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
-            
             memoryRoomRef.update({
                 p2_name: identityName,
                 gameState: "playing",
@@ -341,21 +342,17 @@ function joinMemoryGameOnline() {
         }
     });
 
-    // مراقبة التحديثات
+    // مراقبة التغييرات
     memoryRoomRef.on("value", (snapshot) => {
         if (activeMemoryMode !== "online") return;
         let room = snapshot.val() || {};
         
-        // اكتشاف خروج الخصم
-        if (room.gameState === "playing" && !room.p2_name) {
-            updateMemoryStatus("الخصم غادر. في انتظار لاعب جديد...");
-        }
-        
-        // بدء اللعب عند تحديث اللوحة
         if (room.gameState === "playing" && room.board) {
             memoryBoardState = room.board;
             renderMemoryBoard();
             updateMemoryStatus("⚔️ المواجهة جارية!");
+        } else if (room.gameState === "waiting") {
+            updateMemoryStatus("جاري البحث عن خصم..");
         }
     });
 }
