@@ -520,3 +520,47 @@ window.addEventListener("DOMContentLoaded", () => {
     console.error("Initialization error:", initErr);
   }
 });
+// دالة حفظ السكور في Firebase
+function submitBunnyHighScore() {
+  const nameInput = document.getElementById("bunnyLeaderboardNameInput");
+  const name = nameInput.value.trim();
+  
+  if (!name) { alert("أدخلي اسمك أولاً!"); return; }
+
+  // حفظ في Firebase
+  database.ref("leaderboards/bunny").push({
+    name: name,
+    score: temporaryBunnyScore,
+    timestamp: Date.now()
+  });
+
+  alert("تم حفظ نتيجتك! 🌟");
+  document.getElementById("bunnySaveNameContainer").classList.add("hidden");
+  nameInput.value = "";
+  
+  // تحديث القائمة فوراً
+  loadBunnyLeaderboard();
+}
+
+// دالة لجلب وترتيب النتائج من Firebase
+function loadBunnyLeaderboard() {
+  const view = document.getElementById("bunnyLeaderboardView");
+  if (!view) return;
+
+  database.ref("leaderboards/bunny")
+    .orderByChild("score")
+    .limitToLast(5)
+    .on("value", (snapshot) => {
+      let list = [];
+      snapshot.forEach(child => {
+        list.push(child.val());
+      });
+      
+      // ترتيب تنازلي
+      list.sort((a, b) => b.score - a.score);
+      
+      view.innerHTML = list.length 
+        ? list.map((u, i) => `${i+1}. <b>${u.name}</b>: ${u.score} قلبة<br>`).join("") 
+        : "لا توجد نتائج مسجلة بعد.";
+    });
+}
