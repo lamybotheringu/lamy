@@ -154,7 +154,7 @@
       <div id="memorySaveNameContainer" class="hidden" style="margin-top: 15px; padding: 10px; border: 2px dashed #ff4fd8;">
         <p style="font-size: 13px; color: #fff; margin: 0 0 8px 0;">🎉 رائع! دخلت صدارة الجولة الحالية، اكتب اسمك لتسجيله:</p>
         <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 6px; width: 60%;">
-        <button class="toggle-button" onclick="submitMemoryHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
+        <input type="hidden" id="xoLeaderboardNameInput" value=""> <button class="toggle-button" onclick="submitMemoryHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
       </div>
 
       <div id="memoryLeaderboardContainer" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
@@ -202,7 +202,7 @@
 
   <div id="bunnyLeaderboardContainer" style="margin: 25px auto; width: 100%; max-width: 400px; background: #111; padding: 15px; border-radius: 12px; border: 1px solid #ff4da6;">
     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ff4da6;">🏆 Bunny Leaderboard (أعلى سكور قلوب)</h3>
-    <div id="bunnyLeaderboardView" style="font-size: 14px; text-align: right; color: #fff;">لا توجد نتائج مسجلة في هذا المستوى بعد.</div>
+    <div id="bunnyLeaderboardView" style="font-size: 14px; text-align: right; color: #fff;">لا توجد نتائج مسجلة في هذه اللعبة بعد.</div>
   </div>
 </section>
 
@@ -211,7 +211,7 @@
 
   <input id="name" placeholder="اسمك (مطلوب)">
   <input id="msg" placeholder="اكتب رسالتك">
-  <button id="sendBtn" onclick="send()">إرسال</button>
+  <button id="sendBtn" onclick="send()">إرسال</button> 
 
   <div id="box"></div>
 </section>
