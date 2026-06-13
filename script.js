@@ -311,39 +311,53 @@ function startMemoryGame() {
 }
 
 function joinMemoryGameOnline() {
-  let identityName = currentUsername || "Player_" + Math.floor(Math.random() * 100);
+    let identityName = localStorage.getItem(chatNameKey) || "خصم مجهول";
+    
+    // إجبار الصعوبة
+    memoryMode = "hard"; 
+    updateMemoryStatus("وضع الأونلاين (Hard Mode) - جاري البحث...");
 
-  memoryRoomRef.once("value", (snapshot) => {
-    let room = snapshot.val() || {};
+    memoryRoomRef.once("value", (snapshot) => {
+        let room = snapshot.val() || {};
 
-    if (!room.p1_name || room.gameState === "finished") {
-      myMemoryPlayerSymbol = "p1";
-      memoryRoomRef.set({
-        p1_name: identityName,
-        p2_name: "",
-        gameState: "waiting",
-        board: []
-      });
-      updateMemoryStatus("جاري البحث عن خصم..");
-    } 
-    else if (!room.p2_name && room.p1_name !== identityName) {
-      myMemoryPlayerSymbol = "p2";
-      
-      let emojis = memoryEmojis.slice(0, 10); 
-      const pairs = [...emojis, ...emojis];
-      const shuffledBoard = pairs.sort(() => Math.random() - 0.5);
+        // إذا كانت الغرفة فارغة أو منتهية، ننتظر فقط (بدون إضافة اسمك لقاعدة البيانات فوراً)
+        if (!room.p1_name || room.gameState === "finished") {
+            updateMemoryStatus("في انتظار خصم... ");
+            // هنا لا نضع p1_name إلا عندما يضغط الطرف الآخر على الانضمام
+            return; 
+        }
 
-      memoryRoomRef.update({
-        p2_name: identityName,
-        gameState: "playing",
-        board: shuffledBoard
-      });
-    } 
-    else {
-      myMemoryPlayerSymbol = "spectator";
-      updateMemoryStatus(`المباراة قائمة بين ${room.p1_name} و ${room.p2_name} 👀`);
-    }
-  });
+        // إذا وجدنا خصماً ينتظر (p1 موجود و p2 فارغ)
+        if (room.p1_name && !room.p2_name) {
+            myMemoryPlayerSymbol = "p2";
+            let emojis = memoryEmojis.slice(0, 10); // 10 للـ Hard
+            const board = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            
+            memoryRoomRef.update({
+                p2_name: identityName,
+                gameState: "playing",
+                board: board
+            });
+        }
+    });
+
+    // مراقبة التحديثات
+    memoryRoomRef.on("value", (snapshot) => {
+        if (activeMemoryMode !== "online") return;
+        let room = snapshot.val() || {};
+        
+        // اكتشاف خروج الخصم
+        if (room.gameState === "playing" && !room.p2_name) {
+            updateMemoryStatus("الخصم غادر. في انتظار لاعب جديد...");
+        }
+        
+        // بدء اللعب عند تحديث اللوحة
+        if (room.gameState === "playing" && room.board) {
+            memoryBoardState = room.board;
+            renderMemoryBoard();
+            updateMemoryStatus("⚔️ المواجهة جارية!");
+        }
+    });
 }
 
 function listenToOnlineMemoryRoom() {
