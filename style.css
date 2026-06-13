@@ -433,3 +433,31 @@ footer{
   background:#dcdcdc;
   transform:translateY(1px);
 }
+/* --- تنسيق حاد ومختلف لأزرار Solo / Bot & Online --- */
+.game-item .mode-controls .toggle-button {
+  background: #ffffff !important; /* الخلفية الافتراضية بيضاء (لوضع البوت/سولو) */
+  color: #1b1b1b !important;
+  border: 3px solid #ff4fd8 !important;
+  border-radius: 0px !important; /* حواف حادة تماماً */
+  font-family: 'Impact', 'Arial Black', sans-serif !important; /* خط سميك ومختلف */
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* حالة الزر النشط (الأونلاين يأخذ اللون الوردي المصمت بدون توهج) */
+.game-item .mode-controls .toggle-button.active {
+  background: #ff4fd8 !important; /* الخلفية وردية عند التفعيل (أونلاين) */
+  color: #ffffff !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: none !important; *
+}
+
+/* تأثير حركة بسيط عند تمرير الماوس */
+.game-item .mode-controls .toggle-button:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
