@@ -513,6 +513,9 @@ window.addEventListener("DOMContentLoaded", () => {
     listenToOnlineChat();
     listenToOnlineXORoom();
 
+    // أضيفي هذا السطر هنا ليتم تحميل الليدربورد بمجرد فتح الموقع
+    loadBunnyLeaderboard(); 
+
     if (document.getElementById("memoryBoard")) {
       setMemoryMode(memoryMode);
     }
