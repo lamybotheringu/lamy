@@ -461,3 +461,14 @@ footer{
   transform: scale(1.03);
   opacity: 0.9;
 }
+/* هذا الكود ضعيه في ملف الـ CSS الخاص بكِ */
+.professional-card {
+    background: linear-gradient(135deg, #ffffff, #f0f7ff); /* خلفية بيضاء مع تدرج أزرق خفيف جداً */
+    border: 2px solid #3498db; /* إطار أزرق ظاهر */
+    border-radius: 15px; /* زوايا منحنية */
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1); /* ظل يعطي عمقاً */
+    color: #2c3e50; /* لون نص داكن وواضح */
+    margin: 20px auto;
+    max-width: 500px;
+}
