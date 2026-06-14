@@ -82,6 +82,8 @@ window.addEventListener("DOMContentLoaded", () => {
     running = false;
     gameOverUI.classList.remove("hidden");
     finalScore.textContent = "القلوب المجمعة : " + heartsCount;
+    
+  checkBunnyLeaderboard(heartsCount);
   }
 
   function spawnHeart() {
