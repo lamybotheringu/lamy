@@ -47,13 +47,18 @@
     جميع حساباتي 🩷
   </a>
 </section>
-
-<section id="updates" class="hidden">
-  <h2>📢 Updates</h2>
-  <p>لايمي تشتغل على الموقع 🚧
-  - اتم تفعيل الشات
-  - مشاكل في ألعاب الأونلاين
-  - قائمة الصدارة لا تزال قيد التجربة </p>
+<section id="updates" class="hidden" style="max-width: 600px; margin: 20px auto; font-family: sans-serif; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+  <div style="background-color: #f4f4f9; padding: 15px 20px; border-bottom: 1px solid #e0e0e0;">
+    <h2 style="margin: 0; font-size: 1.2em; color: #333;">📢 Updates</h2>
+  </div>
+  <div style="padding: 20px; color: #555; line-height: 1.6;">
+    <p style="margin: 0 0 10px 0; font-weight: bold;">لايمي تشتغل على الموقع 🚧</p>
+    <ul style="margin: 0; padding-left: 20px;">
+      <li>اتم تفعيل الشات</li>
+      <li>مشاكل في ألعاب الأونلاين</li>
+      <li>قائمة الصدارة لا تزال قيد التجربة</li>
+    </ul>
+  </div>
 </section>
 
 <section id="youtube" class="hidden">
@@ -222,6 +227,8 @@
 <footer>
   © Lamybotheringu - June 2026
 </footer>
+
+<button id="xoReset" onclick="handleXOResetClick()" class="hidden">إعادة اللعب</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
