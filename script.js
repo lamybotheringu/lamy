@@ -104,507 +104,212 @@ function send(){
 }
 
 // =================================================================
-
-// ❌ محرك لعبة XO المطورة
-
+// ❌ محرك لعبة XO المطورة (نسخة محسنة: بوت متوازن + أونلاين مستقر)
 // =================================================================
 
 let board = ["", "", "", "", "", "", "", "", ""];
-
 let xoWins = 0;
-
 let xoGameOver = false;
-
 const winLines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
 
-
-
 function switchXOMode(mode) {
-
   activeXOMode = mode;
-
   document.getElementById("xoModeBot").classList.toggle("active", mode === "bot");
-
   document.getElementById("xoModeOnline").classList.toggle("active", mode === "online");
-
- 
-
+  
   const statusEl = document.getElementById("xoStatusInfo");
-
   const leaderboardBox = document.getElementById("xoLeaderboardContainer");
 
-
-
   if (mode === "bot") {
-
     statusEl.textContent = "الوضع الحالي: اللعب ضد البوت";
-
     leaderboardBox.classList.add("hidden");
-
     resetXO();
-
   } else {
-
     statusEl.textContent = "في قائمة الانتظار...";
-
     leaderboardBox.classList.remove("hidden");
-
     resetXO();
-
+    listenToOnlineXORoom(); // تفعيل المراقبة فوراً
   }
-
 }
 
-
-
 function draw() {
-
   const b = document.getElementById("xoBoard");
-
   if (!b) return;
-
-  // إذا كانت اللوحة مرسومة بالفعل بنفس القيم، لا تعيد الرسم
-
-  if (b.children.length === 9) return;
-
- 
-
-  b.innerHTML = "";
-
-  board.forEach((c, i) => {
-
-    const d = document.createElement("div");
-
-    d.className = "cell";
-
-    d.textContent = c;
-
-    d.onclick = () => handleXOCellClick(i);
-
-    b.appendChild(d);
-
-  });
-
-}
-
-
-
-// 1. دالة الرسم المحسنة (تمنع التجمد وتحدث العناصر فقط)
-
-function draw() {
-
-  const b = document.getElementById("xoBoard");
-
-  if (!b) return;
-
-
 
   const cells = b.getElementsByClassName("cell");
-
   if (cells.length === 9) {
-
-    board.forEach((c, i) => {
-
-      cells[i].textContent = c;
-
-    });
-
+    board.forEach((c, i) => { cells[i].textContent = c; });
   } else {
-
     b.innerHTML = "";
-
     board.forEach((c, i) => {
-
       const d = document.createElement("div");
-
       d.className = "cell";
-
       d.textContent = c;
-
       d.onclick = () => handleXOCellClick(i);
-
       b.appendChild(d);
-
     });
-
   }
-
 }
-
-
-
-// 2. دالة الفحص (المسؤولة عن معرفة الفائز)
 
 function checkWinnerInBoard(currentBoard) {
-
   for (const [a, b, c] of winLines) {
-
     if (currentBoard[a] && currentBoard[a] === currentBoard[b] && currentBoard[a] === currentBoard[c])
-
       return currentBoard[a];
-
   }
-
   return null;
-
 }
-
-
-
-// 3. دالة الضغط (المسؤولة عن إرسال الحركة لـ Firebase)
 
 function handleXOCellClick(i) {
-
   if (board[i] !== "" || xoGameOver) return;
 
-
-
   if (activeXOMode === "bot") {
-
     board[i] = "X";
-
     let winner = checkWinner();
-
     if (!winner && !board.every(c => c !== "")) {
-
+      // بوت ذكي بنسبة 70% لمنع التجميد ولتوازن الصعوبة
       smartBotMove();
-
       winner = checkWinner();
-
     }
-
     draw();
-
     evaluateLocalXOResults(winner);
-
   } else {
-
     database.ref("online_xo/room").once("value", (snap) => {
-
       const room = snap.val() || {};
-
-      if (room.turn !== onlineXOSymbol) {
-
-        alert("انتظر دورك!");
-
-        return;
-
-      }
-
-     
-
+      if (room.turn !== onlineXOSymbol) return;
+      
       let newBoard = [...board];
-
       newBoard[i] = onlineXOSymbol;
-
       let nextTurn = (onlineXOSymbol === "X") ? "O" : "X";
-
       let winner = checkWinnerInBoard(newBoard);
-
       let isDraw = !winner && newBoard.every(cell => cell !== "");
-
-     
-
+      
       database.ref("online_xo/room").update({
-
-        board: newBoard,
-
-        turn: nextTurn,
-
-        winner: winner || "",
-
-        isDraw: isDraw
-
+        board: newBoard, turn: nextTurn, winner: winner || "", isDraw: isDraw
       });
-
     });
-
   }
-
 }
-
-
 
 function smartBotMove() {
-
+  // محاولة الفوز
   for (let line of winLines) {
-
     let cells = line.map(idx => board[idx]);
-
     if (cells.filter(c => c === "O").length === 2 && cells.filter(c => c === "").length === 1) {
-
-      let emptyIdx = line[cells.indexOf("")];
-
-      board[emptyIdx] = "O"; return;
-
+      board[line[cells.indexOf("")]] = "O"; return;
     }
-
   }
-
-  for (let line of winLines) {
-
-    let cells = line.map(idx => board[idx]);
-
-    if (cells.filter(c => c === "X").length === 2 && cells.filter(c => c === "").length === 1) {
-
-      let emptyIdx = line[cells.indexOf("")];
-
-      board[emptyIdx] = "O"; return;
-
+  // محاولة دفاع ذكية بنسبة 70% (لجعل البوت متوسط الصعوبة)
+  if (Math.random() < 0.7) {
+    for (let line of winLines) {
+      let cells = line.map(idx => board[idx]);
+      if (cells.filter(c => c === "X").length === 2 && cells.filter(c => c === "").length === 1) {
+        board[line[cells.indexOf("")]] = "O"; return;
+      }
     }
-
   }
-
-  if (board[4] === "") { board[4] = "O"; return; }
-
+  // حركة عشوائية لضمان عدم التجميد وسهولة التغلب عليه أحياناً
   const empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
-
   const pick = empty[Math.floor(Math.random() * empty.length)];
-
   if (pick !== undefined) board[pick] = "O";
-
 }
-
-
 
 function evaluateLocalXOResults(winner) {
-
   if (winner) {
-
     xoGameOver = true;
-
     handleXOResult(winner === "X" ? "win" : "lose");
-
   } else if (board.every(c => c !== "")) {
-
     xoGameOver = true;
-
     handleXOResult("draw");
-
   }
-
   updateXOReset();
-
 }
-
-
 
 function checkWinner() {
-
   for (const [a, b, c] of winLines) {
-
     if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
-
   }
-
   return null;
-
 }
-
-
 
 function handleXOResult(result) {
-
   const message = document.getElementById("xoMessage");
-
   if (!message) return;
-
   if (result === "win") {
-
     xoWins++;
-
     document.getElementById("xoWins").textContent = "Wins: " + xoWins;
-
     message.textContent = "You won! 🎉";
-
   } else if (result === "lose") {
-
     message.textContent = "You lost! 😢";
-
   } else if (result === "draw") {
-
     message.textContent = "Draw! 🤝";
-
   }
-
   message.classList.remove("hidden");
-
 }
-
-
 
 function updateXOReset() {
-
   const btn = document.getElementById("xoReset");
-
   if (btn) (xoGameOver) ? btn.classList.remove("hidden") : btn.classList.add("hidden");
-
 }
-
-
 
 function handleXOResetClick() {
   if (activeXOMode === "online") {
-    // إرسال أمر "تصفير" اللوحة لـ Firebase ليراه الخصم أيضاً
     database.ref("online_xo/room").update({
       board: ["", "", "", "", "", "", "", "", ""],
-      winner: "",
-      isDraw: false,
-      turn: "X" 
+      winner: "", isDraw: false, turn: "X"
     });
   } else {
-    // اللعب ضد البوت يعمل محلياً كما كان
     resetXO();
   }
 }
 
 function resetXO() {
-
   board = ["", "", "", "", "", "", "", "", ""];
-
   xoGameOver = false;
-
   draw();
-
   updateXOReset();
-
   const msg = document.getElementById("xoMessage");
-
   if (msg) { msg.textContent = ""; msg.classList.add("hidden"); }
-
 }
-
-
 
 function listenToOnlineXORoom() {
-
     const roomRef = database.ref("online_xo/room");
-
-    const statusDiv = document.getElementById("xoStatusInfo"); // تعريف العنصر هنا لضمان وجوده
-
-   
-
     roomRef.off("value");
-
-
-
     roomRef.on("value", (snapshot) => {
-
         if (activeXOMode !== "online") return;
-
         const room = snapshot.val();
-
         if (!room) return;
 
-
-
-        // 1. تحديث اللوحة
-
         const newBoard = room.board || ["", "", "", "", "", "", "", "", ""];
-
+        // تحديث اللوحة فقط عند حدوث تغيير حقيقي لتقليل الضغط
         if (JSON.stringify(newBoard) !== JSON.stringify(board)) {
-
             board = newBoard;
-
             draw();
-
         }
 
-
-
-        // 2. تحديث الرسائل التفاعلية للاعب
-
+        const statusDiv = document.getElementById("xoStatusInfo");
         if (statusDiv) {
-
-            if (xoGameOver) {
-
-                statusDiv.textContent = "انتهت الجولة!";
-
-            } else if (room.turn === onlineXOSymbol) {
-
-                statusDiv.textContent = "دورك الآن!.";
-
-            } else {
-
-                statusDiv.textContent = "الخصم يفكر.. كن صبوراً!";
-
-            }
-
+            if (room.winner) statusDiv.textContent = (room.winner === onlineXOSymbol) ? "فزت! 🎉" : "خسرت! 😢";
+            else if (room.turn === onlineXOSymbol) statusDiv.textContent = "دورك الآن!";
+            else statusDiv.textContent = "الخصم يفكر..";
         }
 
-
-
-        // 3. التحقق من النتيجة النهائية
-
-        const winner = room.winner || "";
-
-        const isDraw = room.isDraw || false;
-
-
-
-        if (winner && !xoGameOver) {
-
+        if (room.winner && !xoGameOver) {
             xoGameOver = true;
-
-            const result = (winner === onlineXOSymbol) ? "win" : "lose";
-
-           
-
-            // تحديث الصدارة العالمية إذا فزت
-
-            if (result === "win") {
-
-                updateGlobalLeaderboard(localStorage.getItem("xoPlayerName"));
-
-            }
-
-           
-
-            handleXOResult(result);
-
-        } else if (isDraw && !xoGameOver) {
-
+            if (room.winner === onlineXOSymbol) updateGlobalLeaderboard(localStorage.getItem("xoPlayerName"));
+            handleXOResult(room.winner === onlineXOSymbol ? "win" : "lose");
+        } else if (room.isDraw && !xoGameOver) {
             xoGameOver = true;
-
             handleXOResult("draw");
-
         }
-
-       
-
-        updateXOReset();
-
     });
-
 }
 
-
-
-// دالة تحديث الصدارة العالمية (تبقى كما هي)
-
 function updateGlobalLeaderboard(name) {
-
     if (!name) return;
-
-    const playerRef = database.ref("online_xo/players/" + name);
-
-    playerRef.transaction((player) => {
-
-        if (player) {
-
-            player.wins = (player.wins || 0) + 1;
-
-            return player;
-
-        }
-
-        return { wins: 1 };
-
+    database.ref("online_xo/players/" + name).transaction((p) => {
+        return p ? { wins: (p.wins || 0) + 1 } : { wins: 1 };
     });
-
-}  
-
-
+}
 // =================================================================
 // 🧠 محرك لعبة الذاكرة المطور 
 // =================================================================
@@ -671,28 +376,27 @@ function startMemoryGame() {
   if (retryEl) retryEl.classList.add("hidden");
 }
 
-// دالة الانضمام للعبة
+// دالة الانضمام الموحدة
 function joinMemoryGameOnline() {
     let identityName = localStorage.getItem(chatNameKey) || "خصم مجهول";
     
-    // إيقاف أي استماع سابق قبل البدء
-    memoryRoomRef.off("value"); 
-
+    // تأكد من تحديد دور اللاعب عند البدء
     memoryRoomRef.once("value", (snapshot) => {
         let room = snapshot.val() || {};
 
-        // 1. إذا كانت الغرفة فارغة أو انتهت، أنشئ غرفة جديدة
         if (!room.p1_name || room.gameState === "finished") {
+            // أنا اللاعب الأول
+            myMemoryPlayerSymbol = "p1";
             memoryRoomRef.set({
                 p1_name: identityName,
                 p2_name: "",
                 gameState: "waiting",
                 board: []
             });
-            updateMemoryStatus("بانتظار خصم...");
-        } 
-        // 2. إذا كان هناك لاعب ينتظر، انضم إليه
-        else if (room.p1_name && !room.p2_name && room.p1_name !== identityName) {
+            updateMemoryStatus("بانتظار خصم... (افتح الموقع من جهاز آخر)");
+        } else if (room.gameState === "waiting" && room.p1_name !== identityName) {
+            // أنا اللاعب الثاني
+            myMemoryPlayerSymbol = "p2";
             let emojis = memoryEmojis.slice(0, 10);
             const board = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
             memoryRoomRef.update({
@@ -702,55 +406,31 @@ function joinMemoryGameOnline() {
             });
             updateMemoryStatus("⚔️ تم التحدي! اللعبة بدأت");
         }
-        
-        // بعد الانتهاء من عملية الانضمام، ابدأ المراقبة
-        listenToOnlineMemoryRoom();
     });
 }
 
-// دالة مراقبة التحديثات (منفصلة تماماً ومغلقة بشكل صحيح)
+// دالة المراقبة الموحدة (يجب أن تكون واحدة فقط)
 function listenToOnlineMemoryRoom() {
-    // إيقاف أي استماع قديم قبل تفعيل الجديد
-    memoryRoomRef.off("value");
-
+    memoryRoomRef.off("value"); // تنظيف أي استماع قديم
+    
     memoryRoomRef.on("value", (snapshot) => {
         if (activeMemoryMode !== "online") return;
         
-        let room = snapshot.val();
+        const room = snapshot.val();
         if (!room) return;
-        
-        // بدء اللعب عند تحديث اللوحة
-        if (room.gameState === "playing" && room.board) {
+
+        // الحالة 1: انتظار الخصم
+        if (room.gameState === "waiting") {
+            updateMemoryStatus("جاري البحث عن خصم..");
+        } 
+        // الحالة 2: اللعبة بدأت
+        else if (room.gameState === "playing" && room.board) {
             memoryBoardState = room.board;
+            let opponent = (myMemoryPlayerSymbol === "p1") ? room.p2_name : room.p1_name;
+            updateMemoryStatus(`⚔️ المواجهة جارية ضد: ${opponent || "..."}`);
             renderMemoryBoard();
-            updateMemoryStatus("⚔️ المواجهة جارية!");
-        }
-        // اكتشاف خروج الخصم
-        else if (room.gameState === "playing" && !room.p2_name) {
-            updateMemoryStatus("الخصم غادر. في انتظار لاعب جديد...");
         }
     });
-}
-
-function listenToOnlineMemoryRoom() {
-  memoryRoomRef.off("value");
-
-  memoryRoomRef.on("value", (snapshot) => {
-    if (activeMemoryMode !== "online") return;
-    const room = snapshot.val() || {};
-    
-    if (room.gameState === "waiting") {
-      updateMemoryStatus("جاري البحث عن خصم..");
-      document.getElementById("memoryBoard").innerHTML = "";
-    }
-
-    if (room.gameState === "playing" && room.board) {
-      let opponent = myMemoryPlayerSymbol === "p1" ? room.p2_name : room.p1_name;
-      updateMemoryStatus(`⚔️ بدأ تحدي الأونلاين ضد: ${opponent}`);
-      memoryBoardState = room.board;
-      renderMemoryBoard();
-    }
-  });
 }
 
 function updateMemoryStatus(text) {
@@ -994,41 +674,49 @@ function checkBunnyLeaderboard(currentScore) {
     }
 }
 
+// 1. حفظ النتيجة في Firebase فقط (لأنها ستكون عالمية)
 function saveBunnyScore(name, score) {
+    // حفظ الاسم محلياً فقط ليتذكر الموقع اسم اللاعب في المرة القادمة
     localStorage.setItem("bunnyPlayerName", name);
-    let list = JSON.parse(localStorage.getItem("bunnyList") || "[]");
-    
-    let existingIdx = list.findIndex(item => item.name === name);
-    if (existingIdx !== -1) {
-        if (score > list[existingIdx].score) list[existingIdx].score = score;
-    } else {
-        list.push({ name: name, score: score });
-    }
 
-    list.sort((a, b) => b.score - a.score);
-    let topFive = list.slice(0, 5);
-    
-    localStorage.setItem("bunnyList", JSON.stringify(topFive));
-    updateBunnyLeaderboardView();
+    // رفع النتيجة لـ Firebase
+    database.ref("leaderboards/bunny").push({
+        name: name,
+        score: score,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
 }
 
+// 2. عرض الليدربورد بجلب البيانات من Firebase مباشرة
 function updateBunnyLeaderboardView() {
     const view = document.getElementById("bunnyLeaderboardView");
     if (!view) return;
 
-    let bunnyLeaderboard = JSON.parse(localStorage.getItem("bunnyList") || "[]");
-    let myName = localStorage.getItem("bunnyPlayerName");
+    // جلب أعلى 5 نتائج من Firebase
+    database.ref("leaderboards/bunny")
+        .orderByChild("score")
+        .limitToLast(5)
+        .on("value", (snapshot) => {
+            let scores = [];
+            snapshot.forEach((child) => {
+                scores.push(child.val());
+            });
 
-    view.innerHTML = bunnyLeaderboard.map((u, i) => {
-        let isMe = (u.name === myName);
-        let style = isMe ? "color: #FFD700; font-weight: bold; text-shadow: 0 0 5px #FFD700;" : "";
-        
-        return `<div style="${style}">
-            ${i + 1}. <b>${u.name}</b>: ${u.score} قلوب ${isMe ? ' 👑' : ''}
-        </div>`;
-    }).join("");
+            // الترتيب من الأعلى إلى الأقل
+            scores.sort((a, b) => b.score - a.score);
+
+            let myName = localStorage.getItem("bunnyPlayerName");
+
+            view.innerHTML = scores.map((u, i) => {
+                let isMe = (u.name === myName);
+                let style = isMe ? "color: #FFD700; font-weight: bold; text-shadow: 0 0 5px #FFD700;" : "";
+                
+                return `<div style="${style}">
+                    ${i + 1}. <b>${u.name}</b>: ${u.score} قلوب ${isMe ? ' 👑' : ''}
+                </div>`;
+            }).join("");
+        });
 }
-
 // تُستدعى عند الضغط على زر "حفظ" في الـ HTML
 function submitBunnyHighScore() {
     const nameInput = document.getElementById("bunnyLeaderboardNameInput");
@@ -1039,4 +727,61 @@ function submitBunnyHighScore() {
     
     saveBunnyScore(name, window.currentBunnyScore || 0);
     if (container) container.classList.add("hidden");
+}
+// حفظ الاسم وإظهاره في الموقع
+function savePlayerName() {
+    const nameInput = document.getElementById("xoNameInput").value;
+    if (!nameInput) {
+        alert("يجب إدخال اسم أولاً!");
+        return;
+    }
+    
+    // إخفاء حقل الإدخال وإظهار الاسم الدائم
+    document.getElementById("xoPlayerSetup").classList.add("hidden");
+    document.getElementById("xoDisplayName").classList.remove("hidden");
+    document.getElementById("xoCurrentName").textContent = nameInput;
+    
+    // حفظ الاسم في LocalStorage كمرجع خلفي فقط (لكن الواجهة هي الأساس)
+    localStorage.setItem("xoPlayerName", nameInput);
+}
+
+// عند تحميل الصفحة، تأكد من إظهار الاسم إذا كان موجوداً مسبقاً
+window.onload = () => {
+    const savedName = localStorage.getItem("xoPlayerName");
+    if (savedName) {
+        document.getElementById("xoPlayerSetup").classList.add("hidden");
+        document.getElementById("xoDisplayName").classList.remove("hidden");
+        document.getElementById("xoCurrentName").textContent = savedName;
+    }
+};
+
+function saveMemoryName() {
+    const nameInput = document.getElementById("memoryNameInput").value;
+    if (!nameInput) return alert("الاسم مطلوب!");
+    
+    // حفظ الاسم في LocalStorage ليكون متاحاً لكل الألعاب
+    localStorage.setItem("xoPlayerName", nameInput);
+    
+    // إظهار الاسم في الواجهة
+    updateMemoryUI(nameInput);
+}
+
+function updateMemoryUI(name) {
+    document.getElementById("memoryPlayerSetup").classList.add("hidden");
+    document.getElementById("memoryDisplayName").classList.remove("hidden");
+    document.getElementById("memoryCurrentName").textContent = name;
+}
+
+// عند فتح لعبة الذاكرة، سيقرأ الاسم مباشرة من المكان الموحد
+window.addEventListener('load', () => {
+    const savedName = localStorage.getItem("xoPlayerName");
+    if (savedName) updateMemoryUI(savedName);
+});
+
+function onMemoryWin() {
+    const playerName = localStorage.getItem("xoPlayerName");
+    if (playerName) {
+        // استدعاء دالة الصدارة الموحدة التي تكلمنا عنها سابقاً
+        updateGlobalLeaderboard(playerName);
+    }
 }
