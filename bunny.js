@@ -3,78 +3,150 @@ window.addEventListener("DOMContentLoaded", () => {
   const bunny = document.getElementById("bunny");
   const obstacle = document.getElementById("obstacle");
   const heartTemplate = document.getElementById("heartTemplate");
-
-  // UI tracking elements
   const scoreEl = document.getElementById("score");
   const gameOverUI = document.getElementById("gameOver");
   const finalScore = document.getElementById("finalScore");
-  
-  const startScreen = document.getElementById("startScreen") || document.getElementById("startUI") || document.getElementById("startMenu");
-
+  const startScreen = document.getElementById("startScreen");
   const restartBtn = document.getElementById("restartBtn");
 
   let running = false;
-  let gameStartedOnce = false; // Tracks if the initial start screen is gone
-  let heartsCount = 0; // Tracks collected hearts
+  let gameStartedOnce = false;
+  let heartsCount = 0;
+  
+  // متغير لمتابعة مرحلة السرعة: 0 = بداية، 1 = بعد 15، 2 = بعد 30
+  let speedLevel = 0; 
 
-  // --- SLOWER / FLOATIER PHYSICS VARIABLES ---
+  // القيم الافتراضية للبداية
+  let gravity = -0.0031; 
+  let jumpPower = 0.78; 
+  let obsSpeed = 0.31;
+  let heartSpeed = 0.25;
+
   let y = 0;
   let velocity = 0;
-  const gravity = -0.32;     // Bunny falls slower
-  const jumpPower = 7.8;     // Bunny launches upward slower
   const groundLevel = 0;
-
-  // --- DOUBLE JUMP CAPACITY ---
-  let jumpsAvailable = 2;    
-
+  let jumpsAvailable = 2;
   let obsX = 600;
-
-  // Heart/Collectible tracking
   let hearts = [];
   let heartSpawnTimer = 0;
+  let lastTime = 0;
 
-  // FORCE WINDOW FOCUS: Ensures the browser registers space key immediately on load
-  window.focus();
+  async function saveHighScore(score) {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      const db = firebase.firestore();
+      const userRef = db.collection("users").doc(user.uid);
+      try {
+        const doc = await userRef.get();
+        const currentHigh = doc.exists ? (doc.data().highScore || 0) : 0;
+        if (score > currentHigh) {
+          await userRef.set({ highScore: score }, { merge: true });
+        }
+      } catch (e) { console.error("Error saving score: ", e); }
+    }
+  }
 
   function startGame() {
-    if (running) return; 
+    if (running) return;
     
     running = true;
     gameStartedOnce = true;
     heartsCount = 0;
-    y = groundLevel;
+    speedLevel = 0; // إعادة ضبط المستوى
+    y = 0;
     velocity = 0;
-    obsX = game.clientWidth + 100;
-    jumpsAvailable = 2; 
-
-    // Sync screen updates
-    if (scoreEl) scoreEl.textContent = "Hearts: 0";
     
-    gameOverUI.classList.add("hidden");
-    if (startScreen) {
-      startScreen.classList.add("hidden");
-    }
+    // قيم البداية
+    gravity = -0.0031; 
+    jumpPower = 0.78; 
+    obsSpeed = 0.31;
+    heartSpeed = 0.25;
 
-    // Clean up old hearts from previous rounds
+    obsX = game.clientWidth + 100;
+    jumpsAvailable = 2;
+    lastTime = performance.now();
+    
+    if (scoreEl) scoreEl.textContent = "Hearts: 0";
+    gameOverUI.classList.add("hidden");
+    if (startScreen) startScreen.classList.add("hidden");
+    
     hearts.forEach(h => h.element.remove());
     hearts = [];
     heartSpawnTimer = 0;
+    requestAnimationFrame(loop);
+  }
 
+  function loop(timestamp) {
+    if (!running) return;
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+
+    // نظام المراحل التراكمي
+    if (heartsCount >= 50 && speedLevel < 2) {
+      speedLevel = 2;
+      gravity = -0.0032; // زيادة بسيطة إضافية
+      jumpPower = 0.82;
+      obsSpeed = 0.47;
+      heartSpeed = 0.40;
+    } else if (heartsCount >= 10 && speedLevel < 1) {
+      speedLevel = 1;
+      gravity = -0.0033;
+      jumpPower = 0.80;
+      obsSpeed = 0.38;
+      heartSpeed = 0.35;
+    }
+
+    velocity += gravity * deltaTime;
+    y += velocity * deltaTime;
+    if (y <= groundLevel) {
+      y = groundLevel;
+      velocity = 0;
+      jumpsAvailable = 2;
+    }
     bunny.style.bottom = y + "px";
-    
-    // Grounded obstacle configuration
-    obstacle.style.bottom = "0px"; 
+
+    obsX -= obsSpeed * deltaTime;
+    if (obsX < -50) obsX = game.clientWidth + 100;
     obstacle.style.left = obsX + "px";
 
-    loop();
+    heartSpawnTimer += deltaTime;
+    if (heartSpawnTimer > 800) {
+      spawnHeart();
+      heartSpawnTimer = 0;
+    }
+
+    const bBox = bunny.getBoundingClientRect();
+    for (let i = hearts.length - 1; i >= 0; i--) {
+      const h = hearts[i];
+      h.x -= heartSpeed * deltaTime;
+      h.element.style.left = h.x + "px";
+      h.element.style.bottom = h.y + "px";
+
+      const hBox = h.element.getBoundingClientRect();
+      if (!(bBox.right < hBox.left || bBox.left > hBox.right || bBox.bottom < hBox.top || bBox.top > hBox.bottom)) {
+        heartsCount++;
+        scoreEl.textContent = "Hearts: " + heartsCount;
+        h.element.remove();
+        hearts.splice(i, 1);
+      } else if (h.x < -50) {
+        h.element.remove();
+        hearts.splice(i, 1);
+      }
+    }
+
+    const oBox = obstacle.getBoundingClientRect();
+    if (!(bBox.right < oBox.left || bBox.left > oBox.right || bBox.bottom < oBox.top || bBox.top > oBox.bottom)) {
+      gameOver();
+    } else {
+      requestAnimationFrame(loop);
+    }
   }
 
   function jump() {
     if (!running) return;
-    
     if (jumpsAvailable > 0) {
       velocity = jumpPower;
-      jumpsAvailable--; 
+      jumpsAvailable--;
     }
   }
 
@@ -82,128 +154,27 @@ window.addEventListener("DOMContentLoaded", () => {
     running = false;
     gameOverUI.classList.remove("hidden");
     finalScore.textContent = "القلوب المجمعة : " + heartsCount;
-    
-  checkBunnyLeaderboard(heartsCount);
+    saveHighScore(heartsCount);
   }
 
   function spawnHeart() {
-    if (!heartTemplate) return;
     const clone = heartTemplate.cloneNode(true);
-    clone.removeAttribute("id");
     clone.classList.remove("hidden");
-    clone.style.display = "block"; 
+    clone.style.position = "absolute";
     game.appendChild(clone);
-
-    // Random spotted heights accessible by the slower jump settings
-    const randomHeight = Math.floor(Math.random() * 100) + 30;
-
-    hearts.push({
-      element: clone,
-      x: game.clientWidth + 50,
-      y: randomHeight 
-    });
+    hearts.push({ element: clone, x: game.clientWidth, y: Math.random() * 80 + 30 });
   }
 
-  function loop() {
-    if (!running) return; 
+  const handleInput = (e) => {
+    if (e.target.id === "restartBtn") return;
+    e.preventDefault();
+    if (!gameStartedOnce) startGame();
+    else if (!running && !gameOverUI.classList.contains("hidden")) startGame();
+    else jump();
+  };
 
-    // --- 1. BUNNY PHYSICS ---
-    velocity += gravity;
-    y += velocity;
-
-    if (y <= groundLevel) {
-      y = groundLevel;
-      velocity = 0;
-      jumpsAvailable = 2; // Reset double-jump on landing
-    }
-    bunny.style.bottom = y + "px";
-
-    // --- 2. OBSTACLE MOVEMENT ---
-    obsX -= 2.5; 
-    if (obsX < -50) {
-      obsX = game.clientWidth + Math.random() * 300 + 100; 
-    }
-    obstacle.style.left = obsX + "px";
-
-    // --- 3. HEART COIN MECHANIC ---
-    heartSpawnTimer++;
-    if (heartSpawnTimer > 120) { 
-      spawnHeart();
-      heartSpawnTimer = 0;
-    }
-
-    const bBox = bunny.getBoundingClientRect();
-
-    for (let i = hearts.length - 1; i >= 0; i--) {
-      const heart = hearts[i];
-      heart.x -= 2.2; 
-      heart.element.style.left = heart.x + "px";
-      heart.element.style.bottom = heart.y + "px";
-
-      const hBox = heart.element.getBoundingClientRect();
-
-      // Check collision with floating heart item
-      if (!(bBox.right < hBox.left || bBox.left > hBox.right || bBox.bottom < hBox.top || bBox.top > hBox.bottom)) {
-        heartsCount++; 
-        if (scoreEl) {
-          scoreEl.textContent = "Hearts: " + heartsCount;
-        }
-        heart.element.remove();
-        hearts.splice(i, 1);
-        continue;
-      }
-
-      if (heart.x < -50) {
-        heart.element.remove();
-        hearts.splice(i, 1);
-      }
-    }
-
-    // --- 4. OBSTACLE COLLISION DETECTION ---
-    const oBox = obstacle.getBoundingClientRect();
-    if (!(bBox.right < oBox.left || bBox.left > oBox.right || bBox.bottom < oBox.top || bBox.top > oBox.bottom)) {
-      gameOver();
-      return; 
-    }
-
-    requestAnimationFrame(loop);
-  }
-
-  // Event Listeners
-  if (restartBtn) {
-    restartBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // Stops event bubbling triggers
-      startGame();
-    });
-  }
-
-  // MASTER KEYBOARD LISTENER (Handles Start, Jump, and Restart)
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      e.preventDefault(); 
-      
-      if (!gameStartedOnce) {
-        startGame(); // Press Space to Start (First run)
-      } else if (!running && !gameOverUI.classList.contains("hidden")) {
-        startGame(); // Press Space to Restart (Game Over screen)
-      } else {
-        jump(); // Press Space to Jump (While running)
-      }
-    }
-  });
-
-  // SCREEN INTERACTION FALLBACKS
-  game.addEventListener("click", () => {
-    if (!gameStartedOnce) {
-      startGame();
-    } else {
-      jump();
-    }
-  });
-
-  if (startScreen) {
-    startScreen.addEventListener("click", () => {
-      if (!gameStartedOnce) startGame();
-    });
-  }
+  game.addEventListener("touchstart", handleInput, { passive: false });
+  game.addEventListener("mousedown", handleInput);
+  if (restartBtn) restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
+  document.addEventListener("keydown", (e) => { if (e.code === "Space") handleInput(e); });
 });
