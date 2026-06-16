@@ -18,17 +18,18 @@
   <p>♥ نورتو يا لايميز ♥ </p>
 </header>
 
+<div id="auth-header" style="position: absolute; top: 10px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
+    <button id="loginTriggerBtn" onclick="showAuthOverlay('login')">تسجيل الدخول</button>
+    <button id="signupTriggerBtn" onclick="showAuthOverlay('signup')">إنشاء حساب</button>
+</div>
+
 <nav>
   <button onclick="show('home')">Home</button>
   <button onclick="show('about')">About</button>
   <button onclick="show('updates')">Updates</button>
   <button onclick="show('youtube')">YouTube</button>
   <button onclick="show('games')">Games</button>
-
-  <button onclick="show('bunny-game')">
-    🐇<span style="opacity:0.7;font-size:12px">(DEMO)</span>
-  </button>
-
+  <button onclick="show('bunny-game')">🐇<span style="opacity:0.7;font-size:12px">(DEMO)</span></button>
   <button onclick="show('chat')">Chat</button>
 </nav>
   
@@ -42,18 +43,15 @@
 <section id="about" class="hidden">
   <h2>👤 About Me</h2>
   <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p> 
-
   <a href="https://linktr.ee/lamybotheringu" target="_blank" class="accounts-box" style="font-family: 'Courier New', 'B Titr', 'Titr', sans-serif; font-weight: bold;">
     جميع حساباتي 🩷
   </a>
 </section>
 
 <section id="updates" class="hidden" style="max-width: 100%; margin: 30px auto; font-family: sans-serif; color: white;">
-
   <div style="border: 2px solid #ff4fd8; padding: 15px; margin-bottom: 20px; display: block;">
-    <h2 style="margin: 0; color: #ff4fd8; font-size: 1.3em;">لايمي تشتغل على الموقع 🚧</h2>
+    <h2 style="margin: 0; color: #ff4fd8; font-size: 1.3em;">الموقع خلف الصيانة 🚧</h2>
   </div>
-  
   <ul style="margin: 0; padding-left: 20px; list-style-type: none; line-height: 1.8;">
     <li style="margin-bottom: 5px;">• تم تفعيل الشات</li>
     <li style="margin-bottom: 5px;">• مشاكل في ألعاب الأونلاين</li>
@@ -61,69 +59,38 @@
   </ul>
 </section>
 
-
-
 <section id="youtube" class="hidden">
   <h2>🎥 YouTube - تابعو مقاطعي على اليوتيوب</h2>
-
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/xtijJJNDp7M" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/OwxwcN3fH1o" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/NPSM8mjA7eY" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/uZkWKDacuuM" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/wVfHHJxc14U" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/4fGiQmx0N98" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/qt2IsiovhgU" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/MZJjw2PhqLI" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/SHHrgd6Kxx4" allowfullscreen></iframe>
-  </div>
-  <div class="video-frame">
-    <iframe src="https://www.youtube.com/embed/oUeCOie6xMg" allowfullscreen></iframe>
-  </div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/xtijJJNDp7M" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/OwxwcN3fH1o" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/NPSM8mjA7eY" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/uZkWKDacuuM" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/wVfHHJxc14U" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/4fGiQmx0N98" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/qt2IsiovhgU" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/MZJjw2PhqLI" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/SHHrgd6Kxx4" allowfullscreen></iframe></div>
+  <div class="video-frame"><iframe src="https://www.youtube.com/embed/oUeCOie6xMg" allowfullscreen></iframe></div>
 </section>
 
 <section id="games" class="hidden">
-
   <div class="games-container">
-    
     <div class="game-item">
       <h3>❌ XO Game</h3>
-      
       <div class="mode-controls" style="margin-bottom: 16px; display: flex; gap: 10px; justify-content: center;">
         <button id="xoModeBot" class="toggle-button active" onclick="switchXOMode('bot')">Bot</button>
         <button id="xoModeOnline" class="toggle-button" onclick="switchXOMode('online')">Online</button>
       </div>
-
       <div id="xoStatusInfo" style="font-size: 14px; margin-bottom: 8px; color: #fff;">الوضع الحالي: اللعب ضد البوت</div>
       <div id="xoWins" class="win-counter">Wins: 0</div>
-      
       <div id="xoBoard"></div>
-      
       <button id="xoReset" class="game-button hidden" onclick="handleXOResetClick()">play again</button>
       <div id="xoMessage" class="tree-message hidden"></div>
-
       <div id="xoSaveNameContainer" class="hidden" style="margin-top: 15px; padding: 10px; border: 2px dashed #ff4fd8;">
         <p style="font-size: 13px; color: #fff; margin: 0 0 8px 0;">🎉 كفو! حققت فوزاً كبيراً، اكتب اسمك لتسجيله في الصدارة:</p>
         <input type="text" id="xoLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 5px; width: 70%;">
         <button class="toggle-button" onclick="submitXOHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
       </div>
-
       <div id="xoLeaderboardContainer" class="hidden" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
         <h4 style="margin: 0 0 8px 0; font-size: 14px;">🏆 Global XO Leaderboard</h4>
         <div id="onlineLeaderboardView" style="font-size: 12px; text-align: right;">جاري التحميل...</div>
@@ -135,108 +102,77 @@
       <div id="treeVisualization" class="tree-viz">🌱</div>
       <div id="clickScore" style="margin-top:12px">Score: 0</div>
       <button class="game-button" onclick="clickMe()">Click me</button>
-      <div id="treeMessage" class="tree-message hidden"> مبروك! حصلت على شجرة</div>
+      <div id="treeMessage" class="tree-message hidden"> أحسنت! نمت الشجرة</div>
       <button id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
-      <div id="treeCount" class="win-counter">Tree count: 0</div>
+      <div id="treeCount" class="win-counter">Tree count: --</div>
+      <div id="clickerLeaderboardContainer" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
+    <h4 id="clickerLeaderboardTitle" style="margin: 0 0 8px 0; font-size: 14px; color: #ff4fd8;">🏆 لوحة الصدارة </h4>
+    <div id="clickerOnlineLeaderboardView" style="font-size: 12px; text-align: right; color: #fff;">--     </div>
+</div>
     </div>
 
     <div class="game-item">
       <h3>🧠 Memory Game</h3>
-      
       <div class="mode-controls" style="margin-bottom: 16px; display: flex; gap: 10px; justify-content: center;">
         <button id="memoryPlaySolo" class="toggle-button active" onclick="switchMemoryMatchMode('solo')">Solo</button>
         <button id="memoryPlayOnline" class="toggle-button" onclick="switchMemoryMatchMode('online')">Online</button>
       </div>
-
       <div id="memoryDifficultyControls" class="memory-controls" style="margin-top: 0;">
         <button id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
         <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
         <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
       </div>
-
       <p id="memoryStatus" class="memory-status">اختر مستوى للبدء</p>
-      
       <div id="memoryBoard" class="memory-board"></div>
-      
       <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Play again</button>
       <div id="memoryWins" class="win-counter">Wins: 0</div>
-
       <div id="memorySaveNameContainer" class="hidden" style="margin-top: 15px; padding: 10px; border: 2px dashed #ff4fd8;">
         <p style="font-size: 13px; color: #fff; margin: 0 0 8px 0;">🎉 رائع! دخلت صدارة الجولة الحالية، اكتب اسمك لتسجيله:</p>
         <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 6px; width: 60%;">
-        <input type="hidden" id="xoLeaderboardNameInput" value=""> <button class="toggle-button" onclick="submitMemoryHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
+        <button class="toggle-button" onclick="submitMemoryHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
       </div>
-
       <div id="memoryLeaderboardContainer" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
         <h4 id="memoryLeaderboardTitle" style="margin: 0 0 8px 0; font-size: 14px; color: #ff4fd8;">🏆 لوحة الصدارة (EASY)</h4>
         <div id="memoryOnlineLeaderboardView" style="font-size: 12px; text-align: right; color: #fff;">لا توجد نتائج مسجلة في هذه الجلسة.</div>
       </div>
     </div>
-    
   </div>
-
 </section>
 
 <section id="bunny-game" class="hidden">
   <h2>🐰 Bunny Game (Demo)</h2>
-  
   <div id="game" style="position: relative; width: 100%; max-width: 600px; height: 300px; background: #222; margin: 20px auto; overflow: hidden; border: 2px solid #ff4da6;">
     <img src="cloud.png" class="cloud c1">
     <img src="cloud.png" class="cloud c2">
     <img src="cloud.png" class="cloud c3">
-
     <img src="bunny.png" id="bunny">
-
     <div id="obstacle"></div>
-
     <img src="heart.png" id="heartTemplate" class="hidden" style="position: absolute; width: 30px; height: 30px;">
-
     <div id="score">Hearts : 0</div>
-
-    <div id="startScreen" class="overlay">
-      <h2>Press Space to Start</h2>
-    </div>
-
-    <div id="gameOver" class="overlay hidden">
-      <h2>Game Over</h2>
-      <p id="finalScore"></p>
-      <button id="restartBtn">Play Again</button>
-    </div>
+    <div id="startScreen" class="overlay"><h2>Press Space to Start</h2></div>
+    <div id="gameOver" class="overlay hidden"><h2>Game Over</h2><p id="finalScore"></p><button id="restartBtn">Play Again</button></div>
   </div>
-
   <div id="bunnySaveNameContainer" class="hidden" style="margin: 15px auto; width: 100%; max-width: 400px; background: #222; padding: 15px; border-radius: 12px; border: 2px dashed #ff4da6; text-align: center;">
-    <p style="font-size: 14px; color: #fff; margin: 0 0 10px 0;">🏆 سكورتك عالي ودخلت التوب! اكتب اسمك ليرز في الليدربورد:</p>
-    <input type="text" id="bunnyLeaderboardNameInput" placeholder="اسمك السريع" style="padding: 6px; width: 60%;">
-    <button class="toggle-button" onclick="submitBunnyHighScore()" style="padding: 6px 12px; font-size: 13px;">حفظ النتيجة 🌟</button>
+    <p style="font-size: 14px; color: #fff; margin: 0 0 10px 0;">🏆 ممتاز! اكتب اسمك ليظهر في الليدربورد:</p>
+    <input type="text" id="bunnyLeaderboardNameInput" placeholder="أدخل اسمك هنا..." style="padding: 6px; width: 60%; border-radius: 5px; border: none;">
+    <button onclick="submitBunnyHighScore()" style="padding: 6px 12px; font-size: 13px; cursor: pointer; background: #ff4da6; color: white; border: none; border-radius: 5px;">حفظ النتيجة 🌟</button>
   </div>
-
   <div id="bunnyLeaderboardContainer" style="margin: 25px auto; width: 100%; max-width: 400px; background: #111; padding: 15px; border-radius: 12px; border: 1px solid #ff4da6;">
     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ff4da6;">🏆 Bunny Leaderboard</h3>
-    <div id="bunnyLeaderboardView" style="font-size: 14px; text-align: right; color: #fff;">لا توجد نتائج مسجلة في هذه اللعبة بعد.</div>
+    <div id="bunnyLeaderboardView" style="font-size: 14px; text-align: right; color: #fff;">جاري تحميل النتائج...</div>
   </div>
 </section>
+
 
 <section id="chat" class="hidden">
   <h2>💬 Chat</h2>
-
-  <input id="name" placeholder="اسمك (مطلوب)">
+  <input id="name" placeholder="إسمك (سجل دخولك)" readonly style="color: #ff4fd8; border: 1px solid #ff4fd8;">
   <input id="msg" placeholder="اكتب رسالتك">
   <button id="sendBtn" onclick="send()">إرسال</button> 
-
   <div id="box"></div>
 </section>
 
-<footer>
-  © Lamybotheringu - June 2026
-</footer>
-
-<button id="xoReset" onclick="handleXOResetClick()" class="hidden">إعادة اللعب</button>
-
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-<script src="script.js"></script>
-<script src="bunny.js"></script>
+<footer>© Lamybotheringu - June 2026</footer>
 
 <script>
   window.addEventListener("keydown", function(e) {
@@ -245,6 +181,14 @@
     }
   }, true);
 </script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="script.js"></script>
+<script src="bunny.js"></script>
+<script src="auth.js"></script>
 
 </main>
 </body>
