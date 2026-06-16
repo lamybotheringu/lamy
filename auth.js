@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
 window.showAuthOverlay = function(type) {
     let overlay = document.getElementById("loginOverlay");
     
-    // إذا لم تكن النافذة موجودة، أنشئها
     if (!overlay) {
         overlay = document.createElement("div");
         overlay.id = "loginOverlay";
@@ -102,7 +101,6 @@ window.showAuthOverlay = function(type) {
         document.body.appendChild(overlay);
     }
 
-    // دالة داخلية لتحديث محتوى النافذة فقط (هنا يكمن السر)
     const renderContent = (currentType) => {
         overlay.innerHTML = `
             <div style="background:#222; padding:30px; border-radius:20px; border: 2px solid #ff4fd8; text-align:center; color:white; width: 300px; position: relative;">
@@ -126,25 +124,34 @@ window.showAuthOverlay = function(type) {
             </div>
         `;
 
-        // إضافة الأحداث (Events) بعد رسم العناصر
         document.getElementById('closeAuth').onclick = () => overlay.remove();
         document.getElementById('toggleMode').onclick = () => renderContent(currentType === 'login' ? 'signup' : 'login');
         
+        // هنا المنطق الصحيح لتسجيل الدخول
         document.getElementById('submitAuthBtn').onclick = async () => {
-            // منطق تسجيل الدخول أو التسجيل هنا
-            // ... (استخدم نفس منطقك السابق للتحقق من البيانات)
-            console.log("جارٍ التنفيذ لـ: " + currentType);
+            const name = document.getElementById('userInputName').value.trim();
+            const password = document.getElementById('userInputPassword').value;
+            const email = currentType === 'signup' ? document.getElementById('userInputEmail').value.trim() : null;
+            const errorDisplay = document.getElementById('authErrorDisplay');
+
+            if (!name || password.length < 5) {
+                errorDisplay.innerText = "بيانات غير صالحة!";
+                return;
+            }
+
+            try {
+                // افترضنا هنا وجود كائن auth (firebase مثلاً)
+                await auth.signInAnonymously(); 
+                localStorage.setItem("lamyUserName", name);
+                if(currentType === 'signup') localStorage.setItem("lamyUserEmail", email);
+                
+                overlay.remove();
+                window.updateAuthUI(); 
+            } catch (error) {
+                errorDisplay.innerText = "لا يمكنك التسجيل في وقت الصيانة!";
+            }
         };
     };
 
     renderContent(type);
 };
-window.logoutUser = function() {
-    // مسح الاسم من التخزين المحلي
-    localStorage.removeItem("lamyUserName");
-    localStorage.removeItem("lamyUserEmail");
-    
-    // إعادة تحميل الصفحة لإلغاء حالة تسجيل الدخول وتحديث الواجهات
-    location.reload();
-};
-
