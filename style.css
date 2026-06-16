@@ -461,14 +461,66 @@ footer{
   transform: scale(1.03);
   opacity: 0.9;
 }
-/* هذا الكود ضعيه في ملف الـ CSS الخاص بكِ */
-.professional-card {
-    background: linear-gradient(135deg, #ffffff, #f0f7ff); /* خلفية بيضاء مع تدرج أزرق خفيف جداً */
-    border: 2px solid #3498db; /* إطار أزرق ظاهر */
-    border-radius: 15px; /* زوايا منحنية */
-    padding: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1); /* ظل يعطي عمقاً */
-    color: #2c3e50; /* لون نص داكن وواضح */
-    margin: 20px auto;
-    max-width: 500px;
+.clickable:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+/* الزر في الزاوية */
+#authTriggerBtn {
+    position: fixed; 
+    top: 10px; 
+    right: 20px; 
+    z-index: 1000;
+    background: #ff4fd8; 
+    color: white; 
+    border: none;
+    padding: 10px 20px; 
+    border-radius: 20px; 
+    cursor: pointer;
+    font-weight: bold;                /* الخط عريض */
+    font-family: sans-serif;           /* خط بسيط ومتغير */
+    box-shadow: none;                  /* إزالة اللمعة/الظل */
+    transition: background 0.3s;
+}
+
+#authTriggerBtn:hover {
+    background: #d633af;               /* تغيير درجة اللون عند المرور */
+}
+
+#loginTriggerBtn, #signupTriggerBtn {
+    background: #ff4fd8; 
+    color: rgb(0, 0, 0); 
+    border: none;
+    padding: 10px 15px; 
+    border-radius: 20px; 
+    cursor: pointer;
+    font-weight: bold;
+    font-family: sans-serif;
+    box-shadow: none;
+}
+
+#loginTriggerBtn:hover, #signupTriggerBtn:hover {
+    background: #d633af;
+}
+
+#auth-header {
+    pointer-events: auto !important;
+    z-index: 99999 !important;
+}
+
+#name {
+    color: #fd8de5 !important; /* علامة !important تجبر المتصفح على تجاهل أي تنسيق آخر */
+    border: 1px solid #ff4fd8 !important;
+}
+
+#name::placeholder {
+    color: #fd8de5 !important;
+    opacity: 0.7;
+}
+#treeRetry {
+    display: none !important;
+}
+#treeCount {
+    display: none !important;
 }
