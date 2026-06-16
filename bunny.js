@@ -13,10 +13,8 @@ window.addEventListener("DOMContentLoaded", () => {
   let gameStartedOnce = false;
   let heartsCount = 0;
   
-  // متغير لمتابعة مرحلة السرعة: 0 = بداية، 1 = بعد 15، 2 = بعد 30
   let speedLevel = 0; 
 
-  // القيم الافتراضية للبداية
   let gravity = -0.0031; 
   let jumpPower = 0.78; 
   let obsSpeed = 0.31;
@@ -31,20 +29,34 @@ window.addEventListener("DOMContentLoaded", () => {
   let heartSpawnTimer = 0;
   let lastTime = 0;
 
-  async function saveHighScore(score) {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      const db = firebase.firestore();
-      const userRef = db.collection("users").doc(user.uid);
-      try {
-        const doc = await userRef.get();
-        const currentHigh = doc.exists ? (doc.data().highScore || 0) : 0;
-        if (score > currentHigh) {
-          await userRef.set({ highScore: score }, { merge: true });
+function saveHighScore(score) {
+    let name = localStorage.getItem("lamyUserName");
+    if (!name) return;
+
+    const userKey = encodeURIComponent(name);
+    const ref = database.ref("leaderboards/bunny/" + userKey);
+
+    // 1. اقرأ النتيجة الحالية مرة واحدة فقط
+    ref.once("value", (snapshot) => {
+        const oldData = snapshot.val();
+        const oldScore = oldData ? oldData.score : 0;
+
+        // 2. تحديث فقط إذا كان السكور الجديد أكبر
+        if (score > oldScore) {
+            ref.set({
+                name: name,
+                score: score,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log("✅ تم تحديث الرقم القياسي!");
+                // 3. تحديث الجدول فوراً بعد الحفظ الناجح
+                if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView();
+            });
+        } else {
+            console.log("⚠️ النتيجة ليست أعلى من نتيجتك الحالية.");
         }
-      } catch (e) { console.error("Error saving score: ", e); }
-    }
-  }
+    });
+}
 
   function startGame() {
     if (running) return;
@@ -52,11 +64,11 @@ window.addEventListener("DOMContentLoaded", () => {
     running = true;
     gameStartedOnce = true;
     heartsCount = 0;
-    speedLevel = 0; // إعادة ضبط المستوى
+    speedLevel = 0;
     y = 0;
     velocity = 0;
     
-    // قيم البداية
+   
     gravity = -0.0031; 
     jumpPower = 0.78; 
     obsSpeed = 0.31;
@@ -88,11 +100,11 @@ window.addEventListener("DOMContentLoaded", () => {
       jumpPower = 0.82;
       obsSpeed = 0.47;
       heartSpeed = 0.40;
-    } else if (heartsCount >= 10 && speedLevel < 1) {
+    } else if (heartsCount >= 15 && speedLevel < 1) {
       speedLevel = 1;
-      gravity = -0.0033;
-      jumpPower = 0.80;
-      obsSpeed = 0.38;
+      gravity = -0.0034;
+      jumpPower = 0.79;
+      obsSpeed = 0.37;
       heartSpeed = 0.35;
     }
 
@@ -150,12 +162,52 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function gameOver() {
+function gameOver() {
     running = false;
     gameOverUI.classList.remove("hidden");
-    finalScore.textContent = "القلوب المجمعة : " + heartsCount;
-    saveHighScore(heartsCount);
-  }
+    
+    finalScore.innerHTML = `
+        <div style="font-size: 22px; color: #ffffff; font-weight: bold; margin-bottom: 15px;">
+            القلوب المجمعة: ${heartsCount} 
+        </div>
+    `;
+
+    let savedName = localStorage.getItem("lamyUserName");
+
+    if (savedName && typeof database !== 'undefined') {
+        const userKey = encodeURIComponent(savedName);
+        const ref = database.ref("leaderboards/bunny/" + userKey);
+
+        // 1. اقرأ النتيجة القديمة للمقارنة
+        ref.once("value", (snapshot) => {
+            const oldData = snapshot.val();
+            const oldScore = oldData ? oldData.score : 0;
+
+            // 2. الحفظ فقط إذا كان السكور الجديد أكبر من القديم (أو إذا كان أول سكور)
+            if (heartsCount > oldScore) {
+                ref.set({
+                    name: savedName,
+                    score: heartsCount,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    console.log("✅ تم تحديث الرقم القياسي!");
+                    // تحديث الجدول فوراً إذا كانت الدالة معرفة
+                    if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView();
+                }).catch(err => console.error("خطأ:", err));
+            } else {
+                console.log("⚠️ النتيجة ليست أعلى، لن يتم التحديث.");
+            }
+        });
+    } else if (!savedName) {
+        finalScore.innerHTML += `
+            <div style="margin-top: 15px; color: #ff4fd8; font-weight: normal; font-size: 15px;">
+                سجل دخولك لحفظ النتيجة 
+            </div>
+        `;
+        localStorage.setItem("pendingBunnyScore", heartsCount);
+    }
+}
+
 
   function spawnHeart() {
     const clone = heartTemplate.cloneNode(true);
