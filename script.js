@@ -461,41 +461,62 @@ function resetGame(isOnline = false) {
 function listenToOnlineXORoom() {
     const statusDiv = document.getElementById("xoStatusInfo");
     const boardDiv = document.getElementById("xoBoard");
+    const roomRef = database.ref("online_xo/room");
 
-    // الحارس لمنع استمرار الاستماع عند الخروج من الأونلاين
+    // 1. الحارس: إذا لم نكن في وضع الأونلاين، لا تفعل شيئاً
     if (activeXOMode !== "online") {
-        database.ref("online_xo/room").off("value");
+        roomRef.off("value");
         return;
     }
 
-    database.ref("online_xo/room").on("value", (snapshot) => {
+    // إضافة خاصية "الطرد" التلقائي عند قطع الاتصال
+    roomRef.onDisconnect().remove();
+
+    // 2. البدء بالاستماع للتحديثات
+    roomRef.on("value", (snapshot) => {
+        // حماية إضافية داخل الـ Listener
         if (activeXOMode !== "online") {
-            database.ref("online_xo/room").off("value");
+            roomRef.off("value");
             return;
         }
 
         const room = snapshot.val();
-        if (!room) return;
+        if (!room) {
+            statusDiv.innerHTML = "انقطع اتصال الخصم. جاري العودة للوضع الرئيسي...";
+            boardDiv.style.pointerEvents = "none";
+            // إيقاف الـ Listener والعودة للبوت تلقائياً
+            setTimeout(() => switchXOMode('bot'), 3000);
+            return;
+        }
 
-        // 1. تحديث شكل اللوحة والأسماء
+        // 3. تحديث واجهة الحالة واللوحة بناءً على وجود اللاعبين
         if (!room.player2) {
-            statusDiv.innerHTML = `بانتظار انضمام الخصم...<br>أنت (اللاعب 1): <b>${room.player1}</b>`;
+            // بانتظار خصم
+            statusDiv.innerHTML = `بانتظار انضمام الخصم...<br>أنت: <b>${room.player1}</b>`;
             boardDiv.style.pointerEvents = "none"; 
             boardDiv.style.opacity = "0.5";
         } else {
+            // اللاعبان موجودان
             boardDiv.style.pointerEvents = "auto"; 
             boardDiv.style.opacity = "1";
-            const turnName = (room.turn === "X") ? room.player1 : room.player2;
-            statusDiv.innerHTML = `<b>${room.player1}</b> vs <b>${room.player2}</b><br>دور: <b>${turnName}</b>`;
+
+            // تحديد الحالة (انتهت الجولة أم دور من؟)
+            if (room.winner || room.isDraw) {
+                statusDiv.innerHTML = "<b>انتهت الجولة!</b>";
+            } else {
+                const isMyTurn = (room.turn === onlineXOSymbol);
+                const turnName = isMyTurn ? "دورك الآن!" : "انتظار الخصم...";
+                statusDiv.innerHTML = `<b>${room.player1}</b> vs <b>${room.player2}</b><br>الحالة: ${turnName}`;
+            }
         }
 
-        // 2. تحديث الخانات محلياً
+        // 4. تحديث الخانات محلياً (هذه هي التي ترسم X و O)
         updateLocalBoard(room.board);
 
-        checkGameResult(room); 
+        // 5. فحص النتيجة (هذه التي تُسجل الفوز وتحدث الـ Wins)
+        checkGameResult(room);
     });
 }
-
 // دالة تحديث اللوحة بشكل بسيط
 function updateLocalBoard(newBoard) {
     if (newBoard && newBoard.join("") !== board.join("")) {
@@ -531,19 +552,21 @@ function updateUIStatus(room) {
 }
 
 function checkGameResult(room) {
+    // التأكد من أن النتيجة لم تُسجل من قبل في هذه الجولة (xoGameOver)
     if ((room.winner || room.isDraw) && !xoGameOver) {
-        xoGameOver = true;
+        xoGameOver = true; // لمنع التكرار
         
         if (room.winner === onlineXOSymbol) {
             handleXOResult("win");
-            // تحديث الصدارة
+            updateWinnerScore(); // هذه ستزيد الـ Wins في Firebase
             updateGlobalLeaderboard(window.getCurrentUserName());
         } else if (room.isDraw) {
             handleXOResult("draw");
         } else {
             handleXOResult("lose");
         }
-        // إظهار زر اللعب مرة أخرى
+        
+        // إظهار زر Play Again
         document.getElementById("xoReset").classList.remove("hidden");
     }
 }
