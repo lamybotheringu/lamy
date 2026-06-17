@@ -30,30 +30,27 @@ window.addEventListener("DOMContentLoaded", () => {
   let lastTime = 0;
 
 function saveHighScore(score) {
-    let name = localStorage.getItem("lamyUserName");
-    if (!name) return;
+    let name = window.getCurrentUserName(); //
+    if (!name || typeof database === 'undefined') return; //
 
-    const userKey = encodeURIComponent(name);
-    const ref = database.ref("leaderboards/bunny/" + userKey);
+    const userKey = encodeURIComponent(name); //
+    const ref = database.ref("leaderboards/bunny/" + userKey); //[cite: 4]
 
-    // 1. اقرأ النتيجة الحالية مرة واحدة فقط
-    ref.once("value", (snapshot) => {
-        const oldData = snapshot.val();
-        const oldScore = oldData ? oldData.score : 0;
+    // قراءة النتيجة الحالية للمقارنة[cite: 4]
+    ref.once("value", (snapshot) => { //[cite: 4]
+        const oldData = snapshot.val(); //[cite: 4]
+        const oldScore = oldData ? oldData.score : 0; //[cite: 4]
 
-        // 2. تحديث فقط إذا كان السكور الجديد أكبر
-        if (score > oldScore) {
-            ref.set({
-                name: name,
-                score: score,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                console.log("✅ تم تحديث الرقم القياسي!");
-                // 3. تحديث الجدول فوراً بعد الحفظ الناجح
-                if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView();
+        // حفظ النتيجة إذا كانت أعلى[cite: 4]
+        if (score > oldScore) { //[cite: 4]
+            ref.set({ //[cite: 4]
+                name: name, //[cite: 4]
+                score: score, //[cite: 4]
+                timestamp: firebase.database.ServerValue.TIMESTAMP //[cite: 4]
+            }).then(() => { //[cite: 4]
+                console.log("✅ تم تحديث الرقم القياسي!"); //[cite: 4]
+                if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); //[cite: 4]
             });
-        } else {
-            console.log("⚠️ النتيجة ليست أعلى من نتيجتك الحالية.");
         }
     });
 }
@@ -166,45 +163,43 @@ function gameOver() {
     running = false;
     gameOverUI.classList.remove("hidden");
     
+    // عرض النتيجة الحالية
     finalScore.innerHTML = `
         <div style="font-size: 22px; color: #ffffff; font-weight: bold; margin-bottom: 15px;">
             القلوب المجمعة: ${heartsCount} 
         </div>
     `;
 
-    let savedName = localStorage.getItem("lamyUserName");
+    // جلب اسم المستخدم عبر نظام Firebase وليس الـ LocalStorage
+    let savedName = window.getCurrentUserName();
 
     if (savedName && typeof database !== 'undefined') {
         const userKey = encodeURIComponent(savedName);
         const ref = database.ref("leaderboards/bunny/" + userKey);
 
-        // 1. اقرأ النتيجة القديمة للمقارنة
+        // نقوم بجلب النتيجة السابقة من قاعدة البيانات مباشرة
         ref.once("value", (snapshot) => {
             const oldData = snapshot.val();
             const oldScore = oldData ? oldData.score : 0;
 
-            // 2. الحفظ فقط إذا كان السكور الجديد أكبر من القديم (أو إذا كان أول سكور)
             if (heartsCount > oldScore) {
                 ref.set({
                     name: savedName,
                     score: heartsCount,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
-                    console.log("✅ تم تحديث الرقم القياسي!");
-                    // تحديث الجدول فوراً إذا كانت الدالة معرفة
+                    console.log("✅ تم حفظ نتيجتك الجديدة في Firebase!");
                     if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView();
-                }).catch(err => console.error("خطأ:", err));
-            } else {
-                console.log("⚠️ النتيجة ليست أعلى، لن يتم التحديث.");
+                }).catch(err => console.error("حدث خطأ أثناء الحفظ:", err));
             }
         });
-    } else if (!savedName) {
+    } else {
+        // إذا لم يكن مسجلاً، لا نحفظ في LocalStorage، بل نكتفي بتنبيهه
         finalScore.innerHTML += `
             <div style="margin-top: 15px; color: #ff4fd8; font-weight: normal; font-size: 15px;">
-                سجل دخولك لحفظ النتيجة 
+                سجل دخولك لحفظ نتيجتك في لوحة الصدارة العالمية 🏆
             </div>
         `;
-        localStorage.setItem("pendingBunnyScore", heartsCount);
     }
 }
 
@@ -230,3 +225,13 @@ function gameOver() {
   if (restartBtn) restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
   document.addEventListener("keydown", (e) => { if (e.code === "Space") handleInput(e); });
 });
+
+// 1. Function to load and display the high score from localStorage
+function updateHighScoreDisplay() {
+    const highScore = localStorage.getItem("bunnyHighScore") || 0;
+    const highScoreEl = document.getElementById("highScoreDisplay");
+    if (highScoreEl) {
+        highScoreEl.textContent = "High Score: " + highScore;
+    }
+}
+
