@@ -91,9 +91,14 @@
         <input type="text" id="xoLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 5px; width: 70%;">
         <button class="toggle-button" onclick="submitXOHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
       </div>
+      <div id="gameResultArea" class="hidden">
+    <h2 id="resultText"></h2>
+    <button onclick="playAgain()">Play Again</button>
+    </div>
       <div id="xoLeaderboardContainer" class="hidden" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
         <h4 style="margin: 0 0 8px 0; font-size: 14px;">🏆 Global XO Leaderboard</h4>
         <div id="onlineLeaderboardView" style="font-size: 12px; text-align: right;">جاري التحميل...</div>
+        
       </div>
     </div>
     
@@ -187,8 +192,9 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="script.js"></script>
-<script src="bunny.js"></script>
 <script src="auth.js"></script>
+<script src="bunny.js"></script>
+
 
 </main>
 </body>
