@@ -17,6 +17,7 @@ const firebaseConfig = {
 // تهيئة تطبيقات Firebase وقاعدة البيانات المباشرة
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
+const auth = firebase.auth();
 
 console.log("✅ النظام الآن يعمل باسم: tester lamy");
 
@@ -39,8 +40,7 @@ window.addEventListener('load', () => {
 });
 
 function checkPendingBunnyScore() {
-    let pendingScore = localStorage.getItem("pendingBunnyScore");
-    let savedName = localStorage.getItem("lamyUserName");
+    let savedName = window.getCurrentUserName();
 
     if (savedName && pendingScore) {
         console.log("تم اكتشاف سكور معلق، جاري حفظه...");
@@ -95,54 +95,70 @@ function listenToOnlineChat() {
   const box = document.getElementById("box");
   if (!box) return;
 
+  // الاستماع المستمر لقاعدة البيانات
   database.ref("global_chat").on("value", (snapshot) => {
-    if (!snapshot.exists()) {
-      box.innerHTML = "";
-      return;
-    }
-    box.innerHTML = "";
+    box.innerHTML = ""; // تنظيف الشات
     snapshot.forEach((childSnapshot) => {
       const data = childSnapshot.val();
-      addChatMessage(data.name, data.msg);
+      const div = document.createElement("div");
+      div.className = "chat-message";
+      // عرض الاسم والرسالة كما هي مخزنة في القاعدة
+      div.textContent = data.name + ": " + data.msg;
+      box.appendChild(div);
     });
+    box.scrollTop = box.scrollHeight; // النزول لآخر رسالة
   });
+}
+
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log("المستخدم مسجل الآن باسم:", user.displayName);
+    } else {
+        console.log("لا يوجد مستخدم مسجل");
+    }
+});
+
+// دالة واحدة تعوضك عن كل تعب الـ localStorage
+function getMyName() {
+    // إذا كان المستخدم مسجلاً في Firebase، هات اسمه، وإلا ارجعي بـ null
+    return auth.currentUser ? auth.currentUser.displayName : null;
 }
 
 function send() {
   const msgField = document.getElementById("msg");
   const msg = msgField.value.trim();
   
-  // 1. التحقق من الهوية من الـ localStorage
-  const savedName = localStorage.getItem("lamyUserName");
+  // 1. جلب المستخدم الحالي من Firebase Auth مباشرة
+  const user = auth.currentUser;
 
-  // 2. إذا لم يكن مسجلاً، نفتح النافذة
-  if (!savedName) {
-      alert("سجل دخولك أولا لتتمكن من الدردشة!");
+  // 2. التحقق من وجود مستخدم (إذا لم يسجل دخول، نفتح نافذة التسجيل)
+  if (!user) {
+      alert("سجل دخولك أولاً لتتمكن من الدردشة!");
       if (typeof window.showAuthOverlay === 'function') {
           window.showAuthOverlay('login');
       }
       return;
   }
 
-  // 3. كود الاختصار للمطور
-  if(msg === "//clearbylamy"){
-    database.ref("global_chat").remove();
-    msgField.value = "";
-    return;
-  }
+  // 3. استخدام اسم المستخدم من حساب Firebase
+  const senderName = user.displayName || "مستخدم";
 
-  // 4. التحقق من الرسالة
   if(msg === ""){ alert("لا يمكنك ترك رسالة فارغة"); return; }
 
-  // 5. الإرسال باستخدام الاسم المحفوظ تلقائياً
-  database.ref("global_chat").push({ name: savedName, msg: msg });
+  // 4. الإرسال إلى Firebase (هذا سيظهر للجميع فوراً)
+  database.ref("global_chat").push({ 
+      name: senderName, 
+      msg: msg,
+      timestamp: firebase.database.ServerValue.TIMESTAMP // إضافة وقت للرسالة
+  });
+  
   msgField.value = "";
 }
 
 // تحديث واجهة الشات عند تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
     const nameField = document.getElementById("name");
-    const savedName = localStorage.getItem("lamyUserName");
+    const savedName = window.getCurrentUserName();
     
     // إذا كان المستخدم مسجلاً، نعطل حقل الاسم ونملأه تلقائياً
     if (savedName && nameField) {
@@ -186,7 +202,8 @@ async function switchXOMode(mode) {
         // استدعاء دالة resetXO خارج أي transaction
         resetXO();
     } else {
-        const myName = localStorage.getItem("lamyUserName");
+        const user = auth.currentUser;
+        const myName = user ? user.displayName : null;
         if (!myName) {
             alert("سجلي دخولك أولاً!");
             window.showAuthOverlay('login');
@@ -497,7 +514,7 @@ function checkGameResult(room) {
         handleXOResult(result);
         
         if (result === "win") {
-            updateGlobalLeaderboard(localStorage.getItem("lamyUserName"));
+            updateGlobalLeaderboard(window.getCurrentUserName());
         }
     }
 }
@@ -521,7 +538,7 @@ let memoryWins = 0;
 
 function switchMemoryMatchMode(matchMode) {
   // 1. حارس الدخول (كما هو)
-  if (matchMode === "online" && !localStorage.getItem("lamyUserName")) {
+  if (matchMode === "online" && !window.getCurrentUserName()) {
     alert("يجب عليك تسجيل الدخول أولا للعب أونلاين!");
     if (typeof window.showAuthOverlay === 'function') {
         window.showAuthOverlay('login');
@@ -611,7 +628,7 @@ window.updateMemoryLeaderboardView = function() {
             // ترتيب تنازلي (الأعلى فوزاً في الأعلى)
             scores.sort((a, b) => b.score - a.score);
 
-            let myName = localStorage.getItem("lamyUserName");
+            let myName = window.getCurrentUserName();
 
             view.innerHTML = scores.length > 0 ? scores.map((u, i) => {
                 let isMe = (myName && u.name === myName);
@@ -626,7 +643,7 @@ window.updateMemoryLeaderboardView = function() {
 };
 
 window.saveMemoryScoreToFirebase = function(score) {
-    let savedName = localStorage.getItem("lamyUserName");
+    let savedName = window.getCurrentUserName();
     if (!savedName) return;
 
     const userKey = encodeURIComponent(savedName);
@@ -661,7 +678,7 @@ function generateBoard() {
 
 // 2. دالة الانضمام (بسيطة ومباشرة)
 function joinMemoryGameOnline() {
-    const myName = localStorage.getItem("lamyUserName") || "لاعب مجهول";
+    const myName = window.getCurrentUserName();
     
     memoryRoomRef.once("value", (snapshot) => {
         const room = snapshot.val() || {};
@@ -770,7 +787,7 @@ function checkMemoryMatch() {
 }
 
 function checkMemoryLeaderboardEligibility(scoreToCheck) {
-    let savedName = localStorage.getItem("lamyUserName");
+    let savedName = window.getCurrentUserName();
 
     if (savedName) {
         // الاتصال المباشر بـ Firebase كما في لعبة الأرنب
@@ -809,8 +826,6 @@ function checkMemoryLeaderboardEligibility(scoreToCheck) {
 
 // 2. الدالة المسؤولة عن تحديث القائمة (باللون الذهبي للاعب)
 function saveScoreToLeaderboard(name, score) {
-    // حفظ الاسم في المتصفح للأبد
-    localStorage.setItem("memoryPlayerName", name);
     
     // البحث إذا كان اللاعب موجوداً مسبقاً في هذا المستوى
     let list = localLeaderboards[memoryMode];
@@ -875,7 +890,7 @@ window.updateMemoryLeaderboardView = function() {
             snapshot.forEach(child => scores.push(child.val()));
             scores.sort((a, b) => b.score - a.score);
 
-            let myName = localStorage.getItem("lamyUserName");
+            let myName = window.getCurrentUserName();
 
             view.innerHTML = scores.length > 0 ? scores.map((u, i) => {
                 let isMe = (myName && u.name === myName);
@@ -900,7 +915,7 @@ let score = 0;
 let treeWins = 0;
 
 window.onload = function() {
-    let name = localStorage.getItem("lamyUserName");
+    let name = window.getCurrentUserName();
     if (name) {
         database.ref("users/" + encodeURIComponent(name) + "/treeWins").once("value").then((snapshot) => {
             treeWins = snapshot.val() || 0;
@@ -935,7 +950,7 @@ function clickMe() {
         document.getElementById("treeCount").textContent = "Tree count: " + treeWins;
         
         // 3. حفظ التحديث في الحساب
-        let name = localStorage.getItem("lamyUserName");
+        let name = window.getCurrentUserName();
         if (name) {
             database.ref("users/" + encodeURIComponent(name) + "/treeWins").set(treeWins);
             // حفظ أعلى سكور في ليدربورد الأشجار
@@ -954,7 +969,7 @@ function retryTree() {
 }
 
 window.saveClickerScore = function(currentScore) {
-    let name = localStorage.getItem("lamyUserName");
+    let name = window.getCurrentUserName();
     if (!name) return;
 
     const userKey = encodeURIComponent(name);
@@ -995,7 +1010,7 @@ window.updateClickerLeaderboardView = function() {
             });
             
             scores.sort((a, b) => b.score - a.score);
-            let myName = localStorage.getItem("lamyUserName");
+            let myName = window.getCurrentUserName();
 
             viewEl.innerHTML = scores.length > 0 ? scores.map((u, i) => {
                 let isMe = (myName && u.name === myName);
@@ -1044,7 +1059,7 @@ window.updateBunnyLeaderboardView = function() {
             
             scores.sort((a, b) => b.score - a.score);
             
-            let myName = localStorage.getItem("lamyUserName");
+            let myName = window.getCurrentUserName();
 
             view.innerHTML = scores.length > 0 ? scores.map((u, i) => {
                 let isMe = (myName && u.name === myName);
@@ -1066,7 +1081,7 @@ window.addEventListener('load', () => {
 });
 
 window.saveBunnyScoreToLeaderboard = function(score) {
-    let savedName = localStorage.getItem("lamyUserName");
+    let savedName = window.getCurrentUserName();
 
     // نستخدم encodeURIComponent لجعل اسم المستخدم "مساراً" آمناً في قاعدة البيانات
     const userKey = encodeURIComponent(savedName);
