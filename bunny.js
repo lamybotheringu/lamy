@@ -197,7 +197,7 @@ function gameOver() {
         // إذا لم يكن مسجلاً، لا نحفظ في LocalStorage، بل نكتفي بتنبيهه
         finalScore.innerHTML += `
             <div style="margin-top: 15px; color: #ff4fd8; font-weight: normal; font-size: 15px;">
-                سجل دخولك لحفظ نتيجتك في لوحة الصدارة العالمية 🏆
+                سجل دخولك لحفظ نتيجتك في لوحة الصدارة  
             </div>
         `;
     }
