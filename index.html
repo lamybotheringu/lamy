@@ -29,7 +29,7 @@
   <button onclick="show('updates')">Updates</button>
   <button onclick="show('youtube')">YouTube</button>
   <button onclick="show('games')">Games</button>
-  <button onclick="show('bunny-game')">🐇<span style="opacity:0.7;font-size:12px">(DEMO)</span></button>
+  <button onclick="show('bunny-game')">🐇<span style="opacity:0.7;font-size:12px">(BETA)</span></button>
   <button onclick="show('chat')">Chat</button>
 </nav>
   
@@ -145,23 +145,36 @@
 </section>
 
 <section id="bunny-game" class="hidden">
-  <h2>🐰 Bunny Game (Demo)</h2>
-  <div id="game" style="position: relative; width: 100%; max-width: 600px; height: 300px; background: #222; margin: 20px auto; overflow: hidden; border: 2px solid #ff4da6;">
+  <h2>🐰 Bunny Game</h2>
+  
+  <div id="game" style="position: relative; width: 100%; max-width: 600px; height: 320px; margin: 20px auto; overflow: hidden; border: 2px solid #ff4da6; background: url('night.png') no-repeat center center; background-size: cover;">
+    
     <img src="cloud.png" class="cloud c1">
     <img src="cloud.png" class="cloud c2">
     <img src="cloud.png" class="cloud c3">
     <img src="bunny.png" id="bunny">
     <div id="obstacle"></div>
     <img src="heart.png" id="heartTemplate" class="hidden" style="position: absolute; width: 30px; height: 30px;">
+    
     <div id="score">Hearts : 0</div>
+    
+    <div id="ground"></div> 
+
+
     <div id="startScreen" class="overlay"><h2>Press Space to Start</h2></div>
-    <div id="gameOver" class="overlay hidden"><h2>Game Over</h2><p id="finalScore"></p><button id="restartBtn">Play Again</button></div>
+    <div id="gameOver" class="overlay hidden">
+        <h2>Game Over</h2>
+        <p id="finalScore"></p>
+        <button id="restartBtn">Play Again</button>
+    </div>
   </div>
+
   <div id="bunnySaveNameContainer" class="hidden" style="margin: 15px auto; width: 100%; max-width: 400px; background: #222; padding: 15px; border-radius: 12px; border: 2px dashed #ff4da6; text-align: center;">
     <p style="font-size: 14px; color: #fff; margin: 0 0 10px 0;">🏆 ممتاز! اكتب اسمك ليظهر في الليدربورد:</p>
     <input type="text" id="bunnyLeaderboardNameInput" placeholder="أدخل اسمك هنا..." style="padding: 6px; width: 60%; border-radius: 5px; border: none;">
     <button onclick="submitBunnyHighScore()" style="padding: 6px 12px; font-size: 13px; cursor: pointer; background: #ff4da6; color: white; border: none; border-radius: 5px;">حفظ النتيجة 🌟</button>
   </div>
+
   <div id="bunnyLeaderboardContainer" style="margin: 25px auto; width: 100%; max-width: 400px; background: #111; padding: 15px; border-radius: 12px; border: 1px solid #ff4da6;">
     <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ff4da6;">🏆 Bunny Leaderboard</h3>
     <div id="bunnyLeaderboardView" style="font-size: 14px; text-align: right; color: #fff;">جاري تحميل النتائج...</div>
