@@ -177,26 +177,68 @@ let xoWins = 0;
 let xoGameOver = false;
 const winLines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
 
+window.submitXOHighScore = function() {
+    const nameInput = document.getElementById("xoLeaderboardNameInput");
+    const chosenName = nameInput.value ? nameInput.value.trim() : "";
+    
+    if (!chosenName) { 
+        alert("يرجى إدخال اسمك!"); 
+        return; 
+    }
+
+    // حفظ النتيجة في Firebase (بنفس منطق الألعاب الأخرى)
+    const userKey = encodeURIComponent(chosenName);
+    database.ref("leaderboards/xo/" + userKey).set({
+        name: chosenName,
+        wins: xoWins, // xoWins هو المتغير الموجود لديك حالياً
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        alert("تم حفظ نتيجتك في الصدارة!");
+        document.getElementById("xoSaveNameContainer").classList.add("hidden");
+        updateXOLeaderboardView(); // دالة تحديث العرض
+    });
+};
+
+window.updateXOLeaderboardView = function() {
+    const view = document.getElementById("onlineLeaderboardView");
+    if (!view) return;
+
+    database.ref("leaderboards/xo")
+        .orderByChild("wins")
+        .limitToLast(5)
+        .once("value")
+        .then((snapshot) => {
+            let scores = [];
+            snapshot.forEach(child => scores.push(child.val()));
+            scores.sort((a, b) => b.wins - a.wins);
+
+            view.innerHTML = scores.length > 0 ? scores.map((u, i) => {
+                return `<div style="margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.wins} فوز)</div>`;
+            }).join("") : "لا توجد نتائج مسجلة.";
+        });
+};
+
 window.playAgain = function() {
-    // تصفير Firebase فقط، والـ Listener سيقوم بتحديث الواجهة تلقائياً
+    xoGameOver = false; // فك قفل اللعبة محلياً
+    
     database.ref("online_xo/room").update({
         board: ["", "", "", "", "", "", "", "", ""],
         turn: "X",
         winner: "",
-        isDraw: false
+        isDraw: false,
+        statusMessage: "بدأت الجولة!" // إضافة الرسالة لـ Firebase
     }).then(() => {
-        // إخفاء الواجهة محلياً
         document.getElementById("xoMessage").classList.add("hidden");
         document.getElementById("xoReset").classList.add("hidden");
-        xoGameOver = false; // إعادة تفعيل اللعبة محلياً
     });
 };
 
-function updateWinnerScore(winner) {
-    const userId = auth.currentUser.uid;
-    const userRef = database.ref('users/' + userId + '/wins');
+function updateWinnerScore() {
+    const user = auth.currentUser;
+    if (!user) return;
     
-    // زيادة الرقم في قاعدة البيانات مباشرة
+    // تأكدي أن هذا المسار يطابق قاعدة بياناتك
+    const userRef = database.ref('users/' + user.uid + '/wins');
     userRef.transaction((currentWins) => {
         return (currentWins || 0) + 1;
     });
@@ -469,39 +511,45 @@ function listenToOnlineXORoom() {
         return;
     }
 
-    // إضافة خاصية "الطرد" التلقائي عند قطع الاتصال
+    // إضافة خاصية "الحذف التلقائي للغرفة" عند انقطاع اتصال اللاعب
     roomRef.onDisconnect().remove();
 
     // 2. البدء بالاستماع للتحديثات
     roomRef.on("value", (snapshot) => {
-        // حماية إضافية داخل الـ Listener
         if (activeXOMode !== "online") {
             roomRef.off("value");
             return;
         }
 
         const room = snapshot.val();
+        
+        // معالجة خروج الخصم أو حذف الغرفة
         if (!room) {
             statusDiv.innerHTML = "انقطع اتصال الخصم. جاري العودة للوضع الرئيسي...";
             boardDiv.style.pointerEvents = "none";
-            // إيقاف الـ Listener والعودة للبوت تلقائياً
             setTimeout(() => switchXOMode('bot'), 3000);
             return;
         }
 
-        // 3. تحديث واجهة الحالة واللوحة بناءً على وجود اللاعبين
+        // 3. تحديث واجهة الحالة واللوحة
         if (!room.player2) {
-            // بانتظار خصم
             statusDiv.innerHTML = `بانتظار انضمام الخصم...<br>أنت: <b>${room.player1}</b>`;
             boardDiv.style.pointerEvents = "none"; 
             boardDiv.style.opacity = "0.5";
         } else {
-            // اللاعبان موجودان
             boardDiv.style.pointerEvents = "auto"; 
             boardDiv.style.opacity = "1";
 
+            // التعامل مع رسالة "بدأت الجولة" إذا تم تفعيلها من Play Again
+            if (room.statusMessage) {
+                statusDiv.innerHTML = `<b>${room.statusMessage}</b>`;
+                // مسح الرسالة بعد ثانيتين من Firebase
+                setTimeout(() => {
+                    database.ref("online_xo/room/statusMessage").remove();
+                }, 2000);
+            } 
             // تحديد الحالة (انتهت الجولة أم دور من؟)
-            if (room.winner || room.isDraw) {
+            else if (room.winner || room.isDraw) {
                 statusDiv.innerHTML = "<b>انتهت الجولة!</b>";
             } else {
                 const isMyTurn = (room.turn === onlineXOSymbol);
@@ -510,13 +558,14 @@ function listenToOnlineXORoom() {
             }
         }
 
-        // 4. تحديث الخانات محلياً (هذه هي التي ترسم X و O)
+        // 4. تحديث الخانات محلياً
         updateLocalBoard(room.board);
 
-        // 5. فحص النتيجة (هذه التي تُسجل الفوز وتحدث الـ Wins)
+        // 5. فحص النتيجة (هذه هي التي تُحرك نظام الـ Wins والصدارة)
         checkGameResult(room);
     });
 }
+
 // دالة تحديث اللوحة بشكل بسيط
 function updateLocalBoard(newBoard) {
     if (newBoard && newBoard.join("") !== board.join("")) {
@@ -552,28 +601,38 @@ function updateUIStatus(room) {
 }
 
 function checkGameResult(room) {
-    // التأكد من أن النتيجة لم تُسجل من قبل في هذه الجولة (xoGameOver)
+    // 1. التأكد من انتهاء الجولة وأن النتيجة لم تُسجل محلياً بعد
     if ((room.winner || room.isDraw) && !xoGameOver) {
-        xoGameOver = true; // لمنع التكرار
+        xoGameOver = true; // قفل اللعبة محلياً لمنع التكرار
         
+        // 2. فحص النتيجة
         if (room.winner === onlineXOSymbol) {
             handleXOResult("win");
-            updateWinnerScore(); // هذه ستزيد الـ Wins في Firebase
-            updateGlobalLeaderboard(window.getCurrentUserName());
+            
+            // تحديث الـ wins الخاص بك في بروفايلك الشخصي
+            updateWinnerScore(); 
+            
+            // تحديث الصدارة العالمية
+            const myName = window.getCurrentUserName();
+            if (myName) {
+                updateGlobalLeaderboard(myName);
+            }
         } else if (room.isDraw) {
             handleXOResult("draw");
         } else {
             handleXOResult("lose");
         }
         
-        // إظهار زر Play Again
-        document.getElementById("xoReset").classList.remove("hidden");
+        // 3. إظهار زر اللعب مرة أخرى
+        const resetBtn = document.getElementById("xoReset");
+        if (resetBtn) resetBtn.classList.remove("hidden");
     }
 }
 
 function updateGlobalLeaderboard(name) {
     if (!name) return;
-    database.ref("online_xo/players/" + name).transaction((p) => {
+    // تحديث الصدارة في مسار online_xo/players
+    database.ref("online_xo/players/" + encodeURIComponent(name)).transaction((p) => {
         return p ? { wins: (p.wins || 0) + 1 } : { wins: 1 };
     });
 }
@@ -587,6 +646,10 @@ let memoryFlipped = [];
 let memoryMatched = [];
 let memoryLocked = false;
 let memoryWins = 0;
+
+// Online memory game state
+let onlineMemoryScores = { p1: 0, p2: 0 };
+let onlineMemoryGameOver = false;
 
 function switchMemoryMatchMode(matchMode) {
   // 1. حارس الدخول (كما هو)
@@ -731,7 +794,15 @@ function generateBoard() {
 // 2. دالة الانضمام (بسيطة ومباشرة)
 function joinMemoryGameOnline() {
     const myName = window.getCurrentUserName();
+    onlineMemoryGameOver = false;
+    onlineMemoryScores = { p1: 0, p2: 0 };
     
+    // تنظيف زر المحاولة وبطاقة النتيجة
+    const retryEl = document.getElementById("memoryRetry");
+    if (retryEl) retryEl.classList.add("hidden");
+    const resultEl = document.getElementById("memoryOnlineResult");
+    if (resultEl) resultEl.classList.add("hidden");
+
     memoryRoomRef.once("value", (snapshot) => {
         const room = snapshot.val() || {};
 
@@ -742,9 +813,11 @@ function joinMemoryGameOnline() {
                 p1_name: myName,
                 gameState: "waiting",
                 board: generateBoard(),
+                currentTurn: "p1",
+                flippedByOpponent: [],
+                scores: { p1: 0, p2: 0 },
                 last_seen: firebase.database.ServerValue.TIMESTAMP
             });
-            updateMemoryStatus("بانتظار خصمك...");
         } 
         // الحالة ب: الغرفة تنتظر -> أنت اللاعب الثاني (p2)
         else if (room.gameState === "waiting" && room.p1_name !== myName) {
@@ -754,9 +827,12 @@ function joinMemoryGameOnline() {
                 gameState: "playing",
                 last_seen: firebase.database.ServerValue.TIMESTAMP
             });
-            updateMemoryStatus("⚔️ تم الاتصال! ابدأ اللعب");
+            updateMemoryStatus("⚔️  ! ابدأ اللعب");
         }
     });
+    
+    // عند انقطاع الاتصال: تعليم الغرفة بالخروج
+    memoryRoomRef.onDisconnect().update({ gameState: "abandoned" });
 }
 
 // دالة المراقبة الموحدة (يجب أن تكون واحدة فقط)
@@ -769,16 +845,64 @@ function listenToOnlineMemoryRoom() {
         const room = snapshot.val();
         if (!room) return;
 
+        // حالة: خصمك غادر
+        if (room.gameState === "abandoned" && !onlineMemoryGameOver) {
+            onlineMemoryGameOver = true;
+            memoryRoomRef.off("value");
+            updateMemoryStatus("❌ خصمك غادر!");
+            showOnlineMemoryResult("abandoned");
+            return;
+        }
+
         // الحالة 1: انتظار الخصم
         if (room.gameState === "waiting") {
             updateMemoryStatus("جاري البحث عن خصم..");
-        } 
+            return;
+        }
+
         // الحالة 2: اللعبة بدأت
-        else if (room.gameState === "playing" && room.board) {
+        if ((room.gameState === "playing" || room.gameState === "finished") && room.board) {
             memoryBoardState = room.board;
-            let opponent = (myMemoryPlayerSymbol === "p1") ? room.p2_name : room.p1_name;
-            updateMemoryStatus(`⚔️ المواجهة جارية ضد: ${opponent || "..."}`);
-            renderMemoryBoard();
+
+            // تحديث النقاط محلياً
+            if (room.scores) {
+                onlineMemoryScores = room.scores;
+            }
+
+            // مزامنة البطاقات المقلوبة من الخصم
+            const opponentFlipped = room.flippedByOpponent || [];
+
+            // تحديد اسم الخصم
+            let opponentName = (myMemoryPlayerSymbol === "p1") ? room.p2_name : room.p1_name;
+            let myName = window.getCurrentUserName();
+
+            // تحديد رسالة الدور
+            const isMyTurn = (room.currentTurn === myMemoryPlayerSymbol);
+            let statusMsg;
+            if (isMyTurn) {
+                statusMsg = `⚔️ ضد ${opponentName || "..."} | نقاطك: ${onlineMemoryScores[myMemoryPlayerSymbol] || 0} | نقاطه: ${onlineMemoryScores[myMemoryPlayerSymbol === "p1" ? "p2" : "p1"] || 0} | 🟢 دورك!`;
+            } else {
+                statusMsg = `⚔️ ضد ${opponentName || "..."} | نقاطك: ${onlineMemoryScores[myMemoryPlayerSymbol] || 0} | نقاطه: ${onlineMemoryScores[myMemoryPlayerSymbol === "p1" ? "p2" : "p1"] || 0} | ⏳ دور الخصم...`;
+            }
+            updateMemoryStatus(statusMsg);
+
+            // رسم اللوحة مع البطاقات المقلوبة من الخصم مرئية
+            renderMemoryBoardOnline(opponentFlipped, isMyTurn);
+
+            // التحقق من انتهاء اللعبة
+            if (room.gameState === "finished" && !onlineMemoryGameOver) {
+                onlineMemoryGameOver = true;
+                memoryRoomRef.off("value");
+                const myScore = onlineMemoryScores[myMemoryPlayerSymbol] || 0;
+                const oppScore = onlineMemoryScores[myMemoryPlayerSymbol === "p1" ? "p2" : "p1"] || 0;
+                if (myScore > oppScore) {
+                    showOnlineMemoryResult("win");
+                } else if (myScore < oppScore) {
+                    showOnlineMemoryResult("lose");
+                } else {
+                    showOnlineMemoryResult("draw");
+                }
+            }
         }
     });
 }
@@ -786,6 +910,103 @@ function listenToOnlineMemoryRoom() {
 function updateMemoryStatus(text) {
   const statusEl = document.getElementById("memoryStatus");
   if (statusEl) statusEl.textContent = text;
+}
+
+// رسم اللوحة في الوضع الأونلاين (يُظهر بطاقات الخصم المقلوبة)
+function renderMemoryBoardOnline(opponentFlipped = [], isMyTurn = false) {
+  const boardEl = document.getElementById("memoryBoard");
+  if (!boardEl) return;
+  boardEl.innerHTML = "";
+
+  memoryBoardState.forEach((emoji, idx) => {
+    const card = document.createElement("button");
+    const isMatched = memoryMatched.includes(idx);
+    const isFlippedByMe = memoryFlipped.includes(idx);
+    const isFlippedByOpponent = opponentFlipped.includes(idx);
+
+    let className = "memory-card";
+    if (isMatched) className += " matched";
+    else if (isFlippedByMe) className += " flipped";
+    else if (isFlippedByOpponent) className += " flipped opponent-flip"; // بطاقة الخصم مرئية
+
+    let showEmoji = isMatched || isFlippedByMe || isFlippedByOpponent;
+    card.className = className;
+    card.textContent = showEmoji ? emoji : "";
+
+    // تعطيل اللوحة إذا ليس دوري
+    if (!isMyTurn || onlineMemoryGameOver) {
+      card.disabled = true;
+      card.style.cursor = "not-allowed";
+      card.style.opacity = isMyTurn ? "1" : "0.6";
+    }
+
+    card.onclick = () => {
+      if (isMyTurn && !onlineMemoryGameOver) flipMemoryCard(idx);
+    };
+    boardEl.appendChild(card);
+  });
+}
+
+
+// عرض نتيجة اللعبة الأونلاين
+function showOnlineMemoryResult(result) {
+  const retryEl = document.getElementById("memoryRetry");
+  const resultEl = document.getElementById("memoryOnlineResult");
+  const winsEl = document.getElementById("memoryWins");
+
+  // تنظيف الزر بشكل صحيح
+  const newRetryEl = retryEl.cloneNode(true);
+  retryEl.parentNode.replaceChild(newRetryEl, retryEl);
+
+  let msg = "";
+  if (result === "win") {
+    msg = "🎉 أنت الفائز! ";
+    memoryWins++;
+    if (winsEl) winsEl.textContent = "Wins: " + memoryWins;
+    checkMemoryLeaderboardEligibility(memoryWins);
+  } else if (result === "lose") {
+    msg = "😢 لقد خسرت! حظ أوفر المرة القادمة";
+  } else if (result === "draw") {
+    msg = "🤝 تعادلتما! ";
+  } else if (result === "abandoned") {
+    msg = "..إنقطع الإتصال";
+    updateMemoryStatus(msg);
+  }
+
+  if (resultEl) {
+    resultEl.textContent = msg;
+    resultEl.classList.remove("hidden");
+  }
+
+  if (newRetryEl) {
+    newRetryEl.classList.remove("hidden");
+    newRetryEl.textContent = (result === "abandoned") ? "حاول ثانية" : "العب مرة أخرى";
+
+    // توقيت التحويل للوضع الفردي
+    const autoSolo = setTimeout(() => {
+        switchMemoryMatchMode("solo");
+    }, 5000);
+
+    newRetryEl.addEventListener("click", async () => {
+      // 1. إلغاء التحويل التلقائي فوراً
+      clearTimeout(autoSolo);
+      
+      newRetryEl.classList.add("hidden");
+      if (resultEl) resultEl.classList.add("hidden");
+
+      // 2. ضبط حالة Firebase للخروج من الغرفة الحالية
+      // هذا يضمن أن السيرفر لا يراك داخل الغرفة القديمة
+      await memoryRoomRef.update({
+          gameState: "finished",
+          p1_name: "", 
+          p2_name: ""
+      });
+
+      // 3. إعادة تعيين الحالة للبحث عن مباراة جديدة
+      updateMemoryStatus("جاري البحث عن خصم ...");
+      joinMemoryGameOnline(); 
+    });
+  }
 }
 
 function renderMemoryBoard() {
@@ -804,7 +1025,15 @@ function renderMemoryBoard() {
 function flipMemoryCard(index) {
   if (memoryLocked || memoryFlipped.includes(index) || memoryMatched.includes(index)) return;
   memoryFlipped.push(index);
-  renderMemoryBoard();
+
+  if (activeMemoryMode === "online") {
+    // مزامنة البطاقات المقلوبة مع Firebase حتى يراها الخصم
+    memoryRoomRef.update({ flippedByOpponent: memoryFlipped });
+    renderMemoryBoardOnline([], true);
+  } else {
+    renderMemoryBoard();
+  }
+
   if (memoryFlipped.length === 2) {
     memoryLocked = true;
     setTimeout(checkMemoryMatch, 700);
@@ -813,28 +1042,51 @@ function flipMemoryCard(index) {
 
 function checkMemoryMatch() {
   const [first, second] = memoryFlipped;
-  
-  if (memoryBoardState[first] === memoryBoardState[second]) {
+  const isMatch = memoryBoardState[first] === memoryBoardState[second];
+
+  if (isMatch) {
     memoryMatched.push(first, second);
   }
-  
+
   memoryFlipped = [];
   memoryLocked = false;
-  renderMemoryBoard();
-  
-  if (memoryMatched.length === memoryBoardState.length) {
-    memoryWins++;
-    document.getElementById("memoryWins").textContent = "Wins: " + memoryWins;
-    updateMemoryStatus("كفو! أنهيت اللعبة بنجاح 🎉");
-    
-    if (activeMemoryMode === "solo") {
-      checkMemoryLeaderboardEligibility(memoryWins);
+
+  if (activeMemoryMode === "online") {
+    // مسح البطاقات المقلوبة من Firebase
+    const updates = { flippedByOpponent: [] };
+
+    if (isMatch) {
+      // زيادة نقطة اللاعب الحالي
+      onlineMemoryScores[myMemoryPlayerSymbol] = (onlineMemoryScores[myMemoryPlayerSymbol] || 0) + 1;
+      updates.scores = onlineMemoryScores;
+      // التحقق من انتهاء اللعبة (جميع البطاقات متطابقة)
+      if (memoryMatched.length === memoryBoardState.length) {
+        updates.gameState = "finished";
+      }
+      // الفائز بالزوج يحتفظ بدوره
     } else {
-      memoryRoomRef.update({ gameState: "finished" });
+      // تبديل الدور عند الخطأ
+      updates.currentTurn = (myMemoryPlayerSymbol === "p1") ? "p2" : "p1";
     }
-    
-    const retryEl = document.getElementById("memoryRetry");
-    if (retryEl) retryEl.classList.remove("hidden");
+
+    memoryRoomRef.update(updates);
+    renderMemoryBoardOnline([], isMatch); // إذا طابق، دوره يبقى
+  } else {
+    renderMemoryBoard();
+
+    if (memoryMatched.length === memoryBoardState.length) {
+      memoryWins++;
+      document.getElementById("memoryWins").textContent = "Wins: " + memoryWins;
+      updateMemoryStatus("كفو! أنهيت اللعبة بنجاح 🎉");
+      checkMemoryLeaderboardEligibility(memoryWins);
+
+      const retryEl = document.getElementById("memoryRetry");
+      if (retryEl) {
+        retryEl.textContent = "العب ثانية";
+        retryEl.classList.remove("hidden");
+        retryEl.onclick = () => retryMemoryGame();
+      }
+    }
   }
 }
 
@@ -953,6 +1205,13 @@ window.updateMemoryLeaderboardView = function() {
 };
 
 function retryMemoryGame() {
+  const retryEl = document.getElementById("memoryRetry");
+  if (retryEl) {
+    retryEl.classList.add("hidden");
+  }
+  
+  updateMemoryStatus(""); 
+
   if (activeMemoryMode === "solo") {
     startMemoryGame();
   } else {
@@ -1159,4 +1418,3 @@ function resetMemoryRoom() {
         board: []
     });
 }
-
