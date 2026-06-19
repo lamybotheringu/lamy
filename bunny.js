@@ -14,7 +14,6 @@ window.addEventListener("DOMContentLoaded", () => {
   let heartsCount = 0;
   
   let speedLevel = 0; 
-
   let gravity = -0.0031; 
   let jumpPower = 0.78; 
   let obsSpeed = 0.31;
@@ -23,37 +22,37 @@ window.addEventListener("DOMContentLoaded", () => {
   let y = 0;
   let velocity = 0;
   const groundLevel = 0;
+  // تحدد ارتفاع السقف (الارتفاع الكلي 320 - ارتفاع عنصر السقف 40)
+  const ceilingLevel = 280; 
+  
   let jumpsAvailable = 2;
   let obsX = 600;
   let hearts = [];
   let heartSpawnTimer = 0;
   let lastTime = 0;
 
-function saveHighScore(score) {
-    let name = window.getCurrentUserName(); //
-    if (!name || typeof database === 'undefined') return; //
+  function saveHighScore(score) {
+    let name = window.getCurrentUserName();
+    if (!name || typeof database === 'undefined') return;
 
-    const userKey = encodeURIComponent(name); //
-    const ref = database.ref("leaderboards/bunny/" + userKey); //[cite: 4]
+    const userKey = encodeURIComponent(name);
+    const ref = database.ref("leaderboards/bunny/" + userKey);
 
-    // قراءة النتيجة الحالية للمقارنة[cite: 4]
-    ref.once("value", (snapshot) => { //[cite: 4]
-        const oldData = snapshot.val(); //[cite: 4]
-        const oldScore = oldData ? oldData.score : 0; //[cite: 4]
+    ref.once("value", (snapshot) => {
+        const oldData = snapshot.val();
+        const oldScore = oldData ? oldData.score : 0;
 
-        // حفظ النتيجة إذا كانت أعلى[cite: 4]
-        if (score > oldScore) { //[cite: 4]
-            ref.set({ //[cite: 4]
-                name: name, //[cite: 4]
-                score: score, //[cite: 4]
-                timestamp: firebase.database.ServerValue.TIMESTAMP //[cite: 4]
-            }).then(() => { //[cite: 4]
-                console.log("✅ تم تحديث الرقم القياسي!"); //[cite: 4]
-                if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); //[cite: 4]
+        if (score > oldScore) {
+            ref.set({
+                name: name,
+                score: score,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView();
             });
         }
     });
-}
+  }
 
   function startGame() {
     if (running) return;
@@ -65,7 +64,6 @@ function saveHighScore(score) {
     y = 0;
     velocity = 0;
     
-   
     gravity = -0.0031; 
     jumpPower = 0.78; 
     obsSpeed = 0.31;
@@ -93,7 +91,7 @@ function saveHighScore(score) {
     // نظام المراحل التراكمي
     if (heartsCount >= 50 && speedLevel < 2) {
       speedLevel = 2;
-      gravity = -0.0032; // زيادة بسيطة إضافية
+      gravity = -0.0032;
       jumpPower = 0.82;
       obsSpeed = 0.47;
       heartSpeed = 0.40;
@@ -107,6 +105,14 @@ function saveHighScore(score) {
 
     velocity += gravity * deltaTime;
     y += velocity * deltaTime;
+
+    // --- منطق السقف الجديد ---
+    if (y > ceilingLevel - 60) { // 60 هو ارتفاع الأرنب
+        y = ceilingLevel - 60;
+        velocity = 0; 
+    }
+    // -----------------------
+
     if (y <= groundLevel) {
       y = groundLevel;
       velocity = 0;
@@ -159,50 +165,17 @@ function saveHighScore(score) {
     }
   }
 
-function gameOver() {
+  function gameOver() {
     running = false;
     gameOverUI.classList.remove("hidden");
+    finalScore.innerHTML = `<div style="font-size: 22px; color: #ffffff; font-weight: bold; margin-bottom: 15px;">القلوب المجمعة: ${heartsCount}</div>`;
     
-    // عرض النتيجة الحالية
-    finalScore.innerHTML = `
-        <div style="font-size: 22px; color: #ffffff; font-weight: bold; margin-bottom: 15px;">
-            القلوب المجمعة: ${heartsCount} 
-        </div>
-    `;
-
-    // جلب اسم المستخدم عبر نظام Firebase وليس الـ LocalStorage
-    let savedName = window.getCurrentUserName();
-
-    if (savedName && typeof database !== 'undefined') {
-        const userKey = encodeURIComponent(savedName);
-        const ref = database.ref("leaderboards/bunny/" + userKey);
-
-        // نقوم بجلب النتيجة السابقة من قاعدة البيانات مباشرة
-        ref.once("value", (snapshot) => {
-            const oldData = snapshot.val();
-            const oldScore = oldData ? oldData.score : 0;
-
-            if (heartsCount > oldScore) {
-                ref.set({
-                    name: savedName,
-                    score: heartsCount,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
-                    console.log("✅ تم حفظ نتيجتك الجديدة في Firebase!");
-                    if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView();
-                }).catch(err => console.error("حدث خطأ أثناء الحفظ:", err));
-            }
-        });
-    } else {
-        // إذا لم يكن مسجلاً، لا نحفظ في LocalStorage، بل نكتفي بتنبيهه
-        finalScore.innerHTML += `
-            <div style="margin-top: 15px; color: #ff4fd8; font-weight: normal; font-size: 15px;">
-                سجل دخولك لحفظ نتيجتك في لوحة الصدارة  
-            </div>
-        `;
+    saveHighScore(heartsCount);
+    
+    if (!window.getCurrentUserName()) {
+        finalScore.innerHTML += `<div style="margin-top: 15px; color: #ff4fd8; font-size: 15px;">سجل دخولك لحفظ نتيجتك في لوحة الصدارة</div>`;
     }
-}
-
+  }
 
   function spawnHeart() {
     const clone = heartTemplate.cloneNode(true);
@@ -225,13 +198,3 @@ function gameOver() {
   if (restartBtn) restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
   document.addEventListener("keydown", (e) => { if (e.code === "Space") handleInput(e); });
 });
-
-// 1. Function to load and display the high score from localStorage
-function updateHighScoreDisplay() {
-    const highScore = localStorage.getItem("bunnyHighScore") || 0;
-    const highScoreEl = document.getElementById("highScoreDisplay");
-    if (highScoreEl) {
-        highScoreEl.textContent = "High Score: " + highScore;
-    }
-}
-
