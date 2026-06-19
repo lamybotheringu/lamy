@@ -1360,32 +1360,49 @@ window.updateBunnyLeaderboardView = function() {
     const view = document.getElementById("bunnyLeaderboardView");
     if (!view) return;
 
-    database.ref("leaderboards/bunny")
-        .orderByChild("score")       
-        .limitToLast(5)              
-        .once("value")               
-        .then((snapshot) => {
-            let scores = [];
-            snapshot.forEach(child => scores.push(child.val()));
-            
-            scores.sort((a, b) => b.score - a.score);
-            
-            let myName = window.getCurrentUserName();
+    let myName = window.getCurrentUserName();
+    const userKey = encodeURIComponent(myName);
 
-            view.innerHTML = scores.length > 0 ? scores.map((u, i) => {
-                let isMe = (myName && u.name === myName);
-                
-                // إضافة التأثير هنا: text-shadow يعطي التوهج المطلوب
-                let glow = "text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);";
-                let style = isMe 
-                    ? `color: #FFD700; font-weight: bold; ${glow}` 
-                    : `color: #fff; ${glow}`;
-                
-                return `<div style="${style} margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.score} قلوب)</div>`;
-            }).join("") : "لا توجد نتائج بعد.";
+    // 1. جلب الـ 5 الأوائل
+    const topScoresPromise = database.ref("leaderboards/bunny")
+        .orderByChild("score")
+        .limitToLast(5)
+        .once("value");
+
+    // 2. جلب نتيجتك الخاصة (لضمان وجودك دائماً)
+    const myScorePromise = database.ref("leaderboards/bunny/" + userKey).once("value");
+
+    Promise.all([topScoresPromise, myScorePromise]).then(([topSnap, mySnap]) => {
+        let scoresMap = new Map();
+
+        // إضافة الـ 5 الأوائل للقائمة
+        topSnap.forEach(child => {
+            scoresMap.set(child.key, child.val());
         });
-};
 
+        // إضافة نتيجتك (سواء كنت ضمن الـ 5 أو لا)
+        if (mySnap.exists()) {
+            scoresMap.set(mySnap.key, mySnap.val());
+        }
+
+        // تحويل الخريطة إلى مصفوفة وترتيبها
+        let scores = Array.from(scoresMap.values());
+        scores.sort((a, b) => b.score - a.score);
+
+        // أخذ أول 5 فقط بعد الترتيب
+        let displayScores = scores.slice(0, 5);
+
+        view.innerHTML = displayScores.length > 0 ? displayScores.map((u, i) => {
+            let isMe = (myName && u.name === myName);
+            let glow = "text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);";
+            let style = isMe 
+                ? `color: #FFD700; font-weight: bold; ${glow}` 
+                : `color: #fff; ${glow}`;
+            
+            return `<div style="${style} margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.score} قلوب)</div>`;
+        }).join("") : "لا توجد نتائج بعد.";
+    });
+};
 // استدعاء الدالة عند تحميل الصفحة
 window.addEventListener('load', () => {
     updateBunnyLeaderboardView(); 
