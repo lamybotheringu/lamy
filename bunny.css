@@ -67,6 +67,20 @@ header{
 }
 
 
+#game-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* This prevents the image from stretching weirdly */
+  object-fit: cover; 
+  /* Ensures it sits at the very back */
+  z-index: 0; 
+  /* Pointer-events: none ensures it doesn't block clicks */
+  pointer-events: none;
+}
+
 
 #bunny{
 
@@ -86,36 +100,92 @@ header{
 
 
 
-#obstacle{
+#obstacle {
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  width: 40px;
+  height: 70px;
 
-  position:absolute;
+  /* Dark Purple Stone Base */
+  background-color: #2e1a47;
+  border: 3px solid #1a0f2b;
+  border-radius: 4px;
 
-  bottom:0;
-
-  left:100%;
-
-  width:40px;
-
-  height:70px;
-
-  background:red;
-
-  border-radius:6px;
-
+  /* Subtle "Polished" Texture */
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    linear-gradient(45deg, #4b2c73 50%, #3d235e 50%);
+  background-size: 10px 10px;
+  
+  /* Hard pixelated edges */
+  image-rendering: pixelated;
+  
+  /* Subtle highlight instead of neon glow */
+  box-shadow: inset -2px -2px 0px #1a0f2b, inset 2px 2px 0px #5c3b8a;
 }
 
+#surface {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40px; /* ارتفاع السقف */
 
+  /* نفس مظهر الـ Obstacle */
+  background-color: #2e1a47;
+  border: 3px solid #1a0f2b;
+  border-radius: 4px;
 
-#heartTemplate{
-
-  position:absolute;
-
-  width:30px;
-
-  height:30px;
-
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    linear-gradient(45deg, #4b2c73 50%, #3d235e 50%);
+  background-size: 10px 10px;
+  
+  image-rendering: pixelated;
+  box-shadow: inset -2px -2px 0px #1a0f2b, inset 2px 2px 0px #5c3b8a;
+  
+  z-index: 5; /* لضمان ظهوره فوق السحاب وتحت واجهة المستخدم */
 }
 
+#ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background-color: #190736; /* Solid base */
+  border-top: 1px solid #261d3f; /* Sharp pink highlight */
+  
+  /* Subtle Texture: Very faint cross-hatch/diagonal pattern */
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 2px,
+    transparent 2px,
+    transparent 10px
+  );
+  
+  z-index: 2;
+  image-rendering: pixelated;
+}
+
+#heartTemplate {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  
+  /* Adds a neon pink glow effect */
+  filter: drop-shadow(0 0 5px #ff4fd8) drop-shadow(0 0 10px #ff4fd8);
+  
+  /* Optional: adds a subtle pulsing animation to make them look alive */
+  animation: heartPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes heartPulse {
+  0%, 100% { filter: drop-shadow(0 0 5px #ff4fd8); }
+  50% { filter: drop-shadow(0 0 15px #ff4fd8); }
+}
 
 
 #score{
@@ -261,3 +331,4 @@ header{
   position: absolute;
 
 }
+
