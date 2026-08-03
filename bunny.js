@@ -87,28 +87,29 @@ window.addEventListener("DOMContentLoaded", () => {
     return btn;
   }
 
-  // --- 3. نظام التحجيم والتكبير (Responsive Scale) ---
-  function updateGameScale() {
-    const isNativeFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if (isNativeFS || state.isCustomFullscreen) {
-      const scale = Math.max(window.innerWidth / BASE_WIDTH, window.innerHeight / BASE_HEIGHT);
-      Object.assign(elements.game.style, {
-        width: `${BASE_WIDTH}px`,
-        height: `${BASE_HEIGHT}px`,
-        position: "fixed",
-        left: "50%",
-        top: "50%",
-        transformOrigin: "center center",
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        margin: "0px",
-        zIndex: "999999"
-      });
-    } else {
-      Object.assign(elements.game.style, {
-        width: "", height: "", transform: "none", transformOrigin: "", position: "relative", left: "", top: "", margin: "", zIndex: ""
-      });
-    }
+// إنشاء الخلفية السوداء إن لم تكن موجودة
+const overlay = document.getElementById("gameOverlay") || Object.assign(document.body.appendChild(document.createElement("div")), {
+  id: "gameOverlay", style: "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;display:none;z-index:2147483646;"
+});
+
+// --- 3. Full Screen بسيط بأسطر أقل ---
+function updateGameScale() {
+  const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
+  overlay.style.display = isFS ? "block" : "none";
+  document.body.style.overflow = isFS ? "hidden" : "";
+
+  if (isFS) {
+    const scale = window.innerHeight / BASE_HEIGHT;
+    Object.assign(elements.game.style, {
+      width: `${window.innerWidth / scale}px`, height: `${BASE_HEIGHT}px`,
+      position: "fixed", left: "50%", top: "50%",
+      transform: `translate(-50%, -50%) scale(${scale})`,
+      margin: "0", border: "none", borderRadius: "0px", boxShadow: "none", zIndex: "2147483647"
+    });
+  } else {
+    Object.assign(elements.game.style, { width: "", height: "", position: "relative", left: "", top: "", transform: "", margin: "", zIndex: "", border: "", borderRadius: "", boxShadow: "" });
   }
+}
 
   window.addEventListener("resize", updateGameScale);
   window.addEventListener("orientationchange", () => setTimeout(updateGameScale, 200));
