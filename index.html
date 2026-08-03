@@ -15,7 +15,7 @@
     <img class="avatar" src="AVATAR01.PNG" alt="Avatar">
     <h1 class="logo">LAMY</h1>
   </div>
-  <p>♥ نورتو يا لايميز ♥ </p>
+  <p>♡ نورتو يا لايميز ♡ </p>
 </header>
 
 <div id="auth-header" style="position: absolute; top: 10px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
@@ -28,24 +28,70 @@
   <button onclick="show('about')">About</button>
   <button onclick="show('updates')">Updates</button>
   <button onclick="show('youtube')">YouTube</button>
-  <button onclick="show('games')">Games</button>
-  <button onclick="show('bunny-game')">🐇<span style="opacity:0.7;font-size:12px">(BETA)</span></button>
+  <button onclick="show('games')">Mini Games</button>
+  <button onclick="show('dressup')">تلبيس لايمي <span style="opacity:0.7;font-size:12px">(NEW)</span></button>
+  <button onclick="show('bunny-game')">🐇</button>
   <button onclick="show('chat')">Chat</button>
 </nav>
   
 <main>
 
-<section id="home">
-  <h2>✨ Welcome</h2>
-  <p>مرحبا بك في موقع لايمي المتواضع 💗🎮</p>
+<section id="home" style="text-align: center;">
+  <h2 style="display: none;">✨ Welcome</h2>
+  <p class="retro-title-tufuli" style="font-size: 24px; margin-top: 10px;">
+    مرحبا بك في موقع لايمي المتواضع <span style="-webkit-text-fill-color: initial; background: none; filter: none; display: inline-block;">💗🎮</span>
+  </p>
+  <br><br><br>
 </section>
   
+<link href="https://fonts.googleapis.com/css2?family=Changa:wght@700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+
 <section id="about" class="hidden">
-  <h2>👤 About Me</h2>
-  <p>هلو، انا لايمي وهذا موقعي اللي أشتغل عليه 💗</p> 
-  <a href="https://linktr.ee/lamybotheringu" target="_blank" class="accounts-box" style="font-family: 'Courier New', 'B Titr', 'Titr', sans-serif; font-weight: bold;">
-    جميع حساباتي 🩷
-  </a>
+  <div class="pixel-frame-wrapper">
+    <span class="pixel-heart top-left-heart-1">💖</span>
+    <span class="pixel-heart top-left-heart-2">💗</span>
+    <span class="pixel-star top-right-star">✦</span>
+    <span class="pixel-heart bottom-right-heart-1">💖</span>
+    <span class="pixel-heart bottom-right-heart-2">💗</span>
+    <span class="pixel-star bottom-left-star">✦</span>
+
+    <div class="retro-kawaii-about">
+      <div class="retro-text-side">
+        <div class="retro-header no-notebook-line">
+          <h2 class="retro-title-tufuli">هلو معاكم لايمي</h2>
+          <img src="https://myfantagedreams.wordpress.com/wp-content/uploads/2014/11/kawaiides.gif" alt="Kawaii Heart" class="retro-gif-mini no-save">
+        </div>
+
+        <div class="retro-info-list">
+          <p class="notebook-line"><span class="pink-bold">الاسم:</span> لايمي (<span class="pink-eng">Lamy</span>)</p>
+          <p class="notebook-line"><span class="pink-bold">عيد ميلادي:</span> 15 أغ </p>
+          <p class="notebook-line"><span class="pink-bold">هواياتي:</span> الرسم | اللعب | صناعة المحتوى</p>
+        </div>
+
+        <div class="retro-story-block notebook-line">
+          <h3 class="retro-title-tufuli section-about-inline">عني:</h3>
+          <p>
+            بديت يوتيوب في 2025 ونزلت مقاطع غيمنغ والآن أحاول أوصل العالمية بموقعي وألعابي، هدف الموقع هو أنه يعطي <span class="pink-eng">vibe nostalgic</span> لألعاب زمان.
+          </p>
+          <p>
+            تلاقون تحديثات الموقع بـ <span onclick="show('updates')" class="text-link-simple">Updates</span> أو في صفحتي على الأنستا <a href="https://www.instagram.com/Lamybotheringu" target="_blank" class="text-link-simple">@Lamybotheringu</a>
+          </p>
+        </div>
+
+        <div class="retro-footer-gif text-center">
+          <img src="flyhamtaro.gif" alt="Fly Hamtaro" class="kawaii-bottom-img no-save">
+        </div>
+
+        <div class="retro-ask-box">
+          <button onclick="show('chat')" class="retro-btn chat-retro">الانتقال للدردشة (<span class="pink-eng">Chat</span>)</button>
+        </div>
+      </div>
+
+      <div class="retro-video-side">
+        <img src="lamyintro.gif" alt="Lamy Intro" class="retro-display-video no-save" oncontextmenu="return false;">
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="updates" class="hidden" style="max-width: 100%; margin: 30px auto; font-family: sans-serif; color: white;">
@@ -54,8 +100,9 @@
   </div>
   <ul style="margin: 0; padding-left: 20px; list-style-type: none; line-height: 1.8;">
     <li style="margin-bottom: 5px;">• تم تفعيل الشات</li>
-    <li style="margin-bottom: 5px;">• مشاكل في ألعاب الأونلاين</li>
+    <li style="margin-bottom: 5px;">• تم إضافة لعبة الأرنب 🐰</li>
     <li style="margin-bottom: 5px;">• قائمة الصدارة لا تزال قيد التجربة</li>
+    <li style="margin-bottom: 5px;">• إلغاء ألعاب الأونلاين مؤقتا بسبب كثرة المشاكل</li>
   </ul>
 </section>
 
@@ -92,13 +139,12 @@
         <button class="toggle-button" onclick="submitXOHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
       </div>
       <div id="gameResultArea" class="hidden">
-    <h2 id="resultText"></h2>
-    <button onclick="playAgain()">Play Again</button>
-    </div>
+        <h2 id="resultText"></h2>
+        <button onclick="playAgain()">Play Again</button>
+      </div>
       <div id="xoLeaderboardContainer" class="hidden" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
         <h4 style="margin: 0 0 8px 0; font-size: 14px;">🏆 Global XO Leaderboard</h4>
         <div id="onlineLeaderboardView" style="font-size: 12px; text-align: right;">جاري التحميل...</div>
-        
       </div>
     </div>
     
@@ -111,9 +157,9 @@
       <button id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
       <div id="treeCount" class="win-counter">Tree count: --</div>
       <div id="clickerLeaderboardContainer" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
-    <h4 id="clickerLeaderboardTitle" style="margin: 0 0 8px 0; font-size: 14px; color: #ff4fd8;">🏆 لوحة الصدارة </h4>
-    <div id="clickerOnlineLeaderboardView" style="font-size: 12px; text-align: right; color: #fff;">جاري التحميل..     </div>
-</div>
+        <h4 id="clickerLeaderboardTitle" style="margin: 0 0 8px 0; font-size: 14px; color: #ff4fd8;">🏆 لوحة الصدارة </h4>
+        <div id="clickerOnlineLeaderboardView" style="font-size: 12px; text-align: right; color: #fff;">جاري التحميل..</div>
+      </div>
     </div>
 
     <div class="game-item">
@@ -144,23 +190,24 @@
   </div>
 </section>
 
+<!-- تم تعديل ارتفاع نافذة تلبيس لايمي لتصبح أقصر قليلاً (700px) -->
+<section id="dressup" class="hidden">
+  <h2>✨ Lamy Dress Up</h2>
+  <iframe src="dressup.html" style="width: 100%; height: 700px !important; border: 2px solid #ff4fd8; border-radius: 12px; background: #111;"></iframe>
+</section>
+
+<!-- تم إرجاع لعبة الأرنب لارتفاعها القياسي الأصلي (320px) -->
 <section id="bunny-game" class="hidden">
   <h2>🐰 Bunny Game</h2>
-  
   <div id="game" style="position: relative; width: 100%; max-width: 600px; height: 320px; margin: 20px auto; overflow: hidden; border: 2px solid #ff4da6; background: url('night.png') no-repeat center center; background-size: cover;">
-    
     <img src="cloud.png" class="cloud c1">
     <img src="cloud.png" class="cloud c2">
     <img src="cloud.png" class="cloud c3">
     <img src="bunny.png" id="bunny">
     <div id="obstacle"></div>
     <img src="heart.png" id="heartTemplate" class="hidden" style="position: absolute; width: 30px; height: 30px;">
-    
     <div id="score">Hearts : 0</div>
-    
     <div id="ground"></div> 
-
-
     <div id="startScreen" class="overlay"><h2>Press Space to Start</h2></div>
     <div id="gameOver" class="overlay hidden">
         <h2>Game Over</h2>
@@ -181,16 +228,41 @@
   </div>
 </section>
 
-
 <section id="chat" class="hidden">
   <h2>💬 Chat</h2>
   <input id="name" placeholder="إسمك (سجل دخولك)" readonly style="color: #ff4fd8; border: 1px solid #ff4fd8;">
-  <input id="msg" placeholder="اكتب رسالتك">
+  <input id="msg" placeholder="اكتب رسالتك" onkeydown="if(event.key === 'Enter') send()">
   <button id="sendBtn" onclick="send()">إرسال</button> 
   <div id="box"></div>
 </section>
 
-<footer>© Lamybotheringu - June 2026</footer>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+<style>
+  @keyframes moveGrid {
+    0% { background-position: 0 0, 0 20px, 20px -20px, -20px 0px; }
+    100% { background-position: 40px 40px, 40px 60px, 60px 20px, 20px 40px; }
+  }
+  body.modern {
+    background-color: #1a1a1a !important;
+    background-image: linear-gradient(45deg, #000 25%, transparent 25%), linear-gradient(-45deg, #000 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #000 75%), linear-gradient(-45deg, transparent 75%, #000 75%) !important;
+    background-size: 40px 40px !important;
+    color: #fff !important;
+    animation: moveGrid 3s linear infinite;
+  }
+  body.modern p:not(.retro-title-tufuli), body.modern span:not(.retro-title-tufuli), body.modern h1, body.modern h3, body.modern h4, body.modern h5, body.modern h6, body.modern a, body.modern label {
+    text-shadow: 2px 2px 4px #000, -1px -1px 0 #00;
+  }
+</style>
+
+<button id="theme-btn" onclick="
+  let isModern = document.body.classList.toggle('modern');
+  this.innerText = isModern ? 'Modern' : 'Classic';
+" style="position: fixed; top: 20px; left: 20px; z-index: 999999; background: #111; color: #ff4fd8; border: 2px solid #ff4fd8; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'VT323', monospace; font-size: 22px; box-shadow: 3px 3px 0px #ff4fd8;">
+  Classic
+</button>
+
+<footer>© Lamybotheringu - August 2026</footer>
 
 <script>
   window.addEventListener("keydown", function(e) {
@@ -207,10 +279,7 @@
 <script src="script.js"></script>
 <script src="auth.js"></script>
 <script src="bunny.js"></script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9602652668313957"
-     crossorigin="anonymous"></script>
-
-
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9602652668313957" crossorigin="anonymous"></script>
 
 </main>
 </body>
