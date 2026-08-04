@@ -918,3 +918,8 @@ footer {
 #memoryPlayOnline {
   display: none !important;
 }
+.updates-section, .updates-list li {
+  font-weight: bold;
+  font-size: 1.15em;
+  text-shadow: -2.5px -2.5px 0 #000, 2.5px -2.5px 0 #000, -2.5px 2.5px 0 #000, 2.5px 2.5px 0 #000;
+}
