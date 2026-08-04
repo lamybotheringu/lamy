@@ -26,8 +26,8 @@ window.addEventListener("DOMContentLoaded", () => {
     velocity: 0,
     gravity: -0.0031,
     jumpPower: 0.78,
-    baseObsSpeed: 0.31,   
-    baseHeartSpeed: 0.25, 
+    baseObsSpeed: 0.31,   // السرعة الأساسية
+    baseHeartSpeed: 0.25, // سرعة القلوب الأساسية
     obsSpeed: 0.31,
     heartSpeed: 0.25,
     obsX: 600,
@@ -87,11 +87,12 @@ window.addEventListener("DOMContentLoaded", () => {
     return btn;
   }
 
+  // إنشاء الخلفية السوداء إن لم تكن موجودة
   const overlay = document.getElementById("gameOverlay") || Object.assign(document.body.appendChild(document.createElement("div")), {
     id: "gameOverlay", style: "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;display:none;z-index:2147483646;"
   });
 
-  // --- 3. Full Screen ---
+  // --- 3. Full Screen بسيط بأسطر أقل ---
   function updateGameScale() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
     overlay.style.display = isFS ? "block" : "none";
@@ -127,23 +128,13 @@ window.addEventListener("DOMContentLoaded", () => {
     updateGameScale();
   });
 
-  // --- 4. الصوت والمؤثرات (صوت عالي ومحسّن) ---
+  // --- 4. الصوت والمؤثرات (تمت زيادة درجة الصوت هنا) ---
   let audioCtx = null, bgmInterval = null;
-
-  function initOrResumeAudio() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
 
   function beep(freq, duration, type = 'sine', vol = 0.25, ignoreMute = false) {
     if (state.isMuted && !ignoreMute) return;
-    initOrResumeAudio();
-
-    if (!audioCtx) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
     try {
       const osc = audioCtx.createOscillator();
@@ -160,6 +151,7 @@ window.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
+  // تم رفع قيم vol لكل مؤثّر ليكون أعلى وواضح
   const audio = {
     jump: () => beep(350, 0.1, 'sine', 0.25, true),
     keyboard: () => beep(state.isMuted ? 400 : 1200, 0.015, state.isMuted ? 'sine' : 'triangle', 0.1, true),
@@ -177,7 +169,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let i = 0;
     bgmInterval = setInterval(() => {
       if (state.running && !state.isMuted) {
-        beep(notes[i], 0.4, 'sine', 0.08);
+        beep(notes[i], 0.4, 'sine', 0.08); // رفع صوت خلفية النغمات
         i = (i + 1) % notes.length;
       }
     }, 700);
@@ -196,7 +188,7 @@ window.addEventListener("DOMContentLoaded", () => {
     state.isMuted ? stopBGM() : (state.running && startBGM());
   });
 
-  // --- 5. Quotes Engine ---
+  // --- 5. نظام الحِكم والتكست (Quotes Engine) ---
   const quotes = [
     "استمر ولا توقف قفزاتك 🌸",
     "الخطوة الصغيرة تصنع طريقاً طويلاً 🌿",
@@ -292,9 +284,10 @@ window.addEventListener("DOMContentLoaded", () => {
   function startGame() {
     if (state.running) return;
     
-    initOrResumeAudio();
-    startBGM();
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
+    startBGM();
     Object.assign(state, {
       running: true, started: true, heartsCount: 0, distanceScore: 0,
       y: 0, velocity: 0, obsSpeed: state.baseObsSpeed, heartSpeed: state.baseHeartSpeed,
@@ -325,15 +318,18 @@ window.addEventListener("DOMContentLoaded", () => {
     const dt = time - state.lastTime;
     state.lastTime = time;
 
+    // التسارع يبدأ بعد 1000 سكور وبشكل ناعم جداً
     const extraScore = Math.max(0, state.distanceScore - 1000);
     const speedBonus = extraScore * 0.000025; 
 
     state.obsSpeed = state.baseObsSpeed + speedBonus;
     state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
 
+    // تحديث النتيجة
     state.distanceScore += dt * state.obsSpeed * 0.1;
     distanceScoreEl.textContent = `Score: ${Math.floor(state.distanceScore)}`;
 
+    // الحركة والفيزياء
     state.velocity += state.gravity * dt;
     state.y += state.velocity * dt;
 
@@ -350,6 +346,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const bunnyBox = elements.bunny.getBoundingClientRect();
 
+    // تحديث حركة المعوقات والمنصات
     if (state.upperPlatformActive) {
       state.upperPlatformX -= state.obsSpeed * dt;
       upperPlatform.style.left = `${state.upperPlatformX}px`;
@@ -386,6 +383,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
       elements.obstacle.style.left = `${state.obsX}px`;
 
+      // توليد القلوب العائمة
       state.heartTimer += dt;
       if (state.heartTimer > 1200) {
         const clone = elements.heartTemplate.cloneNode(true);
@@ -397,6 +395,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // القلوب العائمة
     for (let i = state.hearts.length - 1; i >= 0; i--) {
       const h = state.hearts[i];
       h.x -= state.heartSpeed * dt;
@@ -415,6 +414,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // التحقق من التصادم وإعادة الخسارة
     if (state.upperPlatformActive) {
       const spikeBox = spikeContainer.getBoundingClientRect();
       if (!(bunnyBox.right < spikeBox.left || bunnyBox.left > spikeBox.right) && state.y <= 20) {
@@ -471,29 +471,15 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 8. التحكم المعدل والراجع للنظام القديم (بدون دبل جمب) ---
-  let isTouchDevice = false;
-
+  // --- 8. إدارة مدخلات المستخدم ---
   const handleInput = (e) => {
     if (controlsContainer.contains(e.target) || e.target.id === "restartBtn") return;
-    
-    // إيقاف التداخل بين التتش والماوس
-    if (e.type === "touchstart") {
-      isTouchDevice = true;
-    } else if (e.type === "mousedown" && isTouchDevice) {
-      return; // تجاهل الضغطة المحاكاة من الماوس إذا كان اللمس مفعل
-    }
-
-    initOrResumeAudio();
-
-    if (!state.started || (!state.running && !elements.gameOverUI.classList.contains("hidden"))) {
-      startGame();
-    } else {
-      jump();
-    }
+    e.preventDefault();
+    if (!state.started || (!state.running && !elements.gameOverUI.classList.contains("hidden"))) startGame();
+    else jump();
   };
 
-  elements.game.addEventListener("touchstart", handleInput, { passive: true });
+  elements.game.addEventListener("touchstart", handleInput, { passive: false });
   elements.game.addEventListener("mousedown", handleInput);
   if (elements.restartBtn) elements.restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
   document.addEventListener("keydown", (e) => { if (e.code === "Space") handleInput(e); });
