@@ -438,7 +438,7 @@ window.addEventListener("DOMContentLoaded", () => {
     audio.jump();
   }
 
-  function gameOver() {
+function gameOver() {
     state.running = false;
     stopBGM();
     clearQuoteTimers();
@@ -457,12 +457,21 @@ window.addEventListener("DOMContentLoaded", () => {
     if (typeof database !== 'undefined' && window.getCurrentUserName) {
       const name = window.getCurrentUserName();
       if (name) {
+        // نستخدم عدد القلوب للحفظ والمقارنة
+        const heartsScore = state.heartsCount;
+
         database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).once("value", snap => {
           const oldScore = snap.val() ? snap.val().score : 0;
-          if (finalVal > oldScore) {
+          
+          // حفظ النتيجة فقط إذا كان عدد القلوب الحالي أعلى من المسجل سابقاً
+          if (heartsScore > oldScore) {
             database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).set({
-              name, score: finalVal, timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => { if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); });
+              name, 
+              score: heartsScore, // حفظ عدد القلوب
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => { 
+              if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); 
+            });
           }
         });
       } else {
