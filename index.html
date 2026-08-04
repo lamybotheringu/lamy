@@ -256,35 +256,36 @@
     </section>
 
     <!-- Chat Section -->
-    <section id="chat" class="hidden">
-      <h2>💬 Chat</h2>
-      <input id="name" placeholder="إسمك (سجل دخولك)" readonly class="chat-name-input">
-      <input id="msg" placeholder="اكتب رسالتك" onkeydown="if(event.key === 'Enter') send()">
-      <button id="sendBtn" onclick="send()">إرسال</button>
-      <div id="box"></div>
-    </section>
+   <section id="chat" class="hidden">
+  <h2>💬 Chat</h2>
+  <input id="name" placeholder="إسمك (سجل دخولك)" readonly style="color: #ff4fd8; border: 1px solid #ff4fd8;">
+  <input id="msg" placeholder="اكتب رسالتك" onkeydown="if(event.key === 'Enter') send()">
+  <button id="sendBtn" onclick="send()">إرسال</button> 
+  <div id="box"></div>
+</section>
 
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   </main>
 
   <!-- Footer -->
   <footer>© Lamybotheringu - August 2026</footer>
 
   <!-- Global Scripts -->
-  <script>
-    // منع إلغاء التركيز من الإدخالات عند ضغط المفاتيح
-    window.addEventListener("keydown", function(e) {
-      const activeTag = document.activeElement.tagName;
-      if (activeTag === "INPUT" || activeTag === "TEXTAREA") {
-        e.stopPropagation();
-      }
-    }, true);
+<script>
+  // عند فتح الموقع: استرجاع الثيم المحفوظ وتطبيقه
+  window.addEventListener("DOMContentLoaded", () => {
+    const isModern = localStorage.getItem("theme") === "modern";
+    if (isModern) document.body.classList.add("modern");
+    document.getElementById("theme-btn").innerText = isModern ? "Modern" : "Classic";
+  });
 
-    // تبديل الثيم
-    function toggleTheme(btn) {
-      const isModern = document.body.classList.toggle('modern');
-      btn.innerText = isModern ? 'Modern' : 'Classic';
-    }
-  </script>
+  // عند الضغط على الزر: تبديل الثيم وحفظه
+  function toggleTheme(btn) {
+    const isModern = document.body.classList.toggle("modern");
+    btn.innerText = isModern ? "Modern" : "Classic";
+    localStorage.setItem("theme", isModern ? "modern" : "classic");
+  }
+</script>
 
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
