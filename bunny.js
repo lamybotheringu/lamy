@@ -26,8 +26,8 @@ window.addEventListener("DOMContentLoaded", () => {
     velocity: 0,
     gravity: -0.0031,
     jumpPower: 0.78,
-    baseObsSpeed: 0.31,   // السرعة الأساسية
-    baseHeartSpeed: 0.25, // سرعة القلوب الأساسية
+    baseObsSpeed: 0.31,   
+    baseHeartSpeed: 0.25, 
     obsSpeed: 0.31,
     heartSpeed: 0.25,
     obsX: 600,
@@ -87,29 +87,28 @@ window.addEventListener("DOMContentLoaded", () => {
     return btn;
   }
 
-// إنشاء الخلفية السوداء إن لم تكن موجودة
-const overlay = document.getElementById("gameOverlay") || Object.assign(document.body.appendChild(document.createElement("div")), {
-  id: "gameOverlay", style: "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;display:none;z-index:2147483646;"
-});
+  const overlay = document.getElementById("gameOverlay") || Object.assign(document.body.appendChild(document.createElement("div")), {
+    id: "gameOverlay", style: "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;display:none;z-index:2147483646;"
+  });
 
-// --- 3. Full Screen بسيط بأسطر أقل ---
-function updateGameScale() {
-  const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
-  overlay.style.display = isFS ? "block" : "none";
-  document.body.style.overflow = isFS ? "hidden" : "";
+  // --- 3. Full Screen ---
+  function updateGameScale() {
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
+    overlay.style.display = isFS ? "block" : "none";
+    document.body.style.overflow = isFS ? "hidden" : "";
 
-  if (isFS) {
-    const scale = window.innerHeight / BASE_HEIGHT;
-    Object.assign(elements.game.style, {
-      width: `${window.innerWidth / scale}px`, height: `${BASE_HEIGHT}px`,
-      position: "fixed", left: "50%", top: "50%",
-      transform: `translate(-50%, -50%) scale(${scale})`,
-      margin: "0", border: "none", borderRadius: "0px", boxShadow: "none", zIndex: "2147483647"
-    });
-  } else {
-    Object.assign(elements.game.style, { width: "", height: "", position: "relative", left: "", top: "", transform: "", margin: "", zIndex: "", border: "", borderRadius: "", boxShadow: "" });
+    if (isFS) {
+      const scale = window.innerHeight / BASE_HEIGHT;
+      Object.assign(elements.game.style, {
+        width: `${window.innerWidth / scale}px`, height: `${BASE_HEIGHT}px`,
+        position: "fixed", left: "50%", top: "50%",
+        transform: `translate(-50%, -50%) scale(${scale})`,
+        margin: "0", border: "none", borderRadius: "0px", boxShadow: "none", zIndex: "2147483647"
+      });
+    } else {
+      Object.assign(elements.game.style, { width: "", height: "", position: "relative", left: "", top: "", transform: "", margin: "", zIndex: "", border: "", borderRadius: "", boxShadow: "" });
+    }
   }
-}
 
   window.addEventListener("resize", updateGameScale);
   window.addEventListener("orientationchange", () => setTimeout(updateGameScale, 200));
@@ -128,35 +127,47 @@ function updateGameScale() {
     updateGameScale();
   });
 
-  // --- 4. الصوت والمؤثرات ---
+  // --- 4. الصوت والمؤثرات (تم رفع مستوى الصوت ليكون واضحاً) ---
   let audioCtx = null, bgmInterval = null;
 
-  function beep(freq, duration, type = 'sine', vol = 0.03, ignoreMute = false) {
+  function initOrResumeAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function beep(freq, duration, type = 'sine', vol = 0.25, ignoreMute = false) {
     if (state.isMuted && !ignoreMute) return;
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    initOrResumeAudio();
 
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    if (!audioCtx) return;
 
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
   }
 
   const audio = {
-    jump: () => beep(350, 0.1, 'sine', 0.03, true),
-    keyboard: () => beep(state.isMuted ? 400 : 1200, 0.015, state.isMuted ? 'sine' : 'triangle', 0.015, true),
-    heart: () => beep(650, 0.05, 'triangle', 0.04),
+    jump: () => beep(350, 0.1, 'sine', 0.25, true),
+    keyboard: () => beep(state.isMuted ? 400 : 1200, 0.015, state.isMuted ? 'sine' : 'triangle', 0.1, true),
+    heart: () => beep(650, 0.08, 'triangle', 0.3),
     gameOver: () => {
-      beep(450, 0.15, 'sine', 0.04, true);
-      setTimeout(() => beep(350, 0.2, 'sine', 0.04, true), 120);
-      setTimeout(() => beep(250, 0.35, 'sine', 0.04, true), 260);
+      beep(450, 0.15, 'sine', 0.3, true);
+      setTimeout(() => beep(350, 0.2, 'sine', 0.3, true), 120);
+      setTimeout(() => beep(250, 0.35, 'sine', 0.3, true), 260);
     }
   };
 
@@ -166,7 +177,7 @@ function updateGameScale() {
     let i = 0;
     bgmInterval = setInterval(() => {
       if (state.running && !state.isMuted) {
-        beep(notes[i], 0.4, 'sine', 0.015);
+        beep(notes[i], 0.4, 'sine', 0.08);
         i = (i + 1) % notes.length;
       }
     }, 700);
@@ -185,15 +196,15 @@ function updateGameScale() {
     state.isMuted ? stopBGM() : (state.running && startBGM());
   });
 
-  // --- 5. نظام الحِكم والتكست (Quotes Engine) ---
+  // --- 5. Quotes Engine ---
   const quotes = [
-  "استمر ولا توقف قفزاتك 🌸",
-  "الخطوة الصغيرة تصنع طريقاً طويلاً 🌿",
-  "الوقت الممتع لا يُحسب بالساعة ☕",
-  "كل سقوط هو مجرد تمهيد للقفزة الأكبر 🐰",
-  "كل خطوة للأمام تقربك لحلمك البراق 🌟",
-  "صنع السعادة هو فن أتقنته اليوم 🎨",
-  "استمتع بالرحلة ولا تستعجل الوصول 🌙"
+    "استمر ولا توقف قفزاتك 🌸",
+    "الخطوة الصغيرة تصنع طريقاً طويلاً 🌿",
+    "الوقت الممتع لا يُحسب بالساعة ☕",
+    "كل سقوط هو مجرد تمهيد للقفزة الأكبر 🐰",
+    "كل خطوة للأمام تقربك لحلمك البراق 🌟",
+    "صنع السعادة هو فن أتقنته اليوم 🎨",
+    "استمتع بالرحلة ولا تستعجل الوصول 🌙"
   ];
   let quoteIndex = 0;
 
@@ -281,10 +292,9 @@ function updateGameScale() {
   function startGame() {
     if (state.running) return;
     
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
+    initOrResumeAudio();
     startBGM();
+
     Object.assign(state, {
       running: true, started: true, heartsCount: 0, distanceScore: 0,
       y: 0, velocity: 0, obsSpeed: state.baseObsSpeed, heartSpeed: state.baseHeartSpeed,
@@ -315,18 +325,15 @@ function updateGameScale() {
     const dt = time - state.lastTime;
     state.lastTime = time;
 
-    // التسارع يبدأ بعد 1000 سكور وبشكل ناعم جداً
     const extraScore = Math.max(0, state.distanceScore - 1000);
     const speedBonus = extraScore * 0.000025; 
 
     state.obsSpeed = state.baseObsSpeed + speedBonus;
     state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
 
-    // تحديث النتيجة
     state.distanceScore += dt * state.obsSpeed * 0.1;
     distanceScoreEl.textContent = `Score: ${Math.floor(state.distanceScore)}`;
 
-    // الحركة والفيزياء
     state.velocity += state.gravity * dt;
     state.y += state.velocity * dt;
 
@@ -343,7 +350,6 @@ function updateGameScale() {
 
     const bunnyBox = elements.bunny.getBoundingClientRect();
 
-    // تحديث حركة المعوقات والمنصات
     if (state.upperPlatformActive) {
       state.upperPlatformX -= state.obsSpeed * dt;
       upperPlatform.style.left = `${state.upperPlatformX}px`;
@@ -380,7 +386,6 @@ function updateGameScale() {
       }
       elements.obstacle.style.left = `${state.obsX}px`;
 
-      // توليد القلوب العائمة (تظهر الآن كل 1.2 ثانية 0.8)
       state.heartTimer += dt;
       if (state.heartTimer > 1200) {
         const clone = elements.heartTemplate.cloneNode(true);
@@ -392,7 +397,6 @@ function updateGameScale() {
       }
     }
 
-    // القلوب العائمة
     for (let i = state.hearts.length - 1; i >= 0; i--) {
       const h = state.hearts[i];
       h.x -= state.heartSpeed * dt;
@@ -411,7 +415,6 @@ function updateGameScale() {
       }
     }
 
-    // التحقق من التصادم وإعادة الخسارة
     if (state.upperPlatformActive) {
       const spikeBox = spikeContainer.getBoundingClientRect();
       if (!(bunnyBox.right < spikeBox.left || bunnyBox.left > spikeBox.right) && state.y <= 20) {
@@ -468,15 +471,20 @@ function updateGameScale() {
     }
   }
 
-  // --- 8. إدارة مدخلات المستخدم ---
+  // --- 8. التحكم واللمس بالجوال ---
   const handleInput = (e) => {
     if (controlsContainer.contains(e.target) || e.target.id === "restartBtn") return;
-    e.preventDefault();
-    if (!state.started || (!state.running && !elements.gameOverUI.classList.contains("hidden"))) startGame();
-    else jump();
+    
+    initOrResumeAudio();
+
+    if (!state.started || (!state.running && !elements.gameOverUI.classList.contains("hidden"))) {
+      startGame();
+    } else {
+      jump();
+    }
   };
 
-  elements.game.addEventListener("touchstart", handleInput, { passive: false });
+  elements.game.addEventListener("touchstart", handleInput, { passive: true });
   elements.game.addEventListener("mousedown", handleInput);
   if (elements.restartBtn) elements.restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
   document.addEventListener("keydown", (e) => { if (e.code === "Space") handleInput(e); });
