@@ -837,6 +837,8 @@ footer {
 /* ==========================================
    📱 التجاوب مع مختلف الشاشات (Responsive Design)
    ========================================== */
+
+/* للشاشات المتوسطة والصغيرة (تعديلات الألعاب والأقسام) */
 @media (max-width: 720px) {
   nav button {
     flex: 1 1 calc(50% - 8px);
@@ -869,20 +871,24 @@ footer {
   }
 }
 
+/* للشاشات الصغيرة جداً والجوال (تعديلات الهيدر والأزرار) */
 @media (max-width: 600px) {
   header {
-    padding-top: 50px;
+    margin-top: 40px; /* مسافة فارغة فوق اللوغو */
+    padding-top: 20px;
   }
 
+  /* اللوغو والـ Avatar بحجمهما الطبيعي الكبير */
   .brand .logo {
-    font-size: 22px;
+    font-size: 44px !important;
   }
 
   .brand .avatar {
-    width: 32px;
-    height: 32px;
+    width: 100px !important;
+    height: 100px !important;
   }
 
+  /* تصغير أزرار التحكم العلوية فقط */
   #auth-header {
     top: 10px;
     right: 10px;
