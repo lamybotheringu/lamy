@@ -127,7 +127,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updateGameScale();
   });
 
-  // --- 4. الصوت والمؤثرات (تم رفع مستوى الصوت ليكون واضحاً) ---
+  // --- 4. الصوت والمؤثرات (صوت عالي ومحسّن) ---
   let audioCtx = null, bgmInterval = null;
 
   function initOrResumeAudio() {
@@ -471,10 +471,19 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 8. التحكم واللمس بالجوال ---
+  // --- 8. التحكم المعدل والراجع للنظام القديم (بدون دبل جمب) ---
+  let isTouchDevice = false;
+
   const handleInput = (e) => {
     if (controlsContainer.contains(e.target) || e.target.id === "restartBtn") return;
     
+    // إيقاف التداخل بين التتش والماوس
+    if (e.type === "touchstart") {
+      isTouchDevice = true;
+    } else if (e.type === "mousedown" && isTouchDevice) {
+      return; // تجاهل الضغطة المحاكاة من الماوس إذا كان اللمس مفعل
+    }
+
     initOrResumeAudio();
 
     if (!state.started || (!state.running && !elements.gameOverUI.classList.contains("hidden"))) {
