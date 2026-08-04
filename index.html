@@ -5,100 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lamy</title>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Baloo:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <!-- Google Fonts (Optimized) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo:wght@400;700&family=Changa:wght@700;800&family=Orbitron:wght@500;700&family=Tajawal:wght@500;700;800&family=VT323&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="bunny.css">
-
-  <style>
-    /* استدعاء خط Tinta Arabic */
-    @font-face {
-      font-family: 'Tinta Arabic';
-      src: url('TintaArabic-Bold.ttf') format('truetype'),
-           url('TintaArabic-Bold.woff') format('woff'),
-           url('TintaArabic-Bold.otf') format('opentype');
-      font-weight: bold;
-      font-style: normal;
-    }
-
-    /* كلاس لتطبيق خط Tinta Arabic على العناصر المحددة */
-    .tinta-font {
-      font-family: 'Tinta Arabic', 'Changa', sans-serif !important;
-    }
-
-    /* خلفية الثيم المودرن */
-    @keyframes moveGrid {
-      0% { background-position: 0 0, 0 20px, 20px -20px, -20px 0px; }
-      100% { background-position: 40px 40px, 40px 60px, 60px 20px, 20px 40px; }
-    }
-    body.modern {
-      background-color: #1a1a1a !important;
-      background-image: linear-gradient(45deg, #000 25%, transparent 25%), 
-                        linear-gradient(-45deg, #000 25%, transparent 25%), 
-                        linear-gradient(45deg, transparent 75%, #000 75%), 
-                        linear-gradient(-45deg, transparent 75%, #000 75%) !important;
-      background-size: 40px 40px !important;
-      color: #fff !important;
-      animation: moveGrid 3s linear infinite;
-    }
-    body.modern p:not(.retro-title-tufuli), 
-    body.modern span:not(.retro-title-tufuli), 
-    body.modern h1, body.modern h3, body.modern h4, body.modern h5, body.modern h6, 
-    body.modern a, body.modern label {
-      text-shadow: 2px 2px 4px #000, -1px -1px 0 #000;
-    }
-  </style>
 </head>
 <body>
 
   <!-- Header Section -->
   <header>
     <div class="brand">
-      <img class="avatar" src="AVATAR01.PNG" alt="Avatar">
+      <img class="avatar" src="AVATAR01.PNG" alt="Lamy Avatar">
       <h1 class="logo">LAMY</h1>
     </div>
     <p>♡ نورتو يا لايميز ♡</p>
   </header>
 
-  <!-- Auth Buttons -->
-  <div id="auth-header" style="position: absolute; top: 10px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
-    <button id="loginTriggerBtn" onclick="showAuthOverlay('login')">تسجيل الدخول</button>
-    <button id="signupTriggerBtn" onclick="showAuthOverlay('signup')">إنشاء حساب</button>
+  <!-- Control & Auth Bar -->
+  <div class="top-controls-bar">
+    <div id="auth-header">
+      <button id="loginTriggerBtn" onclick="showAuthOverlay('login')">تسجيل الدخول</button>
+      <button id="signupTriggerBtn" onclick="showAuthOverlay('signup')">إنشاء حساب</button>
+    </div>
+
+    <button id="theme-btn" onclick="toggleTheme(this)">Classic</button>
   </div>
 
-  <!-- Theme Toggle Button -->
-  <button id="theme-btn" onclick="
-    let isModern = document.body.classList.toggle('modern');
-    this.innerText = isModern ? 'Modern' : 'Classic';
-  " style="position: absolute; top: 20px; left: 20px; z-index: 999999; background: #111; color: #ff4fd8; border: 2px solid #ff4fd8; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'VT323', monospace; font-size: 22px; box-shadow: 3px 3px 0px #ff4fd8;">
-    Classic
-  </button>
-
-  <!-- Navigation Bar -->
+  <!-- Main Navigation -->
   <nav>
     <button onclick="show('home')">Home</button>
     <button onclick="show('about')">About</button>
     <button onclick="show('updates')">Updates</button>
     <button onclick="show('youtube')">YouTube</button>
     <button onclick="show('games')">Mini Games</button>
-    <button onclick="show('bunny-game')">🐇</button>
+    <button onclick="show('bunny-game')">🐇<span class="badge-new">(NEW)</span></button>
     <button onclick="show('chat')">Chat</button>
   </nav>
 
-  <!-- Main Content -->
+  <!-- Main Content Area -->
   <main>
 
     <!-- Home Section -->
-    <section id="home" style="text-align: center;">
-      <h2 style="display: none;">✨ Welcome</h2>
-      <p class="retro-title-tufuli" style="font-size: 24px; margin-top: 10px;">
-        مرحبا بك في موقع لايمي المتواضع <span style="-webkit-text-fill-color: initial; background: none; filter: none; display: inline-block;">💗🎮</span>
+    <section id="home" class="text-center">
+      <h2 class="hidden-title">✨ Welcome</h2>
+      <p class="retro-title-tufuli home-welcome-text">
+        مرحبا بك في موقع لايمي المتواضع <span class="emoji-reset">💗🎮</span>
       </p>
-      <br><br><br>
     </section>
 
     <!-- About Section -->
@@ -114,7 +70,6 @@
         <div class="retro-kawaii-about">
           <div class="retro-text-side">
             <div class="retro-header no-notebook-line">
-              <!-- تطبيق الخط الجديد هنا -->
               <h2 class="retro-title-tufuli tinta-font">هلو معاكم لايمي</h2>
               <img src="https://myfantagedreams.wordpress.com/wp-content/uploads/2014/11/kawaiides.gif" alt="Kawaii Heart" class="retro-gif-mini no-save">
             </div>
@@ -126,8 +81,7 @@
             </div>
 
             <div class="retro-story-block notebook-line">
-              <!-- تطبيق الخط الجديد هنا -->
-              <h3 class="retro-title-tufuli section-about-inline tinta-font">عني:</h3>
+              <h2 class="retro-title-tufuli tinta-font">عني:</h2>
               <p>
                 بديت يوتيوب في 2025 ونزلت مقاطع غيمنغ والآن أحاول أوصل العالمية بموقعي وألعابي، هدف الموقع هو أنه يعطي <span class="pink-eng">vibe nostalgic</span> لألعاب زمان.
               </p>
@@ -153,15 +107,15 @@
     </section>
 
     <!-- Updates Section -->
-    <section id="updates" class="hidden" style="max-width: 100%; margin: 30px auto; font-family: sans-serif; color: white;">
-      <div style="border: 2px solid #ff4fd8; padding: 15px; margin-bottom: 20px; display: block;">
-        <h2 style="margin: 0; color: #ff4fd8; font-size: 1.3em;">الموقع خلف الصيانة 🚧</h2>
+    <section id="updates" class="hidden updates-section">
+      <div class="updates-box">
+        <h2 class="updates-title">الموقع خلف الصيانة 🚧</h2>
       </div>
-      <ul style="margin: 0; padding-left: 20px; list-style-type: none; line-height: 1.8;">
-        <li style="margin-bottom: 5px;">• تم تفعيل الشات</li>
-        <li style="margin-bottom: 5px;">• تم إضافة لعبة الأرنب 🐰</li>
-        <li style="margin-bottom: 5px;">• قائمة الصدارة لا تزال قيد التجربة</li>
-        <li style="margin-bottom: 5px;">• إلغاء ألعاب الأونلاين مؤقتا بسبب كثرة المشاكل</li>
+      <ul class="updates-list">
+        <li>• تم تفعيل الشات</li>
+        <li>• تم إضافة لعبة الأرنب 🐰</li>
+        <li>• قائمة الصدارة لا تزال قيد التجربة</li>
+        <li>• إلغاء ألعاب الأونلاين مؤقتا بسبب كثرة المشاكل</li>
       </ul>
     </section>
 
@@ -187,57 +141,57 @@
         <!-- XO Game -->
         <div class="game-item">
           <h3>❌ XO Game</h3>
-          <div class="mode-controls" style="margin-bottom: 16px; display: flex; gap: 10px; justify-content: center;">
+          <div class="mode-controls xo-mode-flex">
             <button id="xoModeBot" class="toggle-button active" onclick="switchXOMode('bot')">Bot</button>
             <button id="xoModeOnline" class="toggle-button" onclick="switchXOMode('online')">Online</button>
           </div>
-          <div id="xoStatusInfo" style="font-size: 14px; margin-bottom: 8px; color: #fff;">الوضع الحالي: اللعب ضد البوت</div>
+          <div id="xoStatusInfo" class="status-info-text">الوضع الحالي: اللعب ضد البوت</div>
           <div id="xoWins" class="win-counter">Wins: 0</div>
           <div id="xoBoard"></div>
           <button id="xoReset" class="game-button hidden" onclick="handleXOResetClick()">play again</button>
           <div id="xoMessage" class="tree-message hidden"></div>
-          
-          <div id="xoSaveNameContainer" class="hidden" style="margin-top: 15px; padding: 10px; border: 2px dashed #ff4fd8;">
-            <p style="font-size: 13px; color: #fff; margin: 0 0 8px 0;">🎉 كفو! حققت فوزاً كبيراً، اكتب اسمك لتسجيله في الصدارة:</p>
-            <input type="text" id="xoLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 5px; width: 70%;">
-            <button class="toggle-button" onclick="submitXOHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
+
+          <div id="xoSaveNameContainer" class="hidden save-name-box">
+            <p class="save-score-desc">🎉 كفو! حققت فوزاً كبيراً، اكتب اسمك لتسجيله في الصدارة:</p>
+            <input type="text" id="xoLeaderboardNameInput" placeholder="اسمك البطولي" class="leaderboard-input-70">
+            <button class="toggle-button btn-save-small" onclick="submitXOHighScore()">حفظ 🏆</button>
           </div>
-          
+
           <div id="gameResultArea" class="hidden">
             <h2 id="resultText"></h2>
             <button onclick="playAgain()">Play Again</button>
           </div>
-          
-          <div id="xoLeaderboardContainer" class="hidden" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
-            <h4 style="margin: 0 0 8px 0; font-size: 14px;">🏆 Global XO Leaderboard</h4>
-            <div id="onlineLeaderboardView" style="font-size: 12px; text-align: right;">جاري التحميل...</div>
+
+          <div id="xoLeaderboardContainer" class="hidden global-leaderboard-box">
+            <h4 class="leaderboard-heading">🏆 Global XO Leaderboard</h4>
+            <div id="onlineLeaderboardView" class="leaderboard-view-text">جاري التحميل...</div>
           </div>
         </div>
-        
+
         <!-- Clicker Game -->
         <div class="game-item">
           <h3>🖱️ Clicker Game</h3>
           <div id="treeVisualization" class="tree-viz">🌱</div>
-          <div id="clickScore" style="margin-top:12px">Score: 0</div>
+          <div id="clickScore" class="click-score-text">Score: 0</div>
           <button class="game-button" onclick="clickMe()">Click me</button>
           <div id="treeMessage" class="tree-message hidden">أحسنت! نمت الشجرة</div>
           <button id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
           <div id="treeCount" class="win-counter">Tree count: --</div>
-          
-          <div id="clickerLeaderboardContainer" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
-            <h4 id="clickerLeaderboardTitle" style="margin: 0 0 8px 0; font-size: 14px; color: #ff4fd8;">🏆 لوحة الصدارة </h4>
-            <div id="clickerOnlineLeaderboardView" style="font-size: 12px; text-align: right; color: #fff;">جاري التحميل..</div>
+
+          <div id="clickerLeaderboardContainer" class="global-leaderboard-box">
+            <h4 id="clickerLeaderboardTitle" class="leaderboard-heading-pink">🏆 لوحة الصدارة</h4>
+            <div id="clickerOnlineLeaderboardView" class="leaderboard-view-white">جاري التحميل..</div>
           </div>
         </div>
 
         <!-- Memory Game -->
         <div class="game-item">
           <h3>🧠 Memory Game</h3>
-          <div class="mode-controls" style="margin-bottom: 16px; display: flex; gap: 10px; justify-content: center;">
+          <div class="mode-controls xo-mode-flex">
             <button id="memoryPlaySolo" class="toggle-button active" onclick="switchMemoryMatchMode('solo')">Solo</button>
             <button id="memoryPlayOnline" class="toggle-button" onclick="switchMemoryMatchMode('online')">Online</button>
           </div>
-          <div id="memoryDifficultyControls" class="memory-controls" style="margin-top: 0;">
+          <div id="memoryDifficultyControls" class="memory-controls memory-controls-reset">
             <button id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
             <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
             <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
@@ -246,16 +200,16 @@
           <div id="memoryBoard" class="memory-board"></div>
           <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Play again</button>
           <div id="memoryWins" class="win-counter">Wins: 0</div>
-          
-          <div id="memorySaveNameContainer" class="hidden" style="margin-top: 15px; padding: 10px; border: 2px dashed #ff4fd8;">
-            <p style="font-size: 13px; color: #fff; margin: 0 0 8px 0;">🎉 رائع! دخلت صدارة الجولة الحالية، اكتب اسمك لتسجيله:</p>
-            <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" style="padding: 6px; width: 60%;">
-            <button class="toggle-button" onclick="submitMemoryHighScore()" style="padding: 4px 10px; font-size: 12px;">حفظ 🏆</button>
+
+          <div id="memorySaveNameContainer" class="hidden save-name-box">
+            <p class="save-score-desc">🎉 رائع! دخلت صدارة الجولة الحالية، اكتب اسمك لتسجيله:</p>
+            <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" class="leaderboard-input-60">
+            <button class="toggle-button btn-save-small" onclick="submitMemoryHighScore()">حفظ 🏆</button>
           </div>
-          
-          <div id="memoryLeaderboardContainer" style="margin-top: 20px; width: 100%; max-width: 260px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333;">
-            <h4 id="memoryLeaderboardTitle" style="margin: 0 0 8px 0; font-size: 14px; color: #ff4fd8;">🏆 لوحة الصدارة (EASY)</h4>
-            <div id="memoryOnlineLeaderboardView" style="font-size: 12px; text-align: right; color: #fff;">لا توجد نتائج مسجلة في هذه الجلسة.</div>
+
+          <div id="memoryLeaderboardContainer" class="global-leaderboard-box">
+            <h4 id="memoryLeaderboardTitle" class="leaderboard-heading-pink">🏆 لوحة الصدارة (EASY)</h4>
+            <div id="memoryOnlineLeaderboardView" class="leaderboard-view-white">لا توجد نتائج مسجلة في هذه الجلسة.</div>
           </div>
         </div>
 
@@ -265,68 +219,80 @@
     <!-- Dress Up Section -->
     <section id="dressup" class="hidden">
       <h2>✨ Lamy Dress Up</h2>
-      <iframe src="dressup.html" style="width: 100%; height: 700px !important; border: 2px solid #ff4fd8; border-radius: 12px; background: #111;"></iframe>
+      <iframe src="dressup.html" class="dressup-iframe"></iframe>
     </section>
 
-    <!-- Bunny Game Section -->
+<!-- Bunny Game Section -->
     <section id="bunny-game" class="hidden">
       <h2>🐰 Bunny Game</h2>
-      <div id="game" style="position: relative; width: 100%; max-width: 600px; height: 320px; margin: 20px auto; overflow: hidden; border: 2px solid #ff4da6; background: url('night.png') no-repeat center center; background-size: cover;">
+      <!-- تم إضافة صورة الخلفية + إمكانية اللمس للجوال (onclick & ontouchstart) -->
+      <div id="game" class="bunny-game-box" style="background: #1a0b2e url('night.png') no-repeat center/cover;" onclick="handleJump()" ontouchstart="handleJump()">
         <img src="cloud.png" class="cloud c1" alt="Cloud">
         <img src="cloud.png" class="cloud c2" alt="Cloud">
         <img src="cloud.png" class="cloud c3" alt="Cloud">
         <img src="bunny.png" id="bunny" alt="Bunny">
         <div id="obstacle"></div>
-        <img src="heart.png" id="heartTemplate" class="hidden" style="position: absolute; width: 30px; height: 30px;" alt="Heart">
+        <img src="heart.png" id="heartTemplate" class="hidden heart-template-img" alt="Heart">
         <div id="score">Hearts : 0</div>
-        <div id="ground"></div> 
-        <div id="startScreen" class="overlay"><h2>Press Space to Start</h2></div>
+        <div id="ground"></div>
+        <div id="startScreen" class="overlay"><h2>Press Space or Tap to Start</h2></div>
         <div id="gameOver" class="overlay hidden">
           <h2>Game Over</h2>
           <p id="finalScore"></p>
-          <button id="restartBtn">Play Again</button>
+          <button id="restartBtn" onclick="event.stopPropagation(); restartGame();">Play Again</button>
         </div>
       </div>
 
-      <div id="bunnySaveNameContainer" class="hidden" style="margin: 15px auto; width: 100%; max-width: 400px; background: #222; padding: 15px; border-radius: 12px; border: 2px dashed #ff4da6; text-align: center;">
-        <p style="font-size: 14px; color: #fff; margin: 0 0 10px 0;">🏆 ممتاز! اكتب اسمك ليظهر في الليدربورد:</p>
-        <input type="text" id="bunnyLeaderboardNameInput" placeholder="أدخل اسمك هنا..." style="padding: 6px; width: 60%; border-radius: 5px; border: none;">
-        <button onclick="submitBunnyHighScore()" style="padding: 6px 12px; font-size: 13px; cursor: pointer; background: #ff4da6; color: white; border: none; border-radius: 5px;">حفظ النتيجة 🌟</button>
+      <div id="bunnySaveNameContainer" class="hidden bunny-save-box">
+        <p class="bunny-save-desc">🏆 ممتاز! اكتب اسمك ليظهر في الليدربورد:</p>
+        <input type="text" id="bunnyLeaderboardNameInput" placeholder="أدخل اسمك هنا..." class="bunny-input">
+        <button onclick="submitBunnyHighScore()" class="bunny-save-btn">حفظ النتيجة 🌟</button>
       </div>
 
-      <div id="bunnyLeaderboardContainer" style="margin: 25px auto; width: 100%; max-width: 400px; background: #111; padding: 15px; border-radius: 12px; border: 1px solid #ff4da6;">
-        <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ff4da6;">🏆 Bunny Leaderboard</h3>
-        <div id="bunnyLeaderboardView" style="font-size: 14px; text-align: right; color: #fff;">جاري تحميل النتائج...</div>
+      <div id="bunnyLeaderboardContainer" class="bunny-leaderboard-box">
+        <h3 class="bunny-leaderboard-heading">🏆 Bunny Leaderboard</h3>
+        <div id="bunnyLeaderboardView" class="bunny-leaderboard-view">جاري تحميل النتائج...</div>
       </div>
     </section>
 
     <!-- Chat Section -->
     <section id="chat" class="hidden">
       <h2>💬 Chat</h2>
-      <input id="name" placeholder="إسمك (سجل دخولك)" readonly style="color: #ff4fd8; border: 1px solid #ff4fd8;">
+      <input id="name" placeholder="إسمك (سجل دخولك)" readonly class="chat-name-input">
       <input id="msg" placeholder="اكتب رسالتك" onkeydown="if(event.key === 'Enter') send()">
-      <button id="sendBtn" onclick="send()">إرسال</button> 
+      <button id="sendBtn" onclick="send()">إرسال</button>
       <div id="box"></div>
     </section>
 
   </main>
 
-  <!-- Footer Section -->
+  <!-- Footer -->
   <footer>© Lamybotheringu - August 2026</footer>
 
-  <!-- Scripts -->
+  <!-- Global Scripts -->
   <script>
+    // منع إلغاء التركيز من الإدخالات عند ضغط المفاتيح
     window.addEventListener("keydown", function(e) {
-      if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
-        e.stopPropagation(); 
+      const activeTag = document.activeElement.tagName;
+      if (activeTag === "INPUT" || activeTag === "TEXTAREA") {
+        e.stopPropagation();
       }
     }, true);
+
+    // تبديل الثيم
+    function toggleTheme(btn) {
+      const isModern = document.body.classList.toggle('modern');
+      btn.innerText = isModern ? 'Modern' : 'Classic';
+    }
   </script>
 
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <!-- Application Logic -->
   <script src="script.js"></script>
   <script src="auth.js"></script>
   <script src="bunny.js"></script>
