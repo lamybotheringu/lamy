@@ -26,8 +26,8 @@ window.addEventListener("DOMContentLoaded", () => {
     velocity: 0,
     gravity: -0.0031,
     jumpPower: 0.78,
-    baseObsSpeed: 0.31,   // السرعة الأساسية
-    baseHeartSpeed: 0.25, // سرعة القلوب الأساسية
+    baseObsSpeed: 0.31,
+    baseHeartSpeed: 0.25,
     obsSpeed: 0.31,
     heartSpeed: 0.25,
     obsX: 600,
@@ -54,7 +54,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const controlsContainer = document.createElement("div");
   controlsContainer.style.cssText = "position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:20;";
-
   const btnStyle = "background:rgba(30,20,40,0.75); border:1px solid #d8b4fe; color:#fff; padding:5px 8px; font-family:'Courier New',monospace; font-size:14px; cursor:pointer; outline:none; image-rendering:pixelated;";
   
   const muteBtn = createButton("🔊", btnStyle);
@@ -69,13 +68,13 @@ window.addEventListener("DOMContentLoaded", () => {
   vnBox.appendChild(quoteEl);
   elements.game.appendChild(vnBox);
 
-  // المنصة العلوية والأشواك
+  // المنصة العلوية والأشواك (تم تقليل العرض إلى 320px)
   const upperPlatform = document.createElement("div");
-  upperPlatform.style.cssText = "position:absolute; bottom:120px; width:450px; height:18px; border:1px solid #d8b4fe; box-shadow:inset 0 0 0 1px #1e1428; background:repeating-linear-gradient(45deg, rgba(216,180,254,0.25), rgba(216,180,254,0.25) 8px, rgba(30,20,40,0.85) 8px, rgba(30,20,40,0.85) 16px); display:none; z-index:4; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
+  upperPlatform.style.cssText = "position:absolute; bottom:120px; width:320px; height:18px; border:1px solid #d8b4fe; box-shadow:inset 0 0 0 1px #1e1428; background:repeating-linear-gradient(45deg, rgba(216,180,254,0.25), rgba(216,180,254,0.25) 8px, rgba(30,20,40,0.85) 8px, rgba(30,20,40,0.85) 16px); display:none; z-index:4; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
   elements.game.appendChild(upperPlatform);
 
   const spikeContainer = document.createElement("div");
-  spikeContainer.style.cssText = "position:absolute; bottom:0px; width:450px; height:45px; display:none; z-index:5; pointer-events:none; overflow:hidden; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
+  spikeContainer.style.cssText = "position:absolute; bottom:0px; width:320px; height:45px; display:none; z-index:5; pointer-events:none; overflow:hidden; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
   spikeContainer.innerHTML = `<svg width="100%" height="100%"><defs><pattern id="pixelSpikePattern" width="18" height="45" patternUnits="userSpaceOnUse"><polygon points="0,45 9,0 18,45" fill="#252730" stroke="#121318" stroke-width="1.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#pixelSpikePattern)"/></svg>`;
   elements.game.appendChild(spikeContainer);
 
@@ -186,7 +185,7 @@ window.addEventListener("DOMContentLoaded", () => {
     state.isMuted ? stopBGM() : (state.running && startBGM());
   });
 
-  // --- 5. نظام الحِكم والتكست (Quotes Engine) ---
+  // --- 5. نظام الحِكم والتكست ---
   const quotes = [
     "استمر ولا توقف قفزاتك 🌸",
     "الخطوة الصغيرة تصنع طريقاً طويلاً 🌿",
@@ -205,9 +204,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function scheduleQuote(delay) {
     if (!state.running) return;
-    state.activeTimeouts.push(setTimeout(() => {
-      if (state.running) showQuote();
-    }, delay));
+    state.activeTimeouts.push(setTimeout(() => { if (state.running) showQuote(); }, delay));
   }
 
   function showQuote() {
@@ -256,7 +253,7 @@ window.addEventListener("DOMContentLoaded", () => {
     spikeContainer.style.display = "block";
     elements.obstacle.style.display = "none";
 
-    [100, 225, 350].forEach(pos => {
+    [60, 160, 260].forEach(pos => {
       const clone = elements.heartTemplate.cloneNode(true);
       clone.classList.remove("hidden");
       Object.assign(clone.style, { position: "absolute", left: `${pos}px`, bottom: "22px" });
@@ -316,17 +313,15 @@ window.addEventListener("DOMContentLoaded", () => {
     const dt = time - state.lastTime;
     state.lastTime = time;
 
-    // --- التسارع يبدأ بعد 1000 سكور وبشكل خفيف وتدريجي جداً ---
-    const extraScore = Math.max(0, state.distanceScore - 1000);
-    const speedBonus = extraScore * 0.00008; 
-
+    // تسارع بسيط للعبة بعد 1000 نقطة
+    const speedBonus = Math.max(0, state.distanceScore - 1000) * 0.00008; 
     state.obsSpeed = state.baseObsSpeed + speedBonus;
     state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
 
     state.distanceScore += dt * state.obsSpeed * 0.1;
     distanceScoreEl.textContent = `Score: ${Math.floor(state.distanceScore)}`;
 
-    // الحركة والفيزياء
+    // الفيزياء والحركة
     state.velocity += state.gravity * dt;
     state.y += state.velocity * dt;
 
@@ -338,33 +333,34 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let currentGround = 0;
 
-    // --- معالجة التصادم مع المنصة العلوية الصلبة ---
+    // --- المنصة العلوية (البار) ---
     if (state.upperPlatformActive) {
       const platLeft = state.upperPlatformX;
-      const platRight = state.upperPlatformX + 450;
-      const platBottom = 100; // أسفل البار
-      const platTop = 120;    // أعلى البار
+      const platRight = state.upperPlatformX + 320; // العرض الجديد 320px
+      const platBottom = 100;
+      const platTop = 120;
 
-      if (bunnyRightRel > platLeft && bunnyLeftRel < platRight) {
-        // 1. القفز من أسفل البار (اصطدام يمنع الاختراق)
+      // التأكد من توضّع الأرنب أفقياً بالنسبة للبار
+      if (bunnyRightRel > platLeft + 15 && bunnyLeftRel < platRight - 15) {
+        // 1. القفز من تحت البار (يخبط ويرتد)
         if (state.y > platBottom - 20 && state.y < platTop && state.velocity > 0) {
           state.y = platBottom - 20;
-          state.velocity = -0.15; // ارتداد بسيط للأسفل
+          state.velocity = -0.1;
         } 
-        // 2. الوقوف على السطح
+        // 2. الهبوط على البار من الأعلى
         else if (state.y >= platTop - 15 && state.velocity <= 0) {
           currentGround = platTop;
         }
       }
     }
 
-    // حد سقف اللعبة الأعلى
+    // سقف اللعبة العلوي
     if (state.y > 220) { 
       state.y = 220; 
       state.velocity = Math.min(0, state.velocity); 
     }
 
-    // الاستقرار على الأرضية الحالية
+    // الهبوط على السطح
     if (state.y <= currentGround) { 
       state.y = currentGround; 
       state.velocity = 0; 
@@ -373,7 +369,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     elements.bunny.style.bottom = `${state.y}px`;
 
-    // تحديث حركة المعوقات والمنصات
+    // حركة المعوقات والمنصات
     if (state.upperPlatformActive) {
       state.upperPlatformX -= state.obsSpeed * dt;
       upperPlatform.style.left = `${state.upperPlatformX}px`;
@@ -389,7 +385,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      if (state.upperPlatformX < -480) {
+      if (state.upperPlatformX < -350) {
         resetUpperPlatform();
         state.obsX = BASE_WIDTH + 100;
       }
@@ -441,10 +437,9 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // التحقق من التصادم وإعادة الخسارة
+    // التحقق من الخسارة والتصادامات
     if (state.upperPlatformActive) {
-      const spikeBox = spikeContainer.getBoundingClientRect();
-      if (state.y < 115 && isColliding(bunnyBox, spikeBox)) {
+      if (state.y < 115 && isColliding(bunnyBox, spikeContainer.getBoundingClientRect())) {
         gameOver();
         return;
       }
@@ -485,15 +480,11 @@ window.addEventListener("DOMContentLoaded", () => {
       const name = window.getCurrentUserName();
       if (name) {
         const heartsScore = state.heartsCount;
-
         database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).once("value", snap => {
           const oldScore = snap.val() ? snap.val().score : 0;
-          
           if (heartsScore > oldScore) {
             database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).set({
-              name, 
-              score: heartsScore,
-              timestamp: firebase.database.ServerValue.TIMESTAMP
+              name, score: heartsScore, timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => { 
               if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); 
             }).catch(() => {});
@@ -505,7 +496,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 8. إدارة مدخلات المستخدم ---
+  // --- 8. التحكم والمدخلات ---
   const handleInput = (e) => {
     if (controlsContainer.contains(e.target) || e.target.id === "restartBtn") return;
     e.preventDefault();
