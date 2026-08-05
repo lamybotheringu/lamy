@@ -87,12 +87,11 @@ window.addEventListener("DOMContentLoaded", () => {
     return btn;
   }
 
-  // إنشاء الخلفية السوداء إن لم تكن موجودة
   const overlay = document.getElementById("gameOverlay") || Object.assign(document.body.appendChild(document.createElement("div")), {
     id: "gameOverlay", style: "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;display:none;z-index:2147483646;"
   });
 
-  // --- 3. Full Screen بسيط بأسطر أقل ---
+  // --- 3. Full Screen ---
   function updateGameScale() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
     overlay.style.display = isFS ? "block" : "none";
@@ -128,7 +127,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updateGameScale();
   });
 
-  // --- 4. الصوت والمؤثرات (تمت زيادة درجة الصوت هنا) ---
+  // --- 4. الصوت والمؤثرات ---
   let audioCtx = null, bgmInterval = null;
 
   function beep(freq, duration, type = 'sine', vol = 0.25, ignoreMute = false) {
@@ -151,7 +150,6 @@ window.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // تم رفع قيم vol لكل مؤثّر ليكون أعلى وواضح
   const audio = {
     jump: () => beep(350, 0.1, 'sine', 0.25, true),
     keyboard: () => beep(state.isMuted ? 400 : 1200, 0.015, state.isMuted ? 'sine' : 'triangle', 0.1, true),
@@ -169,7 +167,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let i = 0;
     bgmInterval = setInterval(() => {
       if (state.running && !state.isMuted) {
-        beep(notes[i], 0.4, 'sine', 0.08); // رفع صوت خلفية النغمات
+        beep(notes[i], 0.4, 'sine', 0.08);
         i = (i + 1) % notes.length;
       }
     }, 700);
@@ -318,14 +316,13 @@ window.addEventListener("DOMContentLoaded", () => {
     const dt = time - state.lastTime;
     state.lastTime = time;
 
-    // التسارع يبدأ بعد 1000 سكور وبشكل ناعم جداً
+    // --- التسارع يبدأ بعد 1000 سكور وبشكل خفيف وتدريجي جداً ---
     const extraScore = Math.max(0, state.distanceScore - 1000);
-    const speedBonus = extraScore * 0.000025; 
+    const speedBonus = extraScore * 0.00008; 
 
     state.obsSpeed = state.baseObsSpeed + speedBonus;
     state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
 
-    // تحديث النتيجة
     state.distanceScore += dt * state.obsSpeed * 0.1;
     distanceScoreEl.textContent = `Score: ${Math.floor(state.distanceScore)}`;
 
@@ -333,18 +330,32 @@ window.addEventListener("DOMContentLoaded", () => {
     state.velocity += state.gravity * dt;
     state.y += state.velocity * dt;
 
+    const bunnyBox = elements.bunny.getBoundingClientRect();
+    const gameBox = elements.game.getBoundingClientRect();
+    
+    const bunnyLeftRel = bunnyBox.left - gameBox.left;
+    const bunnyRightRel = bunnyBox.right - gameBox.left;
+
     let currentGround = 0;
+
     if (state.upperPlatformActive) {
-      if (50 >= state.upperPlatformX - 20 && 50 <= state.upperPlatformX + 450) {
-        if (state.y >= 110 && state.velocity <= 0) currentGround = 120;
+      const platLeft = state.upperPlatformX;
+      const platRight = state.upperPlatformX + 450;
+
+      if (bunnyRightRel > platLeft && bunnyLeftRel < platRight) {
+        if (state.y >= 115 && state.velocity <= 0) {
+          currentGround = 120;
+        }
       }
     }
 
     if (state.y > 220) { state.y = 220; state.velocity = 0; }
-    if (state.y <= currentGround) { state.y = currentGround; state.velocity = 0; state.jumps = 2; }
+    if (state.y <= currentGround) { 
+      state.y = currentGround; 
+      state.velocity = 0; 
+      state.jumps = 2; 
+    }
     elements.bunny.style.bottom = `${state.y}px`;
-
-    const bunnyBox = elements.bunny.getBoundingClientRect();
 
     // تحديث حركة المعوقات والمنصات
     if (state.upperPlatformActive) {
@@ -417,7 +428,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // التحقق من التصادم وإعادة الخسارة
     if (state.upperPlatformActive) {
       const spikeBox = spikeContainer.getBoundingClientRect();
-      if (!(bunnyBox.right < spikeBox.left || bunnyBox.left > spikeBox.right) && state.y <= 20) {
+      if (state.y < 115 && isColliding(bunnyBox, spikeBox)) {
         gameOver();
         return;
       }
@@ -438,7 +449,7 @@ window.addEventListener("DOMContentLoaded", () => {
     audio.jump();
   }
 
-function gameOver() {
+  function gameOver() {
     state.running = false;
     stopBGM();
     clearQuoteTimers();
@@ -454,26 +465,24 @@ function gameOver() {
       <div style="font-size:16px; color:#ff4fd8; font-family:'Courier New',monospace; margin-bottom:15px;">Score: ${finalVal}</div>
     `;
 
-    if (typeof database !== 'undefined' && window.getCurrentUserName) {
+    if (navigator.onLine && typeof database !== 'undefined' && window.getCurrentUserName) {
       const name = window.getCurrentUserName();
       if (name) {
-        // نستخدم عدد القلوب للحفظ والمقارنة
         const heartsScore = state.heartsCount;
 
         database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).once("value", snap => {
           const oldScore = snap.val() ? snap.val().score : 0;
           
-          // حفظ النتيجة فقط إذا كان عدد القلوب الحالي أعلى من المسجل سابقاً
           if (heartsScore > oldScore) {
             database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).set({
               name, 
-              score: heartsScore, // حفظ عدد القلوب
+              score: heartsScore,
               timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => { 
               if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); 
-            });
+            }).catch(() => {});
           }
-        });
+        }).catch(() => {});
       } else {
         elements.finalScore.innerHTML += `<div style="color:#ff4fd8; font-size:14px;">سجل دخولك لحفظ نتيجتك!</div>`;
       }
