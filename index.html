@@ -3,7 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lamy</title>
+  <title>موقع لايمي الرسمي | Lamy Gaming</title>
+
+  <!-- وصف الصفحة وكلمات البحث لمحركات البحث -->
+  <meta name="description" content="الموقع الرسمي لـ لايمي (Lamy) - صانعة محتوى ويوتيوبر متخصصة في الألعاب والأجواء الترفيهية. اكتشف أحدث المقاطع، الألعاب، والمحتوى الخاص بـ لايمي.">
+  <meta name="keywords" content="لايمي, موقع لايمي, Lamy, Lamy Gaming, يوتيوبر العاب, ألعاب, gaming">
+
+  <!-- وسوم تعريف وسائل التواصل وموقع الويب -->
+  <meta property="og:title" content="موقع لايمي الرسمي | Lamy">
+  <meta property="og:site_name" content="موقع لايمي الرسمي">
+  <meta property="og:description" content="الموقع الرسمي لـ لايمي، يوتيوبر وصانعة محتوى ألعاب وأجواء ريترو.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://x-lamy.vercel.app/">
+
+  <!-- كود JSON-LD لربط الهوية وقناة اليوتيوب مع قوقل -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://x-lamy.vercel.app/#person",
+        "name": "لايمي",
+        "alternateName": ["Lamy", "Lamy Gaming"],
+        "jobTitle": "YouTuber & Content Creator",
+        "knowsAbout": ["Video Games", "Gaming", "YouTube Content Creation"],
+        "url": "https://x-lamy.vercel.app/",
+        "sameAs": [
+          "https://www.youtube.com/@x_lamy" 
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://x-lamy.vercel.app/#website",
+        "url": "https://x-lamy.vercel.app/",
+        "name": "موقع لايمي الرسمي",
+        "alternateName": "Lamy Official Website",
+        "description": "الموقع الرسمي لليوتيوبر وصانعة محتوى الألعاب لايمي",
+        "publisher": {
+          "@id": "https://x-lamy.vercel.app/#person"
+        }
+      }
+    ]
+  }
+  </script>
 
   <!-- Google Fonts (Optimized) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +57,7 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="bunny.css">
 </head>
+
 <body>
 
   <!-- Header Section -->
@@ -222,10 +266,9 @@
       <iframe src="dressup.html" class="dressup-iframe"></iframe>
     </section>
 
-<!-- Bunny Game Section -->
+    <!-- Bunny Game Section -->
     <section id="bunny-game" class="hidden">
       <h2>🐰 Bunny Game</h2>
-      <!-- تم إضافة صورة الخلفية + إمكانية اللمس للجوال (onclick & ontouchstart) -->
       <div id="game" class="bunny-game-box" style="background: #1a0b2e url('night.png') no-repeat center/cover;" onclick="handleJump()" ontouchstart="handleJump()">
         <img src="cloud.png" class="cloud c1" alt="Cloud">
         <img src="cloud.png" class="cloud c2" alt="Cloud">
@@ -256,36 +299,33 @@
     </section>
 
     <!-- Chat Section -->
-   <section id="chat" class="hidden">
-  <h2>💬 Chat</h2>
-  <input id="name" placeholder="إسمك (سجل دخولك)" readonly style="color: #ff4fd8; border: 1px solid #ff4fd8;">
-  <input id="msg" placeholder="اكتب رسالتك" onkeydown="if(event.key === 'Enter') send()">
-  <button id="sendBtn" onclick="send()">إرسال</button> 
-  <div id="box"></div>
-</section>
+    <section id="chat" class="hidden">
+      <h2>💬 Chat</h2>
+      <input id="name" placeholder="إسمك (سجل دخولك)" readonly style="color: #ff4fd8; border: 1px solid #ff4fd8;">
+      <input id="msg" placeholder="اكتب رسالتك" onkeydown="if(event.key === 'Enter') send()">
+      <button id="sendBtn" onclick="send()">إرسال</button> 
+      <div id="box"></div>
+    </section>
 
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   </main>
 
   <!-- Footer -->
   <footer>© Lamybotheringu - August 2026</footer>
 
   <!-- Global Scripts -->
-<script>
-  // عند فتح الموقع: استرجاع الثيم المحفوظ وتطبيقه
-  window.addEventListener("DOMContentLoaded", () => {
-    const isModern = localStorage.getItem("theme") === "modern";
-    if (isModern) document.body.classList.add("modern");
-    document.getElementById("theme-btn").innerText = isModern ? "Modern" : "Classic";
-  });
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const isModern = localStorage.getItem("theme") === "modern";
+      if (isModern) document.body.classList.add("modern");
+      document.getElementById("theme-btn").innerText = isModern ? "Modern" : "Classic";
+    });
 
-  // عند الضغط على الزر: تبديل الثيم وحفظه
-  function toggleTheme(btn) {
-    const isModern = document.body.classList.toggle("modern");
-    btn.innerText = isModern ? "Modern" : "Classic";
-    localStorage.setItem("theme", isModern ? "modern" : "classic");
-  }
-</script>
+    function toggleTheme(btn) {
+      const isModern = document.body.classList.toggle("modern");
+      btn.innerText = isModern ? "Modern" : "Classic";
+      localStorage.setItem("theme", isModern ? "modern" : "classic");
+    }
+  </script>
 
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
