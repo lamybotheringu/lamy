@@ -338,23 +338,39 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let currentGround = 0;
 
+    // --- معالجة التصادم مع المنصة العلوية الصلبة ---
     if (state.upperPlatformActive) {
       const platLeft = state.upperPlatformX;
       const platRight = state.upperPlatformX + 450;
+      const platBottom = 100; // أسفل البار
+      const platTop = 120;    // أعلى البار
 
       if (bunnyRightRel > platLeft && bunnyLeftRel < platRight) {
-        if (state.y >= 115 && state.velocity <= 0) {
-          currentGround = 120;
+        // 1. القفز من أسفل البار (اصطدام يمنع الاختراق)
+        if (state.y > platBottom - 20 && state.y < platTop && state.velocity > 0) {
+          state.y = platBottom - 20;
+          state.velocity = -0.15; // ارتداد بسيط للأسفل
+        } 
+        // 2. الوقوف على السطح
+        else if (state.y >= platTop - 15 && state.velocity <= 0) {
+          currentGround = platTop;
         }
       }
     }
 
-    if (state.y > 220) { state.y = 220; state.velocity = 0; }
+    // حد سقف اللعبة الأعلى
+    if (state.y > 220) { 
+      state.y = 220; 
+      state.velocity = Math.min(0, state.velocity); 
+    }
+
+    // الاستقرار على الأرضية الحالية
     if (state.y <= currentGround) { 
       state.y = currentGround; 
       state.velocity = 0; 
       state.jumps = 2; 
     }
+
     elements.bunny.style.bottom = `${state.y}px`;
 
     // تحديث حركة المعوقات والمنصات
