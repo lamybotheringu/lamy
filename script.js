@@ -1202,10 +1202,10 @@ window.updateBunnyLeaderboardView = function() {
             });
 
             scores.sort((a, b) => (b.score || 0) - (a.score || 0));
-            let top5 = scores.slice(0, 5);
+            let top50 = scores.slice(0, 50);
             let myName = window.getCurrentUserName();
 
-            view.innerHTML = top5.length > 0 ? top5.map((u, i) => {
+            view.innerHTML = top50.length > 0 ? top50.map((u, i) => {
                 let isMe = (myName && u.name === myName);
                 let glow = "text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);";
                 let style = isMe 
