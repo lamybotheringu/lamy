@@ -507,5 +507,23 @@ window.addEventListener("DOMContentLoaded", () => {
   elements.game.addEventListener("touchstart", handleInput, { passive: false });
   elements.game.addEventListener("mousedown", handleInput);
   if (elements.restartBtn) elements.restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
-  document.addEventListener("keydown", (e) => { if (e.code === "Space") handleInput(e); });
+  document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    // 1. التأكد أن قسم لعبة الأرنب ظاهر وليس مخفياً
+    const bunnySection = document.getElementById("bunny-game");
+    if (bunnySection && bunnySection.classList.contains("hidden")) {
+      return; // إلغاء التفاعل إذا لم نكن في صفحة اللعبة
+    }
+
+    // 2. منع القفز إذا كان المستخدم يكتب في حقل إدخال (input) أو (textarea)
+    const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
+    if (activeTag === "input" || activeTag === "textarea") {
+      return; // السماح بمسافة العادية داخل الشات أو الخانات
+    }
+
+    // 3. منع التمرير الافتراضي للصفحة وتشغيل القفز/البدء
+    e.preventDefault();
+    handleInput(e);
+  }
+});
 });
