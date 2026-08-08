@@ -68,7 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
   vnBox.appendChild(quoteEl);
   elements.game.appendChild(vnBox);
 
-  // المنصة العلوية والأشواك (تم تقليل العرض إلى 320px)
+  // المنصة العلوية والأشواك
   const upperPlatform = document.createElement("div");
   upperPlatform.style.cssText = "position:absolute; bottom:120px; width:320px; height:18px; border:1px solid #d8b4fe; box-shadow:inset 0 0 0 1px #1e1428; background:repeating-linear-gradient(45deg, rgba(216,180,254,0.25), rgba(216,180,254,0.25) 8px, rgba(30,20,40,0.85) 8px, rgba(30,20,40,0.85) 16px); display:none; z-index:4; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
   elements.game.appendChild(upperPlatform);
@@ -313,10 +313,12 @@ window.addEventListener("DOMContentLoaded", () => {
     const dt = time - state.lastTime;
     state.lastTime = time;
 
-    // تسارع بسيط للعبة بعد 1000 نقطة
-    const speedBonus = Math.max(0, state.distanceScore - 1000) * 0.00008; 
-    state.obsSpeed = state.baseObsSpeed + speedBonus;
-    state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
+    // توقف زيادة السرعة بعد 80 قلبًا
+    if (state.heartsCount < 80) {
+      const speedBonus = Math.max(0, state.distanceScore - 1000) * 0.00008; 
+      state.obsSpeed = state.baseObsSpeed + speedBonus;
+      state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
+    }
 
     state.distanceScore += dt * state.obsSpeed * 0.1;
     distanceScoreEl.textContent = `Score: ${Math.floor(state.distanceScore)}`;
@@ -336,18 +338,15 @@ window.addEventListener("DOMContentLoaded", () => {
     // --- المنصة العلوية (البار) ---
     if (state.upperPlatformActive) {
       const platLeft = state.upperPlatformX;
-      const platRight = state.upperPlatformX + 320; // العرض الجديد 320px
+      const platRight = state.upperPlatformX + 320;
       const platBottom = 100;
       const platTop = 120;
 
-      // التأكد من توضّع الأرنب أفقياً بالنسبة للبار
       if (bunnyRightRel > platLeft + 15 && bunnyLeftRel < platRight - 15) {
-        // 1. القفز من تحت البار (يخبط ويرتد)
         if (state.y > platBottom - 20 && state.y < platTop && state.velocity > 0) {
           state.y = platBottom - 20;
           state.velocity = -0.1;
         } 
-        // 2. الهبوط على البار من الأعلى
         else if (state.y >= platTop - 15 && state.velocity <= 0) {
           currentGround = platTop;
         }
@@ -500,30 +499,41 @@ window.addEventListener("DOMContentLoaded", () => {
   const handleInput = (e) => {
     if (controlsContainer.contains(e.target) || e.target.id === "restartBtn") return;
     e.preventDefault();
-    if (!state.started || (!state.running && !elements.gameOverUI.classList.contains("hidden"))) startGame();
-    else jump();
+
+    if (!state.started) {
+      // Start initial game on first tap/space before playing
+      startGame();
+    } else if (state.running) {
+      // Jump during gameplay
+      jump();
+    }
+    // Note: When state.started is true and state.running is false (Game Over),
+    // taps or Space key are ignored so only clicking "restartBtn" works.
   };
 
   elements.game.addEventListener("touchstart", handleInput, { passive: false });
   elements.game.addEventListener("mousedown", handleInput);
-  if (elements.restartBtn) elements.restartBtn.addEventListener("click", (e) => { e.stopPropagation(); startGame(); });
-  document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") {
-    // 1. التأكد أن قسم لعبة الأرنب ظاهر وليس مخفياً
-    const bunnySection = document.getElementById("bunny-game");
-    if (bunnySection && bunnySection.classList.contains("hidden")) {
-      return; // إلغاء التفاعل إذا لم نكن في صفحة اللعبة
-    }
-
-    // 2. منع القفز إذا كان المستخدم يكتب في حقل إدخال (input) أو (textarea)
-    const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
-    if (activeTag === "input" || activeTag === "textarea") {
-      return; // السماح بمسافة العادية داخل الشات أو الخانات
-    }
-
-    // 3. منع التمرير الافتراضي للصفحة وتشغيل القفز/البدء
-    e.preventDefault();
-    handleInput(e);
+  if (elements.restartBtn) {
+    elements.restartBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startGame();
+    });
   }
-});
+
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+      const bunnySection = document.getElementById("bunny-game");
+      if (bunnySection && bunnySection.classList.contains("hidden")) {
+        return;
+      }
+
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
+      if (activeTag === "input" || activeTag === "textarea") {
+        return;
+      }
+
+      e.preventDefault();
+      handleInput(e);
+    }
+  });
 });
