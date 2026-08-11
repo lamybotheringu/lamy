@@ -131,6 +131,7 @@ html[lang="ar"] #targetRule {
   box-shadow: none !important;
 }
 
+/* Control Buttons (Higher z-index so they stay above .overlay) */
 .sound-btn {
   position: absolute;
   bottom: 10px;
@@ -143,7 +144,7 @@ html[lang="ar"] #targetRule {
   padding: 6px 10px;
   cursor: pointer;
   border-radius: 4px;
-  z-index: 10;
+  z-index: 30 !important;
 }
 
 .lang-btn {
@@ -158,10 +159,25 @@ html[lang="ar"] #targetRule {
   padding: 6px 10px;
   cursor: pointer;
   border-radius: 4px;
-  z-index: 10;
+  z-index: 30 !important;
 }
 
-.sound-btn:hover, .lang-btn:hover {
+#fullScreenBtn {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 30 !important;
+}
+
+.sound-btn:hover,
+.lang-btn:hover,
+#fullScreenBtn:hover {
   background: #fff;
   color: #000;
 }
