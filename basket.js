@@ -15,33 +15,6 @@ if (!document.getElementById('pixelFontLink')) {
   document.head.appendChild(link);
 }
 
-// --- Dynamic Fullscreen Style Injection ---
-if (!document.getElementById('fullscreenNativeStyles')) {
-  const style = document.createElement('style');
-  style.id = 'fullscreenNativeStyles';
-  style.textContent = `
-    #gameContainer:fullscreen,
-    #gameContainer:-webkit-full-screen,
-    #gameContainer.is-fullscreen-fallback {
-      width: min(100vw, 133.33vh) !important;
-      height: min(75vw, 100vh) !important;
-      max-width: none !important;
-      max-height: none !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-    }
-
-    #gameContainer:fullscreen canvas,
-    #gameContainer:-webkit-full-screen canvas,
-    #gameContainer.is-fullscreen-fallback canvas {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: contain !important;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 // --- DOM Setup & Element Injection ---
 const gameOverScreenEl = document.getElementById('gameOverScreen');
 let finalScoreLabelEl = document.getElementById('finalScoreLabel') || gameOverScreenEl?.querySelector('p');
@@ -57,30 +30,28 @@ if (gameOverScreenEl && !finalStatsEl) {
 }
 
 const langToggleBtn = document.getElementById('langToggleBtn');
+const soundToggleBtn = document.getElementById('soundToggleBtn');
 let fullScreenBtn = document.getElementById('fullScreenBtn');
+let bottomRightControls = document.getElementById('bottomRightControls');
 
-if (!fullScreenBtn && langToggleBtn && langToggleBtn.parentNode) {
+// Create bottom-right flex container if it doesn't exist
+if (!bottomRightControls && soundToggleBtn && soundToggleBtn.parentNode) {
+  bottomRightControls = document.createElement('div');
+  bottomRightControls.id = 'bottomRightControls';
+  soundToggleBtn.parentNode.appendChild(bottomRightControls);
+  bottomRightControls.appendChild(soundToggleBtn);
+}
+
+// Create Fullscreen button inside the flex container
+if (!fullScreenBtn) {
   fullScreenBtn = document.createElement('button');
   fullScreenBtn.id = 'fullScreenBtn';
-  fullScreenBtn.className = langToggleBtn.className;
-  langToggleBtn.parentNode.style.position = langToggleBtn.parentNode.style.position || 'relative';
-  fullScreenBtn.style.position = 'absolute';
-  fullScreenBtn.style.zIndex = '30';
-  langToggleBtn.parentNode.appendChild(fullScreenBtn);
-}
-
-// --- Full Screen Button Positioning ---
-function positionFullScreenButton() {
-  if (langToggleBtn && fullScreenBtn) {
-    const langRect = langToggleBtn.getBoundingClientRect();
-    const parentRect = langToggleBtn.parentNode.getBoundingClientRect();
-    fullScreenBtn.style.left = `${(langRect.left - parentRect.left) + 505}px`;
-    fullScreenBtn.style.top = `${langRect.top - parentRect.top}px`;
-    fullScreenBtn.style.zIndex = '30';
+  if (bottomRightControls && soundToggleBtn) {
+    bottomRightControls.insertBefore(fullScreenBtn, soundToggleBtn);
+  } else if (langToggleBtn && langToggleBtn.parentNode) {
+    langToggleBtn.parentNode.appendChild(fullScreenBtn);
   }
 }
-window.addEventListener('load', positionFullScreenButton);
-window.addEventListener('resize', positionFullScreenButton);
 
 // ==========================================
 // --- Fullscreen Controller ---
@@ -229,23 +200,23 @@ class RetroAudio {
 
 const audio = new RetroAudio();
 
-document.getElementById('soundToggleBtn').addEventListener('click', () => {
+document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
   audio.muted = !audio.muted;
   document.getElementById('soundToggleBtn').innerText = audio.muted ? i18n[currentLang].soundMuted : i18n[currentLang].soundOn;
 });
 
-document.getElementById('langToggleBtn').addEventListener('click', () => {
+document.getElementById('langToggleBtn')?.addEventListener('click', () => {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   document.documentElement.lang = currentLang;
   applyLanguage();
-  setTimeout(positionFullScreenButton, 50);
 });
 
 function applyLanguage() {
   const t = i18n[currentLang];
   document.getElementById('scoreLabel').innerText = t.scoreLabel;
   document.getElementById('targetLabel').innerText = t.targetLabel;
-  document.getElementById('soundToggleBtn').innerText = audio.muted ? t.soundMuted : t.soundOn;
+  const soundBtn = document.getElementById('soundToggleBtn');
+  if (soundBtn) soundBtn.innerText = audio.muted ? t.soundMuted : t.soundOn;
   if (fullScreenBtn) fullScreenBtn.innerText = t.fullScreen;
   document.getElementById('langToggleBtn').innerText = t.langBtn;
   
@@ -401,7 +372,6 @@ function startGame() {
 function updateUI() {
   const scoreEl = document.getElementById('score');
   scoreEl.innerText = score;
-  scoreEl.style.cssText = 'font-size:24px;font-weight:bold;';
 
   ['appleCount', 'carrotCount'].forEach((id, idx) => {
     const el = document.getElementById(id);
@@ -410,7 +380,7 @@ function updateUI() {
   });
 
   document.getElementById('hearts').innerHTML = Array.from({ length: lives }, () => 
-    '<img src="heart.svg" alt="heart" style="width:34px;height:34px;vertical-align:middle;margin:0 3px;">'
+    '<img src="heart.svg" alt="heart">'
   ).join('');
 }
 
@@ -514,4 +484,3 @@ function gameLoop() {
 // --- Initialization ---
 document.documentElement.lang = 'en';
 applyLanguage();
-setTimeout(positionFullScreenButton, 100);
