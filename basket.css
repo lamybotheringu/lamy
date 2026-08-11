@@ -61,6 +61,11 @@ canvas {
   left: 15px;
 }
 
+#score {
+  font-size: 24px;
+  font-weight: bold;
+}
+
 #statsBoard {
   margin-top: 8px;
   display: flex;
@@ -92,6 +97,14 @@ canvas {
   text-align: right;
   font-size: 22px;
   filter: drop-shadow(2px 2px 0px #000);
+}
+
+#hearts img {
+  width: 34px;
+  height: 34px;
+  vertical-align: middle;
+  margin: 0 3px;
+  transition: width 0.2s, height 0.2s;
 }
 
 #targetRule {
@@ -131,11 +144,21 @@ html[lang="ar"] #targetRule {
   box-shadow: none !important;
 }
 
-/* Control Buttons */
-.sound-btn {
+/* Bottom Right Flex Container (Keeps controls perfectly locked together) */
+#bottomRightControls {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 30 !important;
+}
+
+/* Control Buttons Styling */
+.sound-btn,
+#fullScreenBtn {
+  position: static !important;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
   border: 2px solid #fff;
@@ -144,7 +167,9 @@ html[lang="ar"] #targetRule {
   padding: 6px 10px;
   cursor: pointer;
   border-radius: 4px;
-  z-index: 30 !important;
+  white-space: nowrap;
+  box-sizing: border-box;
+  margin: 0 !important;
 }
 
 .lang-btn {
@@ -160,26 +185,15 @@ html[lang="ar"] #targetRule {
   cursor: pointer;
   border-radius: 4px;
   z-index: 30 !important;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
-.sound-btn:hover, .lang-btn:hover {
+.sound-btn:hover,
+.lang-btn:hover,
+#fullScreenBtn:hover {
   background: #fff;
   color: #000;
-}
-
-#fullScreenBtn {
-  position: absolute;
-  bottom: 10px;
-  right: 91px; /* 100px from bottom right */
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  border: 2px solid #fff;
-  font-family: inherit;
-  font-size: 11px;
-  padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  z-index: 30 !important;
 }
 
 .overlay {
@@ -248,4 +262,57 @@ html[lang="ar"] #targetRule {
 .btn:active {
   transform: translate(0px, 0px);
   box-shadow: 1px 1px 0px #000;
+}
+
+/* ========================================================
+   FULLSCREEN ENHANCEMENTS (Bigger Target, Score, & Hearts)
+   ======================================================== */
+#gameContainer:fullscreen #scoreLabel,
+#gameContainer:-webkit-full-screen #scoreLabel,
+#gameContainer.is-fullscreen-fallback #scoreLabel {
+  font-size: clamp(16px, 2vh, 24px) !important;
+}
+
+#gameContainer:fullscreen #score,
+#gameContainer:-webkit-full-screen #score,
+#gameContainer.is-fullscreen-fallback #score {
+  font-size: clamp(32px, 4.5vh, 52px) !important;
+}
+
+#gameContainer:fullscreen #targetLabel,
+#gameContainer:-webkit-full-screen #targetLabel,
+#gameContainer.is-fullscreen-fallback #targetLabel {
+  font-size: clamp(16px, 2.2vh, 26px) !important;
+}
+
+#gameContainer:fullscreen #targetText,
+#gameContainer:-webkit-full-screen #targetText,
+#gameContainer.is-fullscreen-fallback #targetText {
+  font-size: clamp(42px, 6vh, 68px) !important;
+}
+
+#gameContainer:fullscreen #targetRule,
+#gameContainer:-webkit-full-screen #targetRule,
+#gameContainer.is-fullscreen-fallback #targetRule {
+  font-size: clamp(28px, 4vh, 44px) !important;
+}
+
+#gameContainer:fullscreen #hearts img,
+#gameContainer:-webkit-full-screen #hearts img,
+#gameContainer.is-fullscreen-fallback #hearts img {
+  width: clamp(48px, 6vh, 68px) !important;
+  height: clamp(48px, 6vh, 68px) !important;
+}
+
+#gameContainer:fullscreen .sound-btn,
+#gameContainer:-webkit-full-screen .sound-btn,
+#gameContainer.is-fullscreen-fallback .sound-btn,
+#gameContainer:fullscreen #fullScreenBtn,
+#gameContainer:-webkit-full-screen #fullScreenBtn,
+#gameContainer.is-fullscreen-fallback #fullScreenBtn,
+#gameContainer:fullscreen .lang-btn,
+#gameContainer:-webkit-full-screen .lang-btn,
+#gameContainer.is-fullscreen-fallback .lang-btn {
+  font-size: clamp(13px, 1.8vh, 20px) !important;
+  padding: clamp(6px, 1vh, 12px) clamp(10px, 1.5vw, 18px) !important;
 }
