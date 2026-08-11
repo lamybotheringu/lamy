@@ -7,32 +7,42 @@ body {
   align-items: center;
   min-height: 100vh;
   font-family: 'Cairo', 'Press Start 2P', sans-serif;
-  overflow: auto;
-}
-
-#gameContainer {
-  position: relative !important;
-  width: 640px !important;
-  height: 480px !important;
-  min-width: 640px !important;
-  min-height: 480px !important;
-  max-width: 640px !important;
-  max-height: 480px !important;
-  flex-shrink: 0 !important;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.9), 0 0 0 4px #444;
-  border-radius: 6px;
   overflow: hidden;
 }
 
+/* Fluid Arcade Container (Maintains 4:3 ratio) */
+#gameContainer {
+  position: relative;
+  width: min(100vw, 133.33vh);
+  height: min(75vw, 100vh);
+  max-width: 640px;
+  max-height: 480px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.9), 0 0 0 4px #444;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #000;
+}
+
+/* Native Fullscreen scale mode for #gameContainer */
+#gameContainer:fullscreen,
+#gameContainer:-webkit-full-screen,
+#gameContainer.is-fullscreen-fallback {
+  width: min(100vw, 133.33vh) !important;
+  height: min(75vw, 100vh) !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
 canvas {
-  display: block !important;
-  width: 640px !important;
-  height: 480px !important;
-  min-width: 640px !important;
-  min-height: 480px !important;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
   background-color: #87CEEB;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  touch-action: none;
 }
 
 /* UI Overlay Styling */
@@ -44,6 +54,7 @@ canvas {
   font-weight: bold;
   text-shadow: 2px 2px 0px #000;
   user-select: none;
+  z-index: 5;
 }
 
 #scoreBoard {
@@ -91,7 +102,7 @@ canvas {
   padding: 8px 16px;
   border: none !important;
   border-radius: 6px;
-  font-size: 22px; /* حجم كلمة الهدف / TARGET */
+  font-size: 22px;
   font-weight: bold;
   box-shadow: none !important;
   direction: ltr;
@@ -103,7 +114,7 @@ html[lang="ar"] #targetRule {
 
 #targetText {
   color: #ff5555;
-  font-size: 30px; /* حجم كلمة تفاحة / جزرة / APPLE / CARROT */
+  font-size: 30px;
   text-shadow: 1px 1px 0px #000;
 }
 
@@ -168,6 +179,7 @@ html[lang="ar"] #targetRule {
   align-items: center;
   color: white;
   text-align: center;
+  z-index: 20;
 }
 
 #startScreen {
@@ -185,7 +197,7 @@ html[lang="ar"] #targetRule {
 .overlay p {
   font-size: 14px;
   max-width: 85%;
-  text-shadow: 2px 2px 0px #000; /* ظل أسود بكسل واضح للزر */
+  text-shadow: 2px 2px 0px #000;
   margin-bottom: 10px;
   line-height: 1.6;
 }
@@ -194,7 +206,7 @@ html[lang="ar"] #targetRule {
   font-size: 13px;
   color: #9cd9f7;
   margin-bottom: 20px;
-  text-shadow: 2px 2px 0px #000; /* ظل أسود بكسل واضح للزر */
+  text-shadow: 2px 2px 0px #000;
   line-height: 1.5;
 }
 
