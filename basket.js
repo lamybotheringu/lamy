@@ -15,6 +15,33 @@ if (!document.getElementById('pixelFontLink')) {
   document.head.appendChild(link);
 }
 
+// --- Dynamic Fullscreen Style Injection ---
+if (!document.getElementById('fullscreenNativeStyles')) {
+  const style = document.createElement('style');
+  style.id = 'fullscreenNativeStyles';
+  style.textContent = `
+    #gameContainer:fullscreen,
+    #gameContainer:-webkit-full-screen,
+    #gameContainer.is-fullscreen-fallback {
+      width: min(100vw, 133.33vh) !important;
+      height: min(75vw, 100vh) !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    #gameContainer:fullscreen canvas,
+    #gameContainer:-webkit-full-screen canvas,
+    #gameContainer.is-fullscreen-fallback canvas {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // --- DOM Setup & Element Injection ---
 const gameOverScreenEl = document.getElementById('gameOverScreen');
 let finalScoreLabelEl = document.getElementById('finalScoreLabel') || gameOverScreenEl?.querySelector('p');
@@ -35,8 +62,25 @@ let fullScreenBtn = document.getElementById('fullScreenBtn');
 if (!fullScreenBtn && langToggleBtn && langToggleBtn.parentNode) {
   fullScreenBtn = document.createElement('button');
   fullScreenBtn.id = 'fullScreenBtn';
+  fullScreenBtn.className = langToggleBtn.className;
+  langToggleBtn.parentNode.style.position = langToggleBtn.parentNode.style.position || 'relative';
+  fullScreenBtn.style.position = 'absolute';
+  fullScreenBtn.style.zIndex = '30';
   langToggleBtn.parentNode.appendChild(fullScreenBtn);
 }
+
+// --- Full Screen Button Positioning ---
+function positionFullScreenButton() {
+  if (langToggleBtn && fullScreenBtn) {
+    const langRect = langToggleBtn.getBoundingClientRect();
+    const parentRect = langToggleBtn.parentNode.getBoundingClientRect();
+    fullScreenBtn.style.left = `${(langRect.left - parentRect.left) + 505}px`;
+    fullScreenBtn.style.top = `${langRect.top - parentRect.top}px`;
+    fullScreenBtn.style.zIndex = '30';
+  }
+}
+window.addEventListener('load', positionFullScreenButton);
+window.addEventListener('resize', positionFullScreenButton);
 
 // ==========================================
 // --- Fullscreen Controller ---
@@ -194,6 +238,7 @@ document.getElementById('langToggleBtn').addEventListener('click', () => {
   currentLang = currentLang === 'en' ? 'ar' : 'en';
   document.documentElement.lang = currentLang;
   applyLanguage();
+  setTimeout(positionFullScreenButton, 50);
 });
 
 function applyLanguage() {
@@ -469,3 +514,4 @@ function gameLoop() {
 // --- Initialization ---
 document.documentElement.lang = 'en';
 applyLanguage();
+setTimeout(positionFullScreenButton, 100);
