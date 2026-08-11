@@ -53,6 +53,16 @@ if (!fullScreenBtn) {
   }
 }
 
+// Helper to check if game is currently in fullscreen
+function isFullScreenActive() {
+  const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
+  return !!(
+    document.fullscreenElement || 
+    document.webkitFullscreenElement || 
+    gameContainer?.classList.contains('is-fullscreen-fallback')
+  );
+}
+
 // ==========================================
 // --- Fullscreen Controller ---
 // ==========================================
@@ -64,21 +74,25 @@ fullScreenBtn?.addEventListener('click', (e) => {
   
   if (!document.fullscreenElement && !document.webkitFullscreenElement && !gameContainer.classList.contains('is-fullscreen-fallback')) {
     if (gameContainer.requestFullscreen) {
-      gameContainer.requestFullscreen().catch(() => {
+      gameContainer.requestFullscreen().then(updateUI).catch(() => {
         gameContainer.classList.add('is-fullscreen-fallback');
+        updateUI();
       });
     } else if (gameContainer.webkitRequestFullscreen) {
       gameContainer.webkitRequestFullscreen();
+      updateUI();
     } else {
       gameContainer.classList.add('is-fullscreen-fallback');
+      updateUI();
     }
   } else {
     if (document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().then(updateUI).catch(() => {});
     } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
     }
     gameContainer.classList.remove('is-fullscreen-fallback');
+    updateUI();
   }
 });
 
@@ -86,8 +100,12 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
     gameContainer?.classList.remove('is-fullscreen-fallback');
+    updateUI();
   }
 });
+
+document.addEventListener('fullscreenchange', updateUI);
+document.addEventListener('webkitfullscreenchange', updateUI);
 
 // --- i18n Translations ---
 let currentLang = 'en';
@@ -371,12 +389,32 @@ function startGame() {
 
 function updateUI() {
   const scoreEl = document.getElementById('score');
-  scoreEl.innerText = score;
+  if (scoreEl) scoreEl.innerText = score;
 
+  const isFS = isFullScreenActive();
+
+  // Corner fruit counters scale BIG only in full screen
   ['appleCount', 'carrotCount'].forEach((id, idx) => {
     const el = document.getElementById(id);
-    el.innerText = `x${idx === 0 ? applesCaught : carrotsCaught}`;
-    el.style.cssText = 'font-size:20px;font-weight:bold;';
+    if (el) {
+      el.innerText = `x${idx === 0 ? applesCaught : carrotsCaught}`;
+      el.style.cssText = isFS 
+        ? 'font-size:28px;font-weight:bold;line-height:1;' 
+        : 'font-size:18px;font-weight:bold;line-height:1;';
+      
+      const parent = el.parentElement;
+      if (parent) {
+        parent.style.fontSize = isFS ? '28px' : '18px';
+        parent.style.padding = isFS ? '8px 14px' : '4px 8px';
+        parent.style.gap = isFS ? '8px' : '4px';
+
+        const icon = parent.querySelector('img');
+        if (icon) {
+          icon.style.width = isFS ? '32px' : '20px';
+          icon.style.height = isFS ? '32px' : '20px';
+        }
+      }
+    }
   });
 
   document.getElementById('hearts').innerHTML = Array.from({ length: lives }, () => 
@@ -444,10 +482,17 @@ function gameLoop() {
   }
   player.x = Math.max(0, Math.min(BASE_WIDTH - player.width, player.x));
 
+  // --- Draw Player ---
   if (isLoaded(assets.player)) {
-    ctx.drawImage(assets.player, player.x, player.y, player.width, player.height);
+    const aspectRatio = assets.player.naturalWidth / assets.player.naturalHeight;
+    const drawHeight = player.height;
+    const drawWidth = drawHeight * aspectRatio;
+    const drawX = player.x + (player.width - drawWidth) / 2;
+
+    ctx.drawImage(assets.player, drawX, player.y, drawWidth, drawHeight);
   } else {
-    ctx.fillStyle = '#2196F3'; ctx.fillRect(player.x, player.y, player.width, player.height);
+    ctx.fillStyle = '#2196F3'; 
+    ctx.fillRect(player.x, player.y, player.width, player.height);
   }
 
   const isTopAreaClear = items.length === 0 || items.every(item => item.y > 140);
