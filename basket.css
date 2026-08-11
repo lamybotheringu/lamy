@@ -131,26 +131,11 @@ html[lang="ar"] #targetRule {
   box-shadow: none !important;
 }
 
-/* Control Buttons Base Style */
+/* Control Buttons */
 .sound-btn {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  border: 2px solid #fff;
-  font-family: inherit;
-  font-size: 11px;
-  padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  z-index: 30 !important;
-}
-
-#fullScreenBtn {
-  position: absolute;
-  bottom: 10px;
-  right: 91px; /* 100px from bottom right */
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
   border: 2px solid #fff;
@@ -177,11 +162,24 @@ html[lang="ar"] #targetRule {
   z-index: 30 !important;
 }
 
-.sound-btn:hover,
-.lang-btn:hover,
-#fullScreenBtn:hover {
+.sound-btn:hover, .lang-btn:hover {
   background: #fff;
   color: #000;
+}
+
+#fullScreenBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 91px; /* 100px from bottom right */
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 30 !important;
 }
 
 .overlay {
@@ -250,78 +248,4 @@ html[lang="ar"] #targetRule {
 .btn:active {
   transform: translate(0px, 0px);
   box-shadow: 1px 1px 0px #000;
-}
-
-/* ==========================================
-   FULLSCREEN SCALING (Scales Text & Buttons)
-   ========================================== */
-#gameContainer:fullscreen .ui-panel,
-#gameContainer:-webkit-full-screen .ui-panel,
-#gameContainer.is-fullscreen-fallback .ui-panel {
-  font-size: clamp(16px, 2.2vh, 26px) !important;
-  top: 3% !important;
-}
-
-#gameContainer:fullscreen #targetText,
-#gameContainer:-webkit-full-screen #targetText,
-#gameContainer.is-fullscreen-fallback #targetText {
-  font-size: clamp(32px, 4.5vh, 52px) !important;
-}
-
-#gameContainer:fullscreen #heartsBoard,
-#gameContainer:-webkit-full-screen #heartsBoard,
-#gameContainer.is-fullscreen-fallback #heartsBoard {
-  font-size: clamp(28px, 4vh, 44px) !important;
-}
-
-#gameContainer:fullscreen .sound-btn,
-#gameContainer:-webkit-full-screen .sound-btn,
-#gameContainer.is-fullscreen-fallback .sound-btn {
-  font-size: clamp(13px, 1.8vh, 22px) !important;
-  padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.8vw, 20px) !important;
-  bottom: 2.5% !important;
-  right: 2% !important;
-}
-
-#gameContainer:fullscreen #fullScreenBtn,
-#gameContainer:-webkit-full-screen #fullScreenBtn,
-#gameContainer.is-fullscreen-fallback #fullScreenBtn {
-  font-size: clamp(13px, 1.8vh, 22px) !important;
-  padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.8vw, 20px) !important;
-  bottom: 2.5% !important;
-  right: clamp(120px, 15vw, 220px) !important;
-}
-
-#gameContainer:fullscreen .lang-btn,
-#gameContainer:-webkit-full-screen .lang-btn,
-#gameContainer.is-fullscreen-fallback .lang-btn {
-  font-size: clamp(13px, 1.8vh, 22px) !important;
-  padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.8vw, 20px) !important;
-  bottom: 2.5% !important;
-  left: 2% !important;
-}
-
-#gameContainer:fullscreen .overlay h1,
-#gameContainer:-webkit-full-screen .overlay h1,
-#gameContainer.is-fullscreen-fallback .overlay h1 {
-  font-size: clamp(36px, 5vh, 64px) !important;
-}
-
-#gameContainer:fullscreen .overlay p,
-#gameContainer:-webkit-full-screen .overlay p,
-#gameContainer.is-fullscreen-fallback .overlay p {
-  font-size: clamp(18px, 2.5vh, 28px) !important;
-}
-
-#gameContainer:fullscreen .overlay .sub-text,
-#gameContainer:-webkit-full-screen .overlay .sub-text,
-#gameContainer.is-fullscreen-fallback .overlay .sub-text {
-  font-size: clamp(15px, 2.2vh, 24px) !important;
-}
-
-#gameContainer:fullscreen .btn,
-#gameContainer:-webkit-full-screen .btn,
-#gameContainer.is-fullscreen-fallback .btn {
-  font-size: clamp(16px, 2.5vh, 28px) !important;
-  padding: clamp(12px, 2vh, 20px) clamp(24px, 3vw, 40px) !important;
 }
