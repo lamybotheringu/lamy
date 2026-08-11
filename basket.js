@@ -1,3 +1,4 @@
+// --- Canvas & Core Setup ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const BASE_WIDTH = 640, BASE_HEIGHT = 480;
@@ -5,7 +6,7 @@ canvas.width = BASE_WIDTH;
 canvas.height = BASE_HEIGHT;
 ctx.imageSmoothingEnabled = false;
 
-// --- Font Injection Only ---
+// --- Dynamic Font Injection ---
 if (!document.getElementById('pixelFontLink')) {
   const link = document.createElement('link');
   link.id = 'pixelFontLink';
@@ -14,7 +15,34 @@ if (!document.getElementById('pixelFontLink')) {
   document.head.appendChild(link);
 }
 
-// --- DOM Setup & Elements ---
+// --- Dynamic Fullscreen Style Injection ---
+if (!document.getElementById('fullscreenNativeStyles')) {
+  const style = document.createElement('style');
+  style.id = 'fullscreenNativeStyles';
+  style.textContent = `
+    #gameContainer:fullscreen,
+    #gameContainer:-webkit-full-screen,
+    #gameContainer.is-fullscreen-fallback {
+      width: min(100vw, 133.33vh) !important;
+      height: min(75vw, 100vh) !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    #gameContainer:fullscreen canvas,
+    #gameContainer:-webkit-full-screen canvas,
+    #gameContainer.is-fullscreen-fallback canvas {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// --- DOM Setup & Element Injection ---
 const gameOverScreenEl = document.getElementById('gameOverScreen');
 let finalScoreLabelEl = document.getElementById('finalScoreLabel') || gameOverScreenEl?.querySelector('p');
 if (gameOverScreenEl && finalScoreLabelEl && !finalScoreLabelEl.id) finalScoreLabelEl.id = 'finalScoreLabel';
@@ -30,6 +58,7 @@ if (gameOverScreenEl && !finalStatsEl) {
 
 const langToggleBtn = document.getElementById('langToggleBtn');
 let fullScreenBtn = document.getElementById('fullScreenBtn');
+
 if (!fullScreenBtn && langToggleBtn && langToggleBtn.parentNode) {
   fullScreenBtn = document.createElement('button');
   fullScreenBtn.id = 'fullScreenBtn';
@@ -39,6 +68,7 @@ if (!fullScreenBtn && langToggleBtn && langToggleBtn.parentNode) {
   langToggleBtn.parentNode.appendChild(fullScreenBtn);
 }
 
+// --- Full Screen Button Positioning ---
 function positionFullScreenButton() {
   if (langToggleBtn && fullScreenBtn) {
     const langRect = langToggleBtn.getBoundingClientRect();
@@ -49,8 +79,41 @@ function positionFullScreenButton() {
 }
 window.addEventListener('load', positionFullScreenButton);
 window.addEventListener('resize', positionFullScreenButton);
-fullScreenBtn?.addEventListener('click', () => {
-  !document.fullscreenElement ? document.documentElement.requestFullscreen().catch(err => console.error(err.message)) : document.exitFullscreen?.();
+
+// ==========================================
+// --- Fullscreen Controller ---
+// ==========================================
+fullScreenBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  fullScreenBtn.blur();
+  
+  const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
+  
+  if (!document.fullscreenElement && !document.webkitFullscreenElement && !gameContainer.classList.contains('is-fullscreen-fallback')) {
+    if (gameContainer.requestFullscreen) {
+      gameContainer.requestFullscreen().catch(() => {
+        gameContainer.classList.add('is-fullscreen-fallback');
+      });
+    } else if (gameContainer.webkitRequestFullscreen) {
+      gameContainer.webkitRequestFullscreen();
+    } else {
+      gameContainer.classList.add('is-fullscreen-fallback');
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+    gameContainer.classList.remove('is-fullscreen-fallback');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
+    gameContainer?.classList.remove('is-fullscreen-fallback');
+  }
 });
 
 // --- i18n Translations ---
@@ -66,7 +129,7 @@ const i18n = {
   },
   ar: {
     scoreLabel: "النقاط", targetLabel: "الهدف", apple: "تفاحة", carrot: "جزرة",
-    soundOn: "🔊 الصوت", soundMuted: "🔇 صامت", fullScreen: "⛶",
+    soundOn: "🔊 الصوت", soundMuted: "صامت 🔇", fullScreen: "⛶",
     startTitle: "لعبة سلة لايمي",
     startDesc: "في هذه اللعبة يجب إلتقاط الغلال في السلة بناء على الهدف وإلا سوف تخسر",
     startSubText: "حظ موفق!", startBtn: "ابدأ اللعبة",
@@ -74,7 +137,7 @@ const i18n = {
   }
 };
 
-// --- Retro Audio Synth ---
+// --- Retro Audio Synthesizer ---
 class RetroAudio {
   constructor() {
     this.ctx = null;
@@ -94,7 +157,7 @@ class RetroAudio {
   }
 
   playCatchSFX() {
-    if (!this.ctx) return;
+    if (!this.ctx || this.muted) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
@@ -109,7 +172,7 @@ class RetroAudio {
   }
 
   playDamageSFX() {
-    if (!this.ctx) return;
+    if (!this.ctx || this.muted) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -124,9 +187,8 @@ class RetroAudio {
   }
 
   playSwitchSFX() {
-    if (!this.ctx) return;
+    if (!this.ctx || this.muted) return;
     const now = this.ctx.currentTime;
-    
     const osc1 = this.ctx.createOscillator();
     const gain1 = this.ctx.createGain();
     osc1.type = 'sine';
@@ -235,7 +297,7 @@ let applesCaught = 0, carrotsCaught = 0, items = [];
 const player = { width: 118, height: 118, x: BASE_WIDTH / 2 - 59, y: BASE_HEIGHT - 148, speed: 5, dx: 0 };
 const keys = { left: false, right: false };
 
-// --- Keyboard Controls ---
+// --- Input Handlers ---
 window.addEventListener('keydown', e => {
   if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.left = true;
   if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.right = true;
@@ -245,9 +307,7 @@ window.addEventListener('keyup', e => {
   if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.right = false;
 });
 
-// --- Mobile Touch Controls ---
 let touchTargetX = null;
-
 function handleTouch(e) {
   if (!gameRunning) return;
   e.preventDefault();
@@ -264,12 +324,12 @@ canvas.addEventListener('touchend', () => { touchTargetX = null; });
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('restartBtn').addEventListener('click', startGame);
 
+// --- Game Logic Classes & Functions ---
 class FallingItem {
   constructor() {
     this.type = Math.random() < 0.5 ? 'apple' : 'carrot';
     this.radius = 20;
     
-    // أعمدة أفقية منظمة
     const minX = 80;
     const maxX = BASE_WIDTH - 80;
     const rawX = Math.random() * (maxX - minX) + minX;
@@ -402,11 +462,10 @@ function gameLoop() {
     ctx.fillStyle = '#388e3c'; ctx.fillRect(0, BASE_HEIGHT - 35, BASE_WIDTH, 35);
   }
 
-  // تحديث حركة اللاعب (لمس أو كيبورد)
   if (touchTargetX !== null) {
     const centerOffset = player.width / 2;
     const destX = touchTargetX - centerOffset;
-    player.x += (destX - player.x) * 0.25; // حركة سلسة عند اتباع التاتش
+    player.x += (destX - player.x) * 0.25;
   } else {
     player.dx = keys.left ? -player.speed : (keys.right ? player.speed : 0);
     player.x += player.dx;
@@ -419,7 +478,6 @@ function gameLoop() {
     ctx.fillStyle = '#2196F3'; ctx.fillRect(player.x, player.y, player.width, player.height);
   }
 
-  // مسافة رأسية كافية بين الغلال
   const isTopAreaClear = items.length === 0 || items.every(item => item.y > 140);
   if (isTopAreaClear && (frameCount % 45 === 0)) {
     items.push(new FallingItem());
@@ -451,6 +509,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+// --- Initialization ---
 document.documentElement.lang = 'en';
 applyLanguage();
 setTimeout(positionFullScreenButton, 100);
