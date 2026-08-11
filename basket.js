@@ -6,6 +6,18 @@ canvas.width = BASE_WIDTH;
 canvas.height = BASE_HEIGHT;
 ctx.imageSmoothingEnabled = false;
 
+// Automatically wrap canvas and UI in #gameView if not already wrapped,
+// ensuring all absolute coordinates start right where the picture starts.
+let gameView = document.getElementById('gameView');
+const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
+if (!gameView && gameContainer) {
+  gameView = document.createElement('div');
+  gameView.id = 'gameView';
+  const children = Array.from(gameContainer.children);
+  children.forEach(child => gameView.appendChild(child));
+  gameContainer.appendChild(gameView);
+}
+
 // --- Dynamic Font Injection ---
 if (!document.getElementById('pixelFontLink')) {
   const link = document.createElement('link');
@@ -34,7 +46,6 @@ const soundToggleBtn = document.getElementById('soundToggleBtn');
 let fullScreenBtn = document.getElementById('fullScreenBtn');
 let bottomRightControls = document.getElementById('bottomRightControls');
 
-// Create bottom-right flex container if it doesn't exist
 if (!bottomRightControls && soundToggleBtn && soundToggleBtn.parentNode) {
   bottomRightControls = document.createElement('div');
   bottomRightControls.id = 'bottomRightControls';
@@ -42,7 +53,6 @@ if (!bottomRightControls && soundToggleBtn && soundToggleBtn.parentNode) {
   bottomRightControls.appendChild(soundToggleBtn);
 }
 
-// Create Fullscreen button inside the flex container
 if (!fullScreenBtn) {
   fullScreenBtn = document.createElement('button');
   fullScreenBtn.id = 'fullScreenBtn';
@@ -53,53 +63,36 @@ if (!fullScreenBtn) {
   }
 }
 
-// Helper to check if game is currently in fullscreen
 function isFullScreenActive() {
-  const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
-  return !!(
-    document.fullscreenElement || 
-    document.webkitFullscreenElement || 
-    gameContainer?.classList.contains('is-fullscreen-fallback')
-  );
+  const gc = document.getElementById('gameContainer');
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || gc?.classList.contains('is-fullscreen-fallback'));
 }
 
-// ==========================================
-// --- Fullscreen Controller ---
-// ==========================================
 fullScreenBtn?.addEventListener('click', (e) => {
   e.stopPropagation();
   fullScreenBtn.blur();
+  const gc = document.getElementById('gameContainer');
   
-  const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
-  
-  if (!document.fullscreenElement && !document.webkitFullscreenElement && !gameContainer.classList.contains('is-fullscreen-fallback')) {
-    if (gameContainer.requestFullscreen) {
-      gameContainer.requestFullscreen().then(updateUI).catch(() => {
-        gameContainer.classList.add('is-fullscreen-fallback');
+  if (!document.fullscreenElement && !document.webkitFullscreenElement && !gc.classList.contains('is-fullscreen-fallback')) {
+    if (gc.requestFullscreen) {
+      gc.requestFullscreen().then(updateUI).catch(() => {
+        gc.classList.add('is-fullscreen-fallback');
         updateUI();
       });
-    } else if (gameContainer.webkitRequestFullscreen) {
-      gameContainer.webkitRequestFullscreen();
-      updateUI();
     } else {
-      gameContainer.classList.add('is-fullscreen-fallback');
+      gc.classList.add('is-fullscreen-fallback');
       updateUI();
     }
   } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen().then(updateUI).catch(() => {});
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
-    gameContainer.classList.remove('is-fullscreen-fallback');
+    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    gc.classList.remove('is-fullscreen-fallback');
     updateUI();
   }
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
-    gameContainer?.classList.remove('is-fullscreen-fallback');
+    document.getElementById('gameContainer')?.classList.remove('is-fullscreen-fallback');
     updateUI();
   }
 });
@@ -137,83 +130,58 @@ class RetroAudio {
     this.noteIdx = 0;
     this.melody = [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 698.46, 880.00, 1046.50, 880.00, 698.46, 523.25];
   }
-
   init() {
-    if (!this.ctx) {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.ctx.state === 'suspended') this.ctx.resume();
   }
-
   playCatchSFX() {
     if (!this.ctx || this.muted) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(659.25, this.ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(1318.51, this.ctx.currentTime + 0.15);
     gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.15);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.15);
   }
-
   playDamageSFX() {
     if (!this.ctx || this.muted) return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(300, this.ctx.currentTime);
     osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.2);
     gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.2);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.2);
   }
-
   playSwitchSFX() {
     if (!this.ctx || this.muted) return;
-    const now = this.ctx.currentTime;
-    const osc1 = this.ctx.createOscillator();
-    const gain1 = this.ctx.createGain();
+    const now = this.ctx.currentTime, osc1 = this.ctx.createOscillator(), gain1 = this.ctx.createGain();
     osc1.type = 'sine';
     osc1.frequency.setValueAtTime(783.99, now);
     gain1.gain.setValueAtTime(0.6, now);
     gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-    osc1.connect(gain1);
-    gain1.connect(this.ctx.destination);
-    osc1.start(now);
-    osc1.stop(now + 0.2);
+    osc1.connect(gain1); gain1.connect(this.ctx.destination);
+    osc1.start(now); osc1.stop(now + 0.2);
   }
-
   startBGM() {
     this.init();
     if (this.bgmTimer) clearInterval(this.bgmTimer);
     this.bgmTimer = setInterval(() => {
       if (this.muted || !this.ctx || !gameRunning) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
+      const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.value = this.melody[this.noteIdx];
       gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.2);
+      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.start(); osc.stop(this.ctx.currentTime + 0.2);
       this.noteIdx = (this.noteIdx + 1) % this.melody.length;
     }, 333);
   }
-
-  stopBGM() {
-    if (this.bgmTimer) clearInterval(this.bgmTimer);
-  }
+  stopBGM() { if (this.bgmTimer) clearInterval(this.bgmTimer); }
 }
 
 const audio = new RetroAudio();
@@ -288,7 +256,6 @@ let applesCaught = 0, carrotsCaught = 0, items = [];
 const player = { width: 118, height: 118, x: BASE_WIDTH / 2 - 59, y: BASE_HEIGHT - 148, speed: 5, dx: 0 };
 const keys = { left: false, right: false };
 
-// --- Input Handlers ---
 window.addEventListener('keydown', e => {
   if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.left = true;
   if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.right = true;
@@ -303,9 +270,7 @@ function handleTouch(e) {
   if (!gameRunning) return;
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
-  const scaleX = BASE_WIDTH / rect.width;
-  const clientX = e.touches[0].clientX;
-  touchTargetX = (clientX - rect.left) * scaleX;
+  touchTargetX = (e.touches[0].clientX - rect.left) * (BASE_WIDTH / rect.width);
 }
 
 canvas.addEventListener('touchstart', handleTouch, { passive: false });
@@ -315,17 +280,11 @@ canvas.addEventListener('touchend', () => { touchTargetX = null; });
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('restartBtn').addEventListener('click', startGame);
 
-// --- Game Logic Classes & Functions ---
 class FallingItem {
   constructor() {
     this.type = Math.random() < 0.5 ? 'apple' : 'carrot';
     this.radius = 20;
-    
-    const minX = 80;
-    const maxX = BASE_WIDTH - 80;
-    const rawX = Math.random() * (maxX - minX) + minX;
-    this.x = Math.round(rawX / 40) * 40;
-
+    this.x = Math.round((Math.random() * (BASE_WIDTH - 160) + 80) / 40) * 40;
     this.y = -this.radius;
     this.speed = 2.2 + Math.min(score / 250, 1.2);
   }
@@ -365,14 +324,8 @@ function performTargetSwitch() {
 }
 
 function startGame() {
-  score = 0;
-  lives = 5;
-  applesCaught = 0;
-  carrotsCaught = 0;
-  items = [];
-  frameCount = 0;
-  pendingTargetSwitch = false;
-  touchTargetX = null;
+  score = 0; lives = 5; applesCaught = 0; carrotsCaught = 0; items = []; frameCount = 0;
+  pendingTargetSwitch = false; touchTargetX = null;
   player.x = BASE_WIDTH / 2 - player.width / 2;
   targetType = 'carrot';
   performTargetSwitch();
@@ -392,22 +345,16 @@ function updateUI() {
   if (scoreEl) scoreEl.innerText = score;
 
   const isFS = isFullScreenActive();
-
-  // Corner fruit counters scale BIG only in full screen
   ['appleCount', 'carrotCount'].forEach((id, idx) => {
     const el = document.getElementById(id);
     if (el) {
       el.innerText = `x${idx === 0 ? applesCaught : carrotsCaught}`;
-      el.style.cssText = isFS 
-        ? 'font-size:28px;font-weight:bold;line-height:1;' 
-        : 'font-size:18px;font-weight:bold;line-height:1;';
-      
+      el.style.cssText = isFS ? 'font-size:28px;font-weight:bold;line-height:1;' : 'font-size:18px;font-weight:bold;line-height:1;';
       const parent = el.parentElement;
       if (parent) {
         parent.style.fontSize = isFS ? '28px' : '18px';
         parent.style.padding = isFS ? '8px 14px' : '4px 8px';
         parent.style.gap = isFS ? '8px' : '4px';
-
         const icon = parent.querySelector('img');
         if (icon) {
           icon.style.width = isFS ? '32px' : '20px';
@@ -417,9 +364,7 @@ function updateUI() {
     }
   });
 
-  document.getElementById('hearts').innerHTML = Array.from({ length: lives }, () => 
-    '<img src="heart.svg" alt="heart">'
-  ).join('');
+  document.getElementById('hearts').innerHTML = Array.from({ length: lives }, () => '<img src="heart.svg" alt="heart">').join('');
 }
 
 function takeDamage() {
@@ -473,30 +418,24 @@ function gameLoop() {
   }
 
   if (touchTargetX !== null) {
-    const centerOffset = player.width / 2;
-    const destX = touchTargetX - centerOffset;
-    player.x += (destX - player.x) * 0.25;
+    player.x += ((touchTargetX - player.width / 2) - player.x) * 0.25;
   } else {
     player.dx = keys.left ? -player.speed : (keys.right ? player.speed : 0);
     player.x += player.dx;
   }
   player.x = Math.max(0, Math.min(BASE_WIDTH - player.width, player.x));
 
-  // --- Draw Player ---
   if (isLoaded(assets.player)) {
     const aspectRatio = assets.player.naturalWidth / assets.player.naturalHeight;
     const drawHeight = player.height;
     const drawWidth = drawHeight * aspectRatio;
-    const drawX = player.x + (player.width - drawWidth) / 2;
-
-    ctx.drawImage(assets.player, drawX, player.y, drawWidth, drawHeight);
+    ctx.drawImage(assets.player, player.x + (player.width - drawWidth) / 2, player.y, drawWidth, drawHeight);
   } else {
     ctx.fillStyle = '#2196F3'; 
     ctx.fillRect(player.x, player.y, player.width, player.height);
   }
 
-  const isTopAreaClear = items.length === 0 || items.every(item => item.y > 140);
-  if (isTopAreaClear && (frameCount % 45 === 0)) {
+  if ((items.length === 0 || items.every(item => item.y > 140)) && (frameCount % 45 === 0)) {
     items.push(new FallingItem());
   }
 
@@ -518,14 +457,11 @@ function gameLoop() {
       continue;
     }
     
-    if (item.y - item.radius > player.y + player.height) {
-      items.splice(i, 1);
-    }
+    if (item.y - item.radius > player.y + player.height) items.splice(i, 1);
   }
 
   requestAnimationFrame(gameLoop);
 }
 
-// --- Initialization ---
 document.documentElement.lang = 'en';
 applyLanguage();
