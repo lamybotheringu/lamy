@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #111;
+  background-color: #000;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,25 +10,47 @@ body {
   overflow: hidden;
 }
 
-/* Fluid Arcade Container (Maintains 4:3 ratio) */
 #gameContainer {
   position: relative;
-  width: min(100vw, 133.33vh);
-  height: min(75vw, 100vh);
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Inner Game Viewport: Aligns strictly with the picture bounds, avoiding black letterbox bars */
+#gameView {
+  position: relative;
+  width: min(100vw, calc(100vh * 4 / 3));
+  height: min(100vh, calc(100vw * 3 / 4));
   max-width: 640px;
   max-height: 480px;
+  aspect-ratio: 4 / 3;
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.9), 0 0 0 4px #444;
   border-radius: 6px;
   overflow: hidden;
-  background-color: #000;
+  background-color: #87CEEB;
 }
 
-/* Native Fullscreen scale mode for #gameContainer */
 #gameContainer:fullscreen,
 #gameContainer:-webkit-full-screen,
 #gameContainer.is-fullscreen-fallback {
-  width: min(100vw, 133.33vh) !important;
-  height: min(75vw, 100vh) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#gameContainer:fullscreen #gameView,
+#gameContainer:-webkit-full-screen #gameView,
+#gameContainer.is-fullscreen-fallback #gameView {
+  width: min(100vw, calc(100vh * 4 / 3)) !important;
+  height: min(100vh, calc(100vw * 3 / 4)) !important;
   max-width: none !important;
   max-height: none !important;
   border-radius: 0 !important;
@@ -45,7 +67,6 @@ canvas {
   touch-action: none;
 }
 
-/* UI Overlay Styling */
 .ui-panel {
   position: absolute;
   top: 12px;
@@ -57,22 +78,9 @@ canvas {
   z-index: 5;
 }
 
-#scoreBoard {
-  left: 15px;
-}
-
-#score {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-#statsBoard {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 11px;
-}
+#scoreBoard { left: 15px; }
+#score { font-size: 24px; font-weight: bold; }
+#statsBoard { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; font-size: 11px; }
 
 .stat-row {
   display: flex;
@@ -85,25 +93,23 @@ canvas {
   width: fit-content;
 }
 
-#targetBoard {
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
+#targetBoard { left: 50%; transform: translateX(-50%); text-align: center; }
 
-#heartsBoard {
-  right: 15px;
-  top: 10px;
-  text-align: right;
-  font-size: 22px;
-  filter: drop-shadow(2px 2px 0px #000);
+/* Hearts inside the picture background (A bit bigger & lower) */
+#heartsBoard { 
+  right: 15px; 
+  top: 34px; 
+  text-align: right; 
+  font-size: 16px; 
+  opacity: 0.85;
+  filter: drop-shadow(1px 1px 0px #000); 
 }
 
 #hearts img {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   vertical-align: middle;
-  margin: 0 3px;
+  margin: 0 2px;
   transition: width 0.2s, height 0.2s;
 }
 
@@ -121,15 +127,8 @@ canvas {
   direction: ltr;
 }
 
-html[lang="ar"] #targetRule {
-  direction: rtl;
-}
-
-#targetText {
-  color: #ff5555;
-  font-size: 30px;
-  text-shadow: 1px 1px 0px #000;
-}
+html[lang="ar"] #targetRule { direction: rtl; }
+#targetText { color: #ff5555; font-size: 30px; text-shadow: 1px 1px 0px #000; }
 
 @keyframes singlePopBlink {
   0% { transform: scale(1); background: transparent !important; }
@@ -144,21 +143,23 @@ html[lang="ar"] #targetRule {
   box-shadow: none !important;
 }
 
-/* Bottom Right Flex Container (Keeps controls perfectly locked together) */
 #bottomRightControls {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
   z-index: 30 !important;
 }
 
-/* Control Buttons Styling */
-.sound-btn,
-#fullScreenBtn {
+.sound-btn, #fullScreenBtn {
   position: static !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
   border: 2px solid #fff;
@@ -168,7 +169,6 @@ html[lang="ar"] #targetRule {
   cursor: pointer;
   border-radius: 4px;
   white-space: nowrap;
-  box-sizing: border-box;
   margin: 0 !important;
 }
 
@@ -186,30 +186,17 @@ html[lang="ar"] #targetRule {
   border-radius: 4px;
   z-index: 30 !important;
   white-space: nowrap;
-  box-sizing: border-box;
 }
 
-.sound-btn:hover,
-.lang-btn:hover,
-#fullScreenBtn:hover {
-  background: #fff;
-  color: #000;
-}
+.sound-btn:hover, .lang-btn:hover, #fullScreenBtn:hover { background: #fff; color: #000; }
 
 .overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
+  top: 0; left: 0;
+  width: 100% !important; height: 100% !important;
   background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-  z-index: 20;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  color: white; text-align: center; z-index: 20;
 }
 
 #startScreen {
@@ -217,102 +204,29 @@ html[lang="ar"] #targetRule {
   background-size: cover !important;
 }
 
-.overlay h1 {
-  font-size: 30px;
-  margin-bottom: 16px;
-  color: #ffcc00;
-  text-shadow: 3px 3px 0px #aa0000;
-}
-
-.overlay p {
-  font-size: 14px;
-  max-width: 85%;
-  text-shadow: 2px 2px 0px #000;
-  margin-bottom: 10px;
-  line-height: 1.6;
-}
-
-.overlay .sub-text {
-  font-size: 13px;
-  color: #9cd9f7;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 0px #000;
-  line-height: 1.5;
-}
+.overlay h1 { font-size: 30px; margin-bottom: 16px; color: #ffcc00; text-shadow: 3px 3px 0px #aa0000; }
+.overlay p { font-size: 14px; max-width: 85%; text-shadow: 2px 2px 0px #000; margin-bottom: 10px; line-height: 1.6; }
+.overlay .sub-text { font-size: 13px; color: #9cd9f7; margin-bottom: 20px; text-shadow: 2px 2px 0px #000; line-height: 1.5; }
 
 .btn {
-  padding: 10px 20px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: bold;
-  color: #fff;
-  background: #28a745;
-  border: 3px solid #fff;
-  cursor: pointer;
-  box-shadow: 3px 3px 0px #000;
-  transition: transform 0.1s, background 0.1s;
+  padding: 10px 20px; font-family: inherit; font-size: 13px; font-weight: bold;
+  color: #fff; background: #28a745; border: 3px solid #fff; cursor: pointer;
+  box-shadow: 3px 3px 0px #000; transition: transform 0.1s, background 0.1s;
 }
+.btn:hover { background: #218838; transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
+.btn:active { transform: translate(0px, 0px); box-shadow: 1px 1px 0px #000; }
 
-.btn:hover {
-  background: #218838;
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px #000;
-}
-
-.btn:active {
-  transform: translate(0px, 0px);
-  box-shadow: 1px 1px 0px #000;
-}
-
-/* ========================================================
-   FULLSCREEN ENHANCEMENTS (Bigger Target, Score, & Hearts)
-   ======================================================== */
-#gameContainer:fullscreen #scoreLabel,
-#gameContainer:-webkit-full-screen #scoreLabel,
-#gameContainer.is-fullscreen-fallback #scoreLabel {
-  font-size: clamp(16px, 2vh, 24px) !important;
-}
-
-#gameContainer:fullscreen #score,
-#gameContainer:-webkit-full-screen #score,
-#gameContainer.is-fullscreen-fallback #score {
-  font-size: clamp(32px, 4.5vh, 52px) !important;
-}
-
-#gameContainer:fullscreen #targetLabel,
-#gameContainer:-webkit-full-screen #targetLabel,
-#gameContainer.is-fullscreen-fallback #targetLabel {
-  font-size: clamp(16px, 2.2vh, 26px) !important;
-}
-
-#gameContainer:fullscreen #targetText,
-#gameContainer:-webkit-full-screen #targetText,
-#gameContainer.is-fullscreen-fallback #targetText {
-  font-size: clamp(42px, 6vh, 68px) !important;
-}
-
-#gameContainer:fullscreen #targetRule,
-#gameContainer:-webkit-full-screen #targetRule,
-#gameContainer.is-fullscreen-fallback #targetRule {
-  font-size: clamp(28px, 4vh, 44px) !important;
-}
-
-#gameContainer:fullscreen #hearts img,
-#gameContainer:-webkit-full-screen #hearts img,
-#gameContainer.is-fullscreen-fallback #hearts img {
-  width: clamp(48px, 6vh, 68px) !important;
-  height: clamp(48px, 6vh, 68px) !important;
-}
-
-#gameContainer:fullscreen .sound-btn,
-#gameContainer:-webkit-full-screen .sound-btn,
-#gameContainer.is-fullscreen-fallback .sound-btn,
-#gameContainer:fullscreen #fullScreenBtn,
-#gameContainer:-webkit-full-screen #fullScreenBtn,
-#gameContainer.is-fullscreen-fallback #fullScreenBtn,
-#gameContainer:fullscreen .lang-btn,
-#gameContainer:-webkit-full-screen .lang-btn,
-#gameContainer.is-fullscreen-fallback .lang-btn {
-  font-size: clamp(13px, 1.8vh, 20px) !important;
-  padding: clamp(6px, 1vh, 12px) clamp(10px, 1.5vw, 18px) !important;
+/* Fullscreen Dynamic Scaling inside Picture Bounds */
+#gameContainer:fullscreen #scoreLabel, #gameContainer.is-fullscreen-fallback #scoreLabel { font-size: clamp(16px, 2vh, 24px) !important; }
+#gameContainer:fullscreen #score, #gameContainer.is-fullscreen-fallback #score { font-size: clamp(32px, 4.5vh, 52px) !important; }
+#gameContainer:fullscreen #targetLabel, #gameContainer.is-fullscreen-fallback #targetLabel { font-size: clamp(16px, 2.2vh, 26px) !important; }
+#gameContainer:fullscreen #targetText, #gameContainer.is-fullscreen-fallback #targetText { font-size: clamp(42px, 6vh, 68px) !important; }
+#gameContainer:fullscreen #targetRule, #gameContainer.is-fullscreen-fallback #targetRule { font-size: clamp(28px, 4vh, 44px) !important; }
+#gameContainer:fullscreen #hearts img, #gameContainer.is-fullscreen-fallback #hearts img { width: clamp(52px, 7vh, 72px) !important; height: clamp(52px, 7vh, 72px) !important; }
+#gameContainer:fullscreen #bottomRightControls, #gameContainer.is-fullscreen-fallback #bottomRightControls { gap: clamp(8px, 1.2vw, 14px) !important; bottom: clamp(10px, 2vh, 20px) !important; right: clamp(10px, 2vw, 20px) !important; }
+#gameContainer:fullscreen .sound-btn, #gameContainer.is-fullscreen-fallback .sound-btn,
+#gameContainer:fullscreen #fullScreenBtn, #gameContainer.is-fullscreen-fallback #fullScreenBtn,
+#gameContainer:fullscreen .lang-btn, #gameContainer.is-fullscreen-fallback .lang-btn {
+  font-size: clamp(12px, 1.6vh, 18px) !important;
+  padding: clamp(6px, 1vh, 10px) clamp(10px, 1.2vw, 16px) !important;
 }
