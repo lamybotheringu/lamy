@@ -1,0 +1,223 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Cairo', 'Press Start 2P', sans-serif;
+  overflow: auto;
+}
+
+#gameContainer {
+  position: relative !important;
+  width: 640px !important;
+  height: 480px !important;
+  min-width: 640px !important;
+  min-height: 480px !important;
+  max-width: 640px !important;
+  max-height: 480px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.9), 0 0 0 4px #444;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+canvas {
+  display: block !important;
+  width: 640px !important;
+  height: 480px !important;
+  min-width: 640px !important;
+  min-height: 480px !important;
+  background-color: #87CEEB;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* UI Overlay Styling */
+.ui-panel {
+  position: absolute;
+  top: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  text-shadow: 2px 2px 0px #000;
+  user-select: none;
+}
+
+#scoreBoard {
+  left: 15px;
+}
+
+#statsBoard {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: fit-content;
+}
+
+#targetBoard {
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+#heartsBoard {
+  right: 15px;
+  top: 10px;
+  text-align: right;
+  font-size: 22px;
+  filter: drop-shadow(2px 2px 0px #000);
+}
+
+#targetRule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent !important;
+  padding: 8px 16px;
+  border: none !important;
+  border-radius: 6px;
+  font-size: 22px; /* حجم كلمة الهدف / TARGET */
+  font-weight: bold;
+  box-shadow: none !important;
+  direction: ltr;
+}
+
+html[lang="ar"] #targetRule {
+  direction: rtl;
+}
+
+#targetText {
+  color: #ff5555;
+  font-size: 30px; /* حجم كلمة تفاحة / جزرة / APPLE / CARROT */
+  text-shadow: 1px 1px 0px #000;
+}
+
+@keyframes singlePopBlink {
+  0% { transform: scale(1); background: transparent !important; }
+  50% { transform: scale(1.25); color: #ffffff; text-shadow: 0 0 15px #ffff00, 0 0 25px #ffaa00; background: transparent !important; box-shadow: none !important; }
+  100% { transform: scale(1); background: transparent !important; }
+}
+
+.target-flash {
+  animation: singlePopBlink 0.35s ease-out;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.sound-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.lang-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: 2px solid #fff;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.sound-btn:hover, .lang-btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+}
+
+#startScreen {
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('day.png') no-repeat center center !important;
+  background-size: cover !important;
+}
+
+.overlay h1 {
+  font-size: 30px;
+  margin-bottom: 16px;
+  color: #ffcc00;
+  text-shadow: 3px 3px 0px #aa0000;
+}
+
+.overlay p {
+  font-size: 14px;
+  max-width: 85%;
+  text-shadow: 2px 2px 0px #000; /* ظل أسود بكسل واضح للزر */
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.overlay .sub-text {
+  font-size: 13px;
+  color: #9cd9f7;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 0px #000; /* ظل أسود بكسل واضح للزر */
+  line-height: 1.5;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+  background: #28a745;
+  border: 3px solid #fff;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px #000;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.btn:hover {
+  background: #218838;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #000;
+}
+
+.btn:active {
+  transform: translate(0px, 0px);
+  box-shadow: 1px 1px 0px #000;
+}

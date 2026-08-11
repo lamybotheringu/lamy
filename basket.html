@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lamy's Basket</title>
+  <!-- Pixel Font & Arabic Compatible Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="basket.css">
+</head>
+<body>
+
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="scoreBoard" class="ui-panel">
+    <div><span id="scoreLabel"></span>: <span id="score">0</span></div>
+    <div id="statsBoard">
+      <div class="stat-row">🍎 <span id="appleCount">x0</span></div>
+      <div class="stat-row">🥕 <span id="carrotCount">x0</span></div>
+    </div>
+  </div>
+  
+  <div id="targetBoard" class="ui-panel">
+    <div id="targetRule">
+      <span id="targetLabel"></span>: <span id="targetText"></span>
+    </div>
+  </div>
+
+  <div id="heartsBoard" class="ui-panel">
+    <span id="hearts"></span>
+  </div>
+
+  <button id="langToggleBtn" class="lang-btn"></button>
+  <button id="soundToggleBtn" class="sound-btn"></button>
+
+  <div id="startScreen" class="overlay">
+    <h1 id="startTitle"></h1>
+    <p id="startDesc"></p>
+    <p id="startSubText" class="sub-text"></p>
+    <button class="btn" id="startBtn"></button>
+  </div>
+
+  <div id="gameOverScreen" class="overlay" style="display: none;">
+    <h1 id="gameOverTitle" style="font-size: 40px;"></h1>
+    <p><span id="finalScoreLabel"></span>: <span id="finalScore">0</span></p>
+    <button class="btn" id="restartBtn"></button>
+  </div>
+</div>
+
+<script src="basket.js"></script>
+</body>
+</html>
