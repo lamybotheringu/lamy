@@ -46,6 +46,21 @@ body {
   box-shadow: none !important;
 }
 
+/* Fallback landscape rotation for mobile browsers without orientation lock API */
+@media screen and (max-width: 900px) and (orientation: portrait) {
+  #gameContainer:fullscreen,
+  #gameContainer:-webkit-full-screen,
+  #gameContainer.is-fullscreen-fallback {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    width: 100vh !important;
+    height: 100vw !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+}
+
 #gameContainer:fullscreen #gameView,
 #gameContainer:-webkit-full-screen #gameView,
 #gameContainer.is-fullscreen-fallback #gameView {
@@ -93,13 +108,20 @@ canvas {
   width: fit-content;
 }
 
-#targetBoard { left: 50%; transform: translateX(-50%); text-align: center; }
+/* Target board positioned a little lower */
+#targetBoard { 
+  left: 50%; 
+  transform: translateX(-50%); 
+  top: 22px; 
+  text-align: center; 
+}
 
-/* Hearts inside the picture background (A bit bigger & lower) */
+/* Hearts at the top center of the screen */
 #heartsBoard { 
-  right: 15px; 
-  top: 34px; 
-  text-align: right; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  top: 12px; 
+  text-align: center; 
   font-size: 16px; 
   opacity: 0.85;
   filter: drop-shadow(1px 1px 0px #000); 
@@ -143,14 +165,15 @@ html[lang="ar"] #targetRule { direction: rtl; }
   box-shadow: none !important;
 }
 
-#bottomRightControls {
+/* Top Right Controls Container */
+#topRightControls {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  top: 12px;
+  right: 9px;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 5px !important;
   z-index: 30 !important;
 }
 
@@ -172,10 +195,11 @@ html[lang="ar"] #targetRule { direction: rtl; }
   margin: 0 !important;
 }
 
+/* Language button moved to the bottom-right corner */
 .lang-btn {
   position: absolute;
   bottom: 10px;
-  left: 10px;
+  right: 10px;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
   border: 2px solid #fff;
@@ -189,6 +213,29 @@ html[lang="ar"] #targetRule { direction: rtl; }
 }
 
 .sound-btn:hover, .lang-btn:hover, #fullScreenBtn:hover { background: #fff; color: #000; }
+
+/* Mobile Phone Adjustments */
+@media (max-width: 768px) {
+  .sound-btn, #fullScreenBtn, .lang-btn {
+    font-size: 9px !important;
+    padding: 4px 7px !important;
+    border-width: 1px !important;
+  }
+  #topRightControls {
+    gap: 5px !important;
+    top: 8px !important;
+    right: 5px !important;
+  }
+  .lang-btn {
+    bottom: 6px !important;
+    right: 6px !important;
+  }
+  #hearts img {
+    width: 22px !important;
+    height: 22px !important;
+    margin: 0 1px !important;
+  }
+}
 
 .overlay {
   position: absolute;
@@ -204,16 +251,17 @@ html[lang="ar"] #targetRule { direction: rtl; }
   background-size: cover !important;
 }
 
-.overlay h1 { font-size: 30px; margin-bottom: 16px; color: #ffcc00; text-shadow: 3px 3px 0px #aa0000; }
-.overlay p { font-size: 14px; max-width: 85%; text-shadow: 2px 2px 0px #000; margin-bottom: 10px; line-height: 1.6; }
-.overlay .sub-text { font-size: 13px; color: #9cd9f7; margin-bottom: 20px; text-shadow: 2px 2px 0px #000; line-height: 1.5; }
+/* Start & End Screen Text */
+.overlay h1 { font-size: 23px; margin-bottom: 12px; color: #ffcc00; text-shadow: 2px 2px 0px #aa0000; }
+.overlay p { font-size: 14px; max-width: 85%; text-shadow: 1px 1px 0px #000; margin-bottom: 8px; line-height: 1.5; }
+.overlay .sub-text { font-size: 13px; color: #9cd9f7; margin-bottom: 14px; text-shadow: 1px 1px 0px #000; line-height: 1.4; }
 
 .btn {
-  padding: 10px 20px; font-family: inherit; font-size: 13px; font-weight: bold;
-  color: #fff; background: #28a745; border: 3px solid #fff; cursor: pointer;
-  box-shadow: 3px 3px 0px #000; transition: transform 0.1s, background 0.1s;
+  padding: 8px 16px; font-family: inherit; font-size: 14px; font-weight: bold;
+  color: #fff; background: #28a745; border: 2px solid #fff; cursor: pointer;
+  box-shadow: 2px 2px 0px #000; transition: transform 0.1s, background 0.1s;
 }
-.btn:hover { background: #218838; transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
+.btn:hover { background: #218838; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #000; }
 .btn:active { transform: translate(0px, 0px); box-shadow: 1px 1px 0px #000; }
 
 /* Fullscreen Dynamic Scaling inside Picture Bounds */
@@ -222,8 +270,8 @@ html[lang="ar"] #targetRule { direction: rtl; }
 #gameContainer:fullscreen #targetLabel, #gameContainer.is-fullscreen-fallback #targetLabel { font-size: clamp(16px, 2.2vh, 26px) !important; }
 #gameContainer:fullscreen #targetText, #gameContainer.is-fullscreen-fallback #targetText { font-size: clamp(42px, 6vh, 68px) !important; }
 #gameContainer:fullscreen #targetRule, #gameContainer.is-fullscreen-fallback #targetRule { font-size: clamp(28px, 4vh, 44px) !important; }
-#gameContainer:fullscreen #hearts img, #gameContainer.is-fullscreen-fallback #hearts img { width: clamp(52px, 7vh, 72px) !important; height: clamp(52px, 7vh, 72px) !important; }
-#gameContainer:fullscreen #bottomRightControls, #gameContainer.is-fullscreen-fallback #bottomRightControls { gap: clamp(8px, 1.2vw, 14px) !important; bottom: clamp(10px, 2vh, 20px) !important; right: clamp(10px, 2vw, 20px) !important; }
+#gameContainer:fullscreen #hearts img, #gameContainer.is-fullscreen-fallback #hearts img { width: clamp(38px, 5vh, 52px) !important; height: clamp(38px, 5vh, 52px) !important; }
+#gameContainer:fullscreen #topRightControls, #gameContainer.is-fullscreen-fallback #topRightControls { gap: clamp(8px, 1.2vw, 14px) !important; top: clamp(10px, 2vh, 20px) !important; right: clamp(7px, 1.8vw, 17px) !important; }
 #gameContainer:fullscreen .sound-btn, #gameContainer.is-fullscreen-fallback .sound-btn,
 #gameContainer:fullscreen #fullScreenBtn, #gameContainer.is-fullscreen-fallback #fullScreenBtn,
 #gameContainer:fullscreen .lang-btn, #gameContainer.is-fullscreen-fallback .lang-btn {
