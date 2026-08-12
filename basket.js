@@ -6,8 +6,7 @@ canvas.width = BASE_WIDTH;
 canvas.height = BASE_HEIGHT;
 ctx.imageSmoothingEnabled = false;
 
-// Automatically wrap canvas and UI in #gameView if not already wrapped,
-// ensuring all absolute coordinates start right where the picture starts.
+// Automatically wrap canvas and UI in #gameView if not already wrapped
 let gameView = document.getElementById('gameView');
 const gameContainer = document.getElementById('gameContainer') || canvas.parentElement;
 if (!gameView && gameContainer) {
@@ -44,23 +43,25 @@ if (gameOverScreenEl && !finalStatsEl) {
 const langToggleBtn = document.getElementById('langToggleBtn');
 const soundToggleBtn = document.getElementById('soundToggleBtn');
 let fullScreenBtn = document.getElementById('fullScreenBtn');
-let bottomRightControls = document.getElementById('bottomRightControls');
+let topRightControls = document.getElementById('topRightControls');
 
-if (!bottomRightControls && soundToggleBtn && soundToggleBtn.parentNode) {
-  bottomRightControls = document.createElement('div');
-  bottomRightControls.id = 'bottomRightControls';
-  soundToggleBtn.parentNode.appendChild(bottomRightControls);
-  bottomRightControls.appendChild(soundToggleBtn);
+if (!topRightControls && soundToggleBtn && soundToggleBtn.parentNode) {
+  topRightControls = document.createElement('div');
+  topRightControls.id = 'topRightControls';
+  gameView.appendChild(topRightControls);
+  topRightControls.appendChild(soundToggleBtn);
 }
 
 if (!fullScreenBtn) {
   fullScreenBtn = document.createElement('button');
   fullScreenBtn.id = 'fullScreenBtn';
-  if (bottomRightControls && soundToggleBtn) {
-    bottomRightControls.insertBefore(fullScreenBtn, soundToggleBtn);
+  if (topRightControls && soundToggleBtn) {
+    topRightControls.insertBefore(fullScreenBtn, soundToggleBtn);
   } else if (langToggleBtn && langToggleBtn.parentNode) {
     langToggleBtn.parentNode.appendChild(fullScreenBtn);
   }
+} else if (topRightControls && !topRightControls.contains(fullScreenBtn)) {
+  topRightControls.insertBefore(fullScreenBtn, soundToggleBtn);
 }
 
 function isFullScreenActive() {
@@ -68,23 +69,34 @@ function isFullScreenActive() {
   return !!(document.fullscreenElement || document.webkitFullscreenElement || gc?.classList.contains('is-fullscreen-fallback'));
 }
 
-fullScreenBtn?.addEventListener('click', (e) => {
+// Fullscreen button with horizontal landscape force
+fullScreenBtn?.addEventListener('click', async (e) => {
   e.stopPropagation();
   fullScreenBtn.blur();
   const gc = document.getElementById('gameContainer');
   
   if (!document.fullscreenElement && !document.webkitFullscreenElement && !gc.classList.contains('is-fullscreen-fallback')) {
-    if (gc.requestFullscreen) {
-      gc.requestFullscreen().then(updateUI).catch(() => {
-        gc.classList.add('is-fullscreen-fallback');
-        updateUI();
-      });
-    } else {
+    try {
+      if (gc.requestFullscreen) {
+        await gc.requestFullscreen();
+      } else if (gc.webkitRequestFullscreen) {
+        await gc.webkitRequestFullscreen();
+      }
+      
+      // Force mobile device orientation to landscape
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(() => {});
+      }
+    } catch (err) {
       gc.classList.add('is-fullscreen-fallback');
-      updateUI();
     }
+    updateUI();
   } else {
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
     if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen().catch(() => {});
     gc.classList.remove('is-fullscreen-fallback');
     updateUI();
   }
@@ -92,13 +104,25 @@ fullScreenBtn?.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
     document.getElementById('gameContainer')?.classList.remove('is-fullscreen-fallback');
     updateUI();
   }
 });
 
-document.addEventListener('fullscreenchange', updateUI);
-document.addEventListener('webkitfullscreenchange', updateUI);
+function handleFullscreenChange() {
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
+  }
+  updateUI();
+}
+
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
 // --- i18n Translations ---
 let currentLang = 'en';
@@ -125,7 +149,7 @@ const i18n = {
 class RetroAudio {
   constructor() {
     this.ctx = null;
-    this.muted = false;
+    this.bgmMuted = false; // Only controls soundtrack mute state
     this.bgmTimer = null;
     this.noteIdx = 0;
     this.melody = [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 698.46, 880.00, 1046.50, 880.00, 698.46, 523.25];
@@ -135,7 +159,7 @@ class RetroAudio {
     if (this.ctx.state === 'suspended') this.ctx.resume();
   }
   playCatchSFX() {
-    if (!this.ctx || this.muted) return;
+    if (!this.ctx) return; // Plays even when soundtrack is muted
     const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(659.25, this.ctx.currentTime);
@@ -146,7 +170,7 @@ class RetroAudio {
     osc.start(); osc.stop(this.ctx.currentTime + 0.15);
   }
   playDamageSFX() {
-    if (!this.ctx || this.muted) return;
+    if (!this.ctx) return; // Plays even when soundtrack is muted
     const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(300, this.ctx.currentTime);
@@ -157,7 +181,7 @@ class RetroAudio {
     osc.start(); osc.stop(this.ctx.currentTime + 0.2);
   }
   playSwitchSFX() {
-    if (!this.ctx || this.muted) return;
+    if (!this.ctx) return; // Plays even when soundtrack is muted
     const now = this.ctx.currentTime, osc1 = this.ctx.createOscillator(), gain1 = this.ctx.createGain();
     osc1.type = 'sine';
     osc1.frequency.setValueAtTime(783.99, now);
@@ -170,7 +194,7 @@ class RetroAudio {
     this.init();
     if (this.bgmTimer) clearInterval(this.bgmTimer);
     this.bgmTimer = setInterval(() => {
-      if (this.muted || !this.ctx || !gameRunning) return;
+      if (this.bgmMuted || !this.ctx || !gameRunning) return;
       const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.value = this.melody[this.noteIdx];
@@ -187,8 +211,8 @@ class RetroAudio {
 const audio = new RetroAudio();
 
 document.getElementById('soundToggleBtn')?.addEventListener('click', () => {
-  audio.muted = !audio.muted;
-  document.getElementById('soundToggleBtn').innerText = audio.muted ? i18n[currentLang].soundMuted : i18n[currentLang].soundOn;
+  audio.bgmMuted = !audio.bgmMuted;
+  document.getElementById('soundToggleBtn').innerText = audio.bgmMuted ? i18n[currentLang].soundMuted : i18n[currentLang].soundOn;
 });
 
 document.getElementById('langToggleBtn')?.addEventListener('click', () => {
@@ -202,7 +226,7 @@ function applyLanguage() {
   document.getElementById('scoreLabel').innerText = t.scoreLabel;
   document.getElementById('targetLabel').innerText = t.targetLabel;
   const soundBtn = document.getElementById('soundToggleBtn');
-  if (soundBtn) soundBtn.innerText = audio.muted ? t.soundMuted : t.soundOn;
+  if (soundBtn) soundBtn.innerText = audio.bgmMuted ? t.soundMuted : t.soundOn;
   if (fullScreenBtn) fullScreenBtn.innerText = t.fullScreen;
   document.getElementById('langToggleBtn').innerText = t.langBtn;
   
@@ -378,11 +402,11 @@ function updateGameOverStats() {
   const finalScoreEl = document.getElementById('finalScore');
   if (finalScoreEl) {
     finalScoreEl.innerText = score;
-    finalScoreEl.style.cssText = 'font-size:23px;font-weight:bold;';    
+    finalScoreEl.style.cssText = 'font-size:19px;font-weight:bold;';    
   }
 
   if (finalScoreLabelEl) {
-    finalScoreLabelEl.style.cssText = 'font-size:20px;font-weight:bold;margin-bottom:8px;';
+    finalScoreLabelEl.style.cssText = 'font-size:15px;font-weight:bold;margin-bottom:6px;';
     finalScoreLabelEl.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
   }
 
@@ -391,7 +415,7 @@ function updateGameOverStats() {
     finalStatsEl.innerHTML = currentLang === 'ar' 
       ? `<span dir="ltr" style="display:inline-block;">🍎 ${t.apple}: ${applesCaught}</span> &nbsp;&nbsp;|&nbsp;&nbsp; <span dir="ltr" style="display:inline-block;">🥕 ${t.carrot}: ${carrotsCaught}</span>`
       : `🍎 ${t.apple}: ${applesCaught} &nbsp;&nbsp;|&nbsp;&nbsp; 🥕 ${t.carrot}: ${carrotsCaught}`;
-    finalStatsEl.style.cssText = `font-size:${currentLang === 'ar' ? '20px' : '16px'};margin:22px 0;font-weight:bold;color:#ffffff;`;
+    finalStatsEl.style.cssText = `font-size:${currentLang === 'ar' ? '17px' : '14px'};margin:14px 0;font-weight:bold;color:#ffffff;`;
   }
 }
 
