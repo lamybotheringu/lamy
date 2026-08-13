@@ -1105,7 +1105,7 @@ function retryTree() {
     if (treeRetry) treeRetry.classList.add("hidden");
 }
 
-// عرض أعلى 50 نتيجة في الليدربورد مع تمييز اسمك بالذهبي
+// عرض أعلى 15 نتيجة في الليدربورد مع تمييز اسمك بالذهبي
 window.updateClickerLeaderboardView = function() {
     const viewEl = document.getElementById("clickerOnlineLeaderboardView");
     if (!viewEl) return;
@@ -1121,10 +1121,10 @@ window.updateClickerLeaderboardView = function() {
             
             // ترتيب تنازلي حسب السكور
             scores.sort((a, b) => (b.score || 0) - (a.score || 0));
-            let top50 = scores.slice(0, 50);
+            let top15 = scores.slice(0, 15);
             let myName = window.getCurrentUserName();
 
-            viewEl.innerHTML = top50.length > 0 ? top50.map((u, i) => {
+            viewEl.innerHTML = top15.length > 0 ? top15.map((u, i) => {
                 let isMe = (myName && u.name === myName);
                 let style = isMe 
                     ? "color: #FFD700; text-shadow: 0 0 5px #FFD700; font-weight: bold;" 
