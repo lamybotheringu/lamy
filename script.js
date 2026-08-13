@@ -1105,43 +1105,33 @@ function retryTree() {
     if (treeRetry) treeRetry.classList.add("hidden");
 }
 
+// عرض أعلى 50 نتيجة في الليدربورد مع تمييز اسمك بالذهبي
 window.updateClickerLeaderboardView = function() {
-    const view = document.getElementById("clickerLeaderboardView"); // أو معرف عنصر الليدربورد الخاص باللعبة
-    if (!view) return;
-
-    // إظهار مؤشر التحميل إن وجد
-    if (typeof getLoadingHTML === 'function') {
-        view.innerHTML = getLoadingHTML();
-    } else {
-        view.innerHTML = "جاري التحميل...";
-    }
+    const viewEl = document.getElementById("clickerOnlineLeaderboardView");
+    if (!viewEl) return;
 
     database.ref("leaderboards/clicker")
         .once("value")
         .then((snapshot) => {
             let scores = [];
             snapshot.forEach(child => {
-                if (child.val() && child.val().name) {
-                    scores.push(child.val());
-                }
+                let data = child.val();
+                if (data && data.name) scores.push(data);
             });
-
-            // فرز تنازلي حسب السكور أو النقرات الأعلى
+            
+            // ترتيب تنازلي حسب السكور
             scores.sort((a, b) => (b.score || 0) - (a.score || 0));
-
-            // تعديل الحد الأقصى هنا من 5 إلى 50 شخص
             let top50 = scores.slice(0, 50);
             let myName = window.getCurrentUserName();
 
-            view.innerHTML = top50.length > 0 ? top50.map((u, i) => {
+            viewEl.innerHTML = top50.length > 0 ? top50.map((u, i) => {
                 let isMe = (myName && u.name === myName);
-                let glow = "text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);";
                 let style = isMe 
-                    ? `color: #FFD700; font-weight: bold; ${glow}` 
-                    : `color: #fff;`;
-            
-                return `<div style="${style} margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.score || 0} نقطة)</div>`;
-            }).join("") : "لا توجد نتائج مسجلة في لعبة النقرات بعد.";
+                    ? "color: #FFD700; text-shadow: 0 0 5px #FFD700; font-weight: bold;" 
+                    : "color: #ffffff;";
+                
+                return `<div style="${style} margin-bottom: 3px;">${i + 1}. <b>${u.name}</b>: (سكور: ${u.score || 0})</div>`;
+            }).join("") : "لا توجد نتائج مسجلة.";
         });
 };
 
