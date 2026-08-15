@@ -69,6 +69,17 @@ function togglePiece(layerId, imagePath) {
     }
 }
 
+window.addEventListener("DOMContentLoaded", () => {
+    // ...
+    createItems("outfits", outfitCount, "outfit", changeOutfit);
+    createItems("tops", topCount, "top", changeTop);
+    createItems("jackets", jacketCount, "jacket", changeJacket);
+    createItems("skirts", skirtCount, "skirt", null);
+    createItems("bottoms", bottomCount, "bottom", changeBottom);
+    createItems("shoesPanel", shoeCount, "shoe", changeShoes);
+    createItems("bags", bagCount, "bag", changeBag);
+});
+
 function changeOutfit(number){
     let outfit = document.getElementById("outfit");
     let imagePath = "images/outfit" + number + ".png";
