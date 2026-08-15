@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لعبة الذاكرة | Memory Game</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo:wght@400;700&family=Changa:wght@700;800&family=Orbitron:wght@500;700&family=Tajawal:wght@500;700;800&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================
+        🌸 المتغيرات العامة والتصاميم
+        ========================================== */
+    :root {
+      --primary-pink: #ff4fd8;
+      --dark-pink: #ff12be;
+      --light-pink: #ffc2df;
+      --border-dark: #333333;
+      --text-white: #ffffff;
+      --font-main: 'Tajawal', 'Cairo', Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 6px 20px 20px 20px;
+      font-family: var(--font-main);
+      background: transparent !important;
+      color: var(--primary-pink);
+      direction: rtl;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h3, h4 {
+      font-family: 'Baloo', cursive, sans-serif;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* إخفاء زر الأونلاين مؤقتاً */
+    #memoryPlayOnline {
+      display: none !important;
+    }
+
+    .xo-mode-flex {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .win-counter {
+      font-size: 18px;
+      color: var(--primary-pink);
+      margin-top: 10px;
+      font-family: 'Baloo', sans-serif;
+      font-weight: 700;
+    }
+
+    .mode-button, 
+    .game-button {
+      background: var(--primary-pink);
+      border: none;
+      color: #1b1b1b;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .mode-button.active {
+      background: var(--dark-pink);
+      color: var(--text-white);
+      box-shadow: 0 0 10px rgba(255, 79, 216, 0.5);
+    }
+
+    .toggle-button {
+      background: var(--text-white) !important;
+      color: #1b1b1b !important;
+      border: 3px solid var(--primary-pink) !important;
+      border-radius: 0px !important;
+      font-family: 'Impact', 'Arial Black', sans-serif !important;
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .toggle-button.active {
+      background: var(--primary-pink) !important;
+      color: var(--text-white) !important;
+      border: 3px solid var(--text-white) !important;
+      box-shadow: 0 0 10px rgba(255, 79, 216, 0.5) !important;
+    }
+
+    .toggle-button:hover {
+      opacity: 0.9;
+    }
+
+    /* 🧠 تصميم حاوية لعبة الذاكرة بدون حدود خارجية وفراغ علوي */
+    .memory-container {
+      max-width: 460px;
+      margin: 0 auto;
+      padding: 0 20px 20px 20px;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 16px;
+    }
+
+    .memory-controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 auto 12px;
+    }
+
+    .memory-board {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      gap: 12px;
+      justify-content: center;
+      margin: 15px auto 20px;
+      perspective: 1000px;
+    }
+
+    /* 🃏 تصميم الكروت */
+    .memory-card {
+      width: 80px;
+      height: 100px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      perspective: 1000px;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .memory-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.25s ease-in-out, box-shadow 0.2s ease; 
+      transform-style: preserve-3d;
+      border-radius: 14px;
+    }
+
+    .memory-card:not(.flipped):not(.matched):hover .memory-card-inner {
+      box-shadow: 0 0 12px rgba(255, 79, 216, 0.6);
+    }
+
+    .memory-card.flipped .memory-card-inner,
+    .memory-card.matched .memory-card-inner {
+      transform: rotateY(180deg) !important;
+    }
+
+    .memory-card.mismatch .memory-card-back {
+      border-color: #ff4d4d !important;
+      box-shadow: 0 0 8px rgba(255, 77, 77, 0.5) !important;
+    }
+
+    .memory-card-front, 
+    .memory-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .memory-card-front {
+      background: linear-gradient(135deg, #2a2a2a, #141414);
+      border: 2px solid var(--border-dark);
+      color: var(--primary-pink);
+    }
+
+    .memory-card-back {
+      background: var(--text-white);
+      color: #1b1b1b;
+      border: 2px solid var(--primary-pink);
+      transform: rotateY(180deg);
+    }
+
+    .memory-card.matched .memory-card-back {
+      border-color: #2ecc71 !important;
+      box-shadow: 0 0 8px rgba(46, 204, 113, 0.4) !important;
+    }
+
+    .memory-card.opponent-flip .memory-card-back {
+      border-color: #4fc3f7;
+      background: #e1f5fe;
+    }
+
+    .global-leaderboard-box {
+      margin-top: 20px;
+      width: 100%;
+      background: #141414 !important;
+      padding: 15px;
+      border-radius: 12px;
+      border: 2px solid var(--primary-pink);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .leaderboard-heading-pink {
+      margin: 0 0 8px 0;
+      font-size: 15px;
+      color: var(--primary-pink);
+    }
+
+    .leaderboard-view-white {
+      font-size: 13px;
+      text-align: right;
+      color: var(--text-white);
+    }
+
+    /* 🔒 نافذة التنبيه في الأعلى (منزلة 50 بكسل إضافية) بتصميم بكسل أصغر */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 150px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .modal-card {
+      pointer-events: auto;
+      background: #111111;
+      border: 3px solid var(--primary-pink);
+      border-radius: 0px;
+      box-shadow: 4px 4px 0px rgba(255, 79, 216, 0.4);
+      padding: 12px 16px;
+      max-width: 280px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .modal-text {
+      font-size: 14px;
+      color: var(--text-white);
+      margin: 5px 0 10px 0;
+      font-weight: bold;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    @media (max-width: 720px) {
+      .memory-board {
+        grid-template-columns: repeat(4, 66px);
+        gap: 8px;
+      }
+
+      .memory-card {
+        width: 66px;
+        height: 86px;
+      }
+
+      .memory-card-front, .memory-card-back {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🔒 نافذة التنبيه في الأعلى بتصميم بكسل -->
+  <div id="loginModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <p class="modal-text">عليك تسجيل الدخول أولا للّعب أونلاين</p>
+      <div class="modal-buttons">
+        <button class="toggle-button" onclick="closeLoginModal()">حسنًا</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🧠 لعبة الذاكرة -->
+  <div class="memory-container">
+    <!-- خيارات أسطر اللعب -->
+    <div class="mode-controls xo-mode-flex">
+      <button id="memoryPlaySolo" class="toggle-button active" onclick="switchMemoryMatchMode('solo')">Solo</button>
+      <button id="memoryPlayBot" class="toggle-button" onclick="switchMemoryMatchMode('bot')">Bot 🤖</button>
+      <button id="memoryPlayOnline" class="toggle-button" onclick="switchMemoryMatchMode('online')">Online 🔥</button>
+    </div>
+
+    <!-- مستويات الصعوبة -->
+    <div id="memoryDifficultyControls" class="memory-controls">
+      <button id="memoryEasy" class="mode-button active" onclick="setMemoryMode('easy')">Easy</button>
+      <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
+      <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
+    </div>
+
+    <p id="memoryStatus" class="memory-status">اختر مستوى للبدء</p>
+    <div id="memoryBoard" class="memory-board"></div>
+    
+    <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Play again</button>
+    <div id="memoryWins" class="win-counter">Wins: 0</div>
+
+    <div id="memoryLeaderboardContainer" class="global-leaderboard-box">
+      <h4 id="memoryLeaderboardTitle" class="leaderboard-heading-pink">🏆 لوحة الصدارة (EASY)</h4>
+      <div id="memoryOnlineLeaderboardView" class="leaderboard-view-white">لا توجد نتائج مسجلة في هذه الجلسة.</div>
+    </div>
+  </div>
+
+  <!-- مكتبات Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+  <!-- 🧠 المحرك الموحد للعبة الذاكرة -->
+  <script>
+    // تهيئة Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyApidBgjtaa1JQCw9eg0kHo3HUQf1dXBrU",
+      authDomain: "x-lamy.firebaseapp.com",
+      databaseURL: "https://x-lamy-default-rtdb.firebaseio.com",
+      projectId: "x-lamy",
+      storageBucket: "x-lamy.firebasestorage.app",
+      messagingSenderId: "252824489765",
+      appId: "1:252824489765:web:21428a48ef7de5a0b094cc",
+      measurementId: "G-0Y2S56MG06"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    const memoryEmojis = ["🩷", "🌸", "🍣", "😝", "🌹", "🎥", "🎮", "🎧", "🐰", "🐇"];
+    let memoryMode = "easy"; 
+    let activeMemoryMode = "solo";
+    let myMemoryPlayerSymbol = "";
+    const memoryRoomRef = database.ref("online_memory/room");
+
+    let memoryBoardState = [];
+    let memoryFlipped = [];
+    let memoryMatched = [];
+    let memoryLocked = false;
+    let memoryWins = 0;
+
+    let botTurn = false;
+    let botScores = { human: 0, bot: 0 };
+    let botKnownCards = {};
+
+    let currentTurnOnline = "p1";
+    let onlineMemoryScores = { p1: 0, p2: 0 };
+    let onlineMemoryGameOver = false;
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        database.ref('users/' + user.uid).once('value').then((snapshot) => {
+          const data = snapshot.val() || {};
+          memoryWins = data.memoryWins || 0;
+          
+          // جلب نقاط مستوى السهولة الافتراضي (easy) مباشرة عند التحميل
+          database.ref("leaderboards/memory/" + memoryMode + "/" + user.uid)
+            .once("value")
+            .then((scoreSnapshot) => {
+                const scoreData = scoreSnapshot.val();
+                const modeScore = scoreData ? (scoreData.score || 0) : 0;
+                const memoryWinsEl = document.getElementById("memoryWins");
+                if (memoryWinsEl) memoryWinsEl.textContent = "Wins: " + modeScore;
+            }).catch(() => {
+                const memoryWinsEl = document.getElementById("memoryWins");
+                if (memoryWinsEl) memoryWinsEl.textContent = "Wins: 0";
+            });
+        });
+        updateMemoryLeaderboardView();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      switchMemoryMatchMode('solo');
+    });
+
+    function showLoginModal() {
+      document.getElementById("loginModal")?.classList.remove("hidden");
+    }
+
+    function closeLoginModal() {
+      document.getElementById("loginModal")?.classList.add("hidden");
+    }
+
+    function switchMemoryMatchMode(matchMode) {
+      const user = auth.currentUser;
+
+      if (matchMode === "online" && (!user || user.isAnonymous)) {
+        showLoginModal();
+        return;
+      }
+
+      if (activeMemoryMode === "online" && matchMode !== "online") {
+        memoryRoomRef.set({
+          p1_name: "",
+          p2_name: "",
+          gameState: "finished",
+          board: []
+        });
+        memoryRoomRef.off("value");
+      }
+
+      activeMemoryMode = matchMode;
+      document.getElementById("memoryPlaySolo")?.classList.toggle("active", matchMode === "solo");
+      document.getElementById("memoryPlayBot")?.classList.toggle("active", matchMode === "bot");
+      document.getElementById("memoryPlayOnline")?.classList.toggle("active", matchMode === "online");
+      
+      const diffControls = document.getElementById("memoryDifficultyControls");
+      const leaderboardBox = document.getElementById("memoryLeaderboardContainer");
+      const winsEl = document.getElementById("memoryWins");
+      
+      memoryFlipped = [];
+      memoryMatched = [];
+      memoryLocked = false;
+      botKnownCards = {};
+      
+      const boardEl = document.getElementById("memoryBoard");
+      if (boardEl) boardEl.innerHTML = "";
+
+      if (winsEl) {
+        if (matchMode === "solo") winsEl.classList.remove("hidden");
+        else winsEl.classList.add("hidden");
+      }
+
+      if (matchMode === "solo" || matchMode === "bot") {
+        memoryRoomRef.off("value");
+        if (diffControls) diffControls.classList.remove("hidden");
+        if (leaderboardBox) {
+          if (matchMode === "solo") leaderboardBox.classList.remove("hidden");
+          else leaderboardBox.classList.add("hidden");
+        }
+        setMemoryMode(memoryMode);
+      } else {
+        if (diffControls) diffControls.classList.add("hidden");
+        if (leaderboardBox) leaderboardBox.classList.add("hidden");
+        
+        updateMemoryStatus("جاري البحث عن خصم..");
+        listenToOnlineMemoryRoom(); 
+        joinMemoryGameOnline(); 
+      }
+    }
+
+    function setMemoryMode(mode) {
+      memoryMode = mode;
+      
+      document.getElementById("memoryEasy")?.classList.toggle("active", mode === "easy");
+      document.getElementById("memoryMedium")?.classList.toggle("active", mode === "medium");
+      document.getElementById("memoryHard")?.classList.toggle("active", mode === "hard");
+      
+      const titleEl = document.getElementById("memoryLeaderboardTitle");
+      if(titleEl) titleEl.textContent = `🏆 لوحة الصدارة (${mode.toUpperCase()})`;
+      
+      updateMemoryStatus(""); 
+      startMemoryGame();
+      if (activeMemoryMode === "solo") updateMemoryLeaderboardView(); 
+
+      const user = auth.currentUser;
+      const winsEl = document.getElementById("memoryWins");
+
+      if (user && winsEl && activeMemoryMode === "solo") {
+          winsEl.textContent = "Wins: ..."; 
+          database.ref("leaderboards/memory/" + mode + "/" + user.uid)
+            .once("value")
+            .then((snapshot) => {
+                const data = snapshot.val();
+                const modeScore = data ? (data.score || 0) : 0;
+                winsEl.textContent = "Wins: " + modeScore;
+            }).catch(() => {
+                winsEl.textContent = "Wins: 0";
+            });
+      }
+    }
+
+    function startMemoryGame() {
+      const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
+      let emojis = memoryEmojis.slice(0, count);
+      const pairs = [...emojis, ...emojis];
+      memoryBoardState = pairs.sort(() => Math.random() - 0.5);
+      memoryFlipped = []; 
+      memoryMatched = []; 
+      memoryLocked = false;
+      botKnownCards = {};
+      
+      const retryEl = document.getElementById("memoryRetry");
+      if (retryEl) retryEl.classList.add("hidden");
+
+      if (activeMemoryMode === "bot") {
+        botTurn = false;
+        botScores = { human: 0, bot: 0 };
+        updateMemoryStatus(`🟢 دورك أنت! (أنت: 0 | البوت: 0)`);
+      }
+
+      renderMemoryBoard();
+    }
+
+    function renderMemoryBoard() {
+      const boardEl = document.getElementById("memoryBoard");
+      if (!boardEl) return;
+      boardEl.innerHTML = "";
+
+      memoryBoardState.forEach((emoji, idx) => {
+        const cardBtn = document.createElement("button");
+        const isMatched = memoryMatched.includes(idx);
+        const isFlipped = memoryFlipped.includes(idx);
+
+        let cardClass = "memory-card";
+        if (isMatched) cardClass += " matched";
+        if (isFlipped) cardClass += " flipped";
+
+        cardBtn.className = cardClass;
+        cardBtn.setAttribute("data-index", idx);
+
+        cardBtn.innerHTML = `
+          <div class="memory-card-inner">
+            <div class="memory-card-front"></div>
+            <div class="memory-card-back">${emoji}</div>
+          </div>
+        `;
+
+        cardBtn.onclick = () => {
+          if (activeMemoryMode === "bot" && botTurn) return;
+          flipMemoryCard(idx);
+        };
+
+        boardEl.appendChild(cardBtn);
+      });
+    }
+
+    function flipMemoryCard(index, isBot = false) {
+      if ((memoryLocked && !isBot) || memoryFlipped.includes(index) || memoryMatched.includes(index)) return;
+      
+      memoryFlipped.push(index);
+      botKnownCards[index] = memoryBoardState[index];
+
+      const cardEl = document.querySelector(`.memory-card[data-index="${index}"]`);
+      if (cardEl) {
+        cardEl.classList.add("flipped");
+      }
+
+      if (activeMemoryMode === "online") {
+        memoryRoomRef.update({ flippedByOpponent: memoryFlipped }).catch(err => console.error(err));
+      }
+
+      if (memoryFlipped.length === 2) {
+        memoryLocked = true;
+        setTimeout(checkMemoryMatch, 600); 
+      }
+    }
+
+    function checkMemoryMatch() {
+      const [first, second] = memoryFlipped;
+      const card1El = document.querySelector(`.memory-card[data-index="${first}"]`);
+      const card2El = document.querySelector(`.memory-card[data-index="${second}"]`);
+      
+      const isMatch = memoryBoardState[first] === memoryBoardState[second];
+
+      if (activeMemoryMode === "online") {
+        if (myMemoryPlayerSymbol !== currentTurnOnline) return;
+
+        if (isMatch) {
+          memoryMatched.push(first, second);
+          let newScores = { ...onlineMemoryScores };
+          newScores[myMemoryPlayerSymbol] = (newScores[myMemoryPlayerSymbol] || 0) + 1;
+          let isFinished = memoryMatched.length === memoryBoardState.length;
+
+          memoryRoomRef.update({
+            matched: memoryMatched,
+            scores: newScores,
+            flippedByOpponent: [],
+            gameState: isFinished ? "finished" : "playing"
+          });
+          memoryFlipped = [];
+          memoryLocked = false;
+        } else {
+          if (card1El) card1El.classList.add("mismatch");
+          if (card2El) card2El.classList.add("mismatch");
+
+          setTimeout(() => {
+            const nextTurn = (myMemoryPlayerSymbol === "p1") ? "p2" : "p1";
+            memoryRoomRef.update({
+              currentTurn: nextTurn,
+              flippedByOpponent: []
+            });
+            memoryFlipped = [];
+            memoryLocked = false;
+          }, 300);
+        }
+        return;
+      }
+
+      if (isMatch) {
+        memoryMatched.push(first, second);
+        
+        if (card1El) { card1El.classList.remove("flipped"); card1El.classList.add("matched"); }
+        if (card2El) { card2El.classList.remove("flipped"); card2El.classList.add("matched"); }
+
+        memoryFlipped = [];
+        memoryLocked = false;
+
+        if (activeMemoryMode === "bot") {
+          handleBotMatchLogic(true);
+        } else if (activeMemoryMode === "solo") {
+          if (memoryMatched.length === memoryBoardState.length) {
+            memoryWins++;
+            updateMemoryUserWins();
+            updateMemoryStatus("كفو! أنهيت اللعبة بنجاح 🎉");
+            checkMemoryLeaderboardEligibility();
+
+            const retryEl = document.getElementById("memoryRetry");
+            if (retryEl) {
+              retryEl.textContent = "العب ثانية";
+              retryEl.classList.remove("hidden");
+              retryEl.onclick = () => retryMemoryGame();
+            }
+          }
+        }
+      } else {
+        if (card1El) card1El.classList.add("mismatch");
+        if (card2El) card2El.classList.add("mismatch");
+
+        setTimeout(() => {
+          if (card1El) card1El.classList.remove("flipped", "mismatch");
+          if (card2El) card2El.classList.remove("flipped", "mismatch");
+
+          memoryFlipped = [];
+          memoryLocked = false;
+
+          if (activeMemoryMode === "bot") {
+            handleBotMatchLogic(false);
+          }
+        }, 300); 
+      }
+    }
+
+    function retryMemoryGame() {
+      startMemoryGame();
+    }
+
+    function handleBotMatchLogic(isMatch) {
+      if (isMatch) {
+        if (botTurn) botScores.bot++;
+        else botScores.human++;
+      }
+
+      if (memoryMatched.length === memoryBoardState.length) {
+        memoryLocked = true;
+        let finalMsg = "";
+        if (botScores.human > botScores.bot) {
+          finalMsg = `🎉 فزت على البوت بنتيجة (${botScores.human} - ${botScores.bot})!`;
+        } else if (botScores.bot > botScores.human) {
+          finalMsg = `🤖 فاز البوت بنتيجة (${botScores.bot} - ${botScores.human})! حظ أفضل المرة القادمة.`;
+        } else {
+          finalMsg = `🤝 تعادل رائع بينك وبين البوت (${botScores.human} - ${botScores.bot})!`;
+        }
+        
+        updateMemoryStatus(finalMsg);
+        const retryEl = document.getElementById("memoryRetry");
+        if (retryEl) {
+          retryEl.textContent = "إعادة اللعب ضد البوت";
+          retryEl.classList.remove("hidden");
+          retryEl.onclick = () => startMemoryGame();
+        }
+        return;
+      }
+
+      if (isMatch) {
+        if (botTurn) {
+          updateMemoryStatus(`🤖 البوت جاب تطابق! ويلعب مجدداً... (أنت: ${botScores.human} | البوت: ${botScores.bot})`);
+          setTimeout(playBotTurn, 400);
+        } else {
+          memoryLocked = false;
+          updateMemoryStatus(`🎉 تطابق! دورك مجدداً (أنت: ${botScores.human} | البوت: ${botScores.bot})`);
+        }
+      } else {
+        botTurn = !botTurn;
+        if (botTurn) {
+          updateMemoryStatus(`🤖 دور البوت... (أنت: ${botScores.human} | البوت: ${botScores.bot})`);
+          setTimeout(playBotTurn, 300);
+        } else {
+          memoryLocked = false;
+          updateMemoryStatus(`🟢 دورك الآن! (أنت: ${botScores.human} | البوت: ${botScores.bot})`);
+        }
+      }
+    }
+
+    function playBotTurn() {
+      if (activeMemoryMode !== "bot" || !botTurn) return;
+
+      memoryLocked = true;
+
+      const availableIndices = memoryBoardState
+        .map((_, idx) => idx)
+        .filter(idx => !memoryMatched.includes(idx));
+
+      if (availableIndices.length < 2) return;
+
+      let pick1 = -1;
+      let pick2 = -1;
+
+      for (let i of availableIndices) {
+        for (let j of availableIndices) {
+          if (i !== j && botKnownCards[i] && botKnownCards[j] && botKnownCards[i] === botKnownCards[j]) {
+            pick1 = i;
+            pick2 = j;
+            break;
+          }
+        }
+        if (pick1 !== -1) break;
+      }
+
+      if (pick1 === -1) {
+        pick1 = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+      }
+
+      flipMemoryCard(pick1, true);
+
+      setTimeout(() => {
+        if (pick2 === -1) {
+          const emoji1 = memoryBoardState[pick1];
+          const matchingKnownIndex = availableIndices.find(idx => idx !== pick1 && botKnownCards[idx] === emoji1);
+
+          if (matchingKnownIndex !== undefined) {
+            pick2 = matchingKnownIndex;
+          } else {
+            const remaining = availableIndices.filter(idx => idx !== pick1);
+            pick2 = remaining[Math.floor(Math.random() * remaining.length)];
+          }
+        }
+
+        flipMemoryCard(pick2, true);
+      }, 400);
+    }
+
+    function generateBoard() {
+      const emojis = memoryEmojis.slice(0, 10);
+      return [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    }
+
+    function joinMemoryGameOnline() {
+      const user = auth.currentUser;
+      if (!user || user.isAnonymous) {
+        showLoginModal();
+        return;
+      }
+
+      const myName = user.displayName || "لاعب";
+      onlineMemoryGameOver = false;
+      onlineMemoryScores = { p1: 0, p2: 0 };
+      
+      const retryEl = document.getElementById("memoryRetry");
+      if (retryEl) retryEl.classList.add("hidden");
+
+      memoryRoomRef.once("value", (snapshot) => {
+          const room = snapshot.val() || {};
+
+          if (!room.p1_name || room.gameState === "finished" || room.gameState === "abandoned") {
+              myMemoryPlayerSymbol = "p1";
+              memoryRoomRef.set({
+                  p1_name: myName,
+                  p2_name: "",
+                  gameState: "waiting",
+                  board: generateBoard(),
+                  currentTurn: "p1",
+                  matched: [],
+                  flippedByOpponent: [],
+                  scores: { p1: 0, p2: 0 },
+                  last_seen: firebase.database.ServerValue.TIMESTAMP
+              });
+              updateMemoryStatus("جاري البحث عن خصم..");
+          } 
+          else if (room.gameState === "waiting") {
+              if (room.p1_name !== myName) {
+                myMemoryPlayerSymbol = "p2";
+                memoryRoomRef.update({
+                    p2_name: myName,
+                    gameState: "playing",
+                    last_seen: firebase.database.ServerValue.TIMESTAMP
+                });
+                updateMemoryStatus("⚔️ ابدأ اللعب!");
+              } else {
+                myMemoryPlayerSymbol = "p1";
+                updateMemoryStatus("جاري البحث عن خصم..");
+              }
+          }
+      });
+      
+      memoryRoomRef.onDisconnect().update({ gameState: "abandoned" });
+    }
+
+    function listenToOnlineMemoryRoom() {
+      memoryRoomRef.off("value");
+      
+      memoryRoomRef.on("value", (snapshot) => {
+          if (activeMemoryMode !== "online") return;
+          
+          const room = snapshot.val();
+          if (!room) return;
+
+          if (room.gameState === "abandoned" && !onlineMemoryGameOver) {
+              onlineMemoryGameOver = true;
+              memoryRoomRef.off("value");
+              updateMemoryStatus("❌ خصمك غادر!");
+              showOnlineMemoryResult("abandoned");
+              return;
+          }
+
+          if (room.gameState === "waiting") {
+              updateMemoryStatus("جاري البحث عن خصم..");
+              return;
+          }
+
+          if ((room.gameState === "playing" || room.gameState === "finished") && room.board) {
+              memoryBoardState = room.board;
+              memoryMatched = room.matched || [];
+              currentTurnOnline = room.currentTurn || "p1";
+
+              if (room.scores) {
+                  onlineMemoryScores = room.scores;
+              }
+
+              const opponentFlipped = room.flippedByOpponent || [];
+              let opponentName = (myMemoryPlayerSymbol === "p1") ? room.p2_name : room.p1_name;
+
+              const isMyTurn = (currentTurnOnline === myMemoryPlayerSymbol);
+              let statusMsg;
+              if (isMyTurn) {
+                  statusMsg = `⚔️ ضد ${opponentName || "..."} | نقاطك: ${onlineMemoryScores[myMemoryPlayerSymbol] || 0} | نقاطه: ${onlineMemoryScores[myMemoryPlayerSymbol === "p1" ? "p2" : "p1"] || 0} | 🟢 دورك!`;
+              } else {
+                  statusMsg = `⚔️ ضد ${opponentName || "..."} | نقاطك: ${onlineMemoryScores[myMemoryPlayerSymbol] || 0} | نقاطه: ${onlineMemoryScores[myMemoryPlayerSymbol === "p1" ? "p2" : "p1"] || 0} | ⏳ دور الخصم...`;
+              }
+              updateMemoryStatus(statusMsg);
+
+              renderMemoryBoardOnline(opponentFlipped, isMyTurn);
+
+              if (room.gameState === "finished" && !onlineMemoryGameOver) {
+                  onlineMemoryGameOver = true;
+                  memoryRoomRef.off("value");
+                  const myScore = onlineMemoryScores[myMemoryPlayerSymbol] || 0;
+                  const oppScore = onlineMemoryScores[myMemoryPlayerSymbol === "p1" ? "p2" : "p1"] || 0;
+                  if (myScore > oppScore) {
+                      showOnlineMemoryResult("win");
+                  } else if (myScore < oppScore) {
+                      showOnlineMemoryResult("lose");
+                  } else {
+                      showOnlineMemoryResult("draw");
+                  }
+              }
+          }
+      });
+    }
+
+    function renderMemoryBoardOnline(opponentFlipped = [], isMyTurn = false) {
+      const boardEl = document.getElementById("memoryBoard");
+      if (!boardEl) return;
+      boardEl.innerHTML = "";
+
+      memoryBoardState.forEach((emoji, idx) => {
+        const cardBtn = document.createElement("button");
+        const isMatched = memoryMatched.includes(idx);
+        const isFlippedByMe = memoryFlipped.includes(idx);
+        const isFlippedByOpponent = opponentFlipped.includes(idx);
+
+        let className = "memory-card";
+        if (isMatched) className += " matched";
+        else if (isFlippedByMe || isFlippedByOpponent) className += " flipped";
+        if (isFlippedByOpponent) className += " opponent-flip";
+
+        cardBtn.className = className;
+        cardBtn.setAttribute("data-index", idx);
+
+        cardBtn.innerHTML = `
+          <div class="memory-card-inner">
+            <div class="memory-card-front"></div>
+            <div class="memory-card-back">${emoji}</div>
+          </div>
+        `;
+
+        if (!isMyTurn || onlineMemoryGameOver) {
+          cardBtn.disabled = true;
+          cardBtn.classList.add("disabled");
+          cardBtn.style.cursor = "not-allowed";
+        }
+
+        cardBtn.onclick = () => {
+          if (isMyTurn && !onlineMemoryGameOver) flipMemoryCard(idx);
+        };
+        boardEl.appendChild(cardBtn);
+      });
+    }
+
+    function showOnlineMemoryResult(result) {
+      const retryEl = document.getElementById("memoryRetry");
+      if (!retryEl) return;
+
+      if (retryEl) {
+        retryEl.classList.remove("hidden");
+        retryEl.textContent = (result === "abandoned") ? "🔍 البحث عن خصم جديد" : "العب مرة أخرى";
+        retryEl.onclick = () => switchMemoryMatchMode("online");
+      }
+    }
+
+    function updateMemoryStatus(text) {
+      const statusEl = document.getElementById("memoryStatus");
+      if (statusEl) statusEl.textContent = text;
+    }
+
+    function updateMemoryUserWins() {
+      const user = auth.currentUser;
+      if (!user) return;
+      database.ref('users/' + user.uid + '/memoryWins').set(memoryWins);
+    }
+
+    function updateMemoryLeaderboardView() {
+      const view = document.getElementById("memoryOnlineLeaderboardView");
+      if (!view) return;
+
+      view.innerHTML = "<div style='color:#aaa; text-align:center;'>⏳ جاري التحميل...</div>";
+
+      database.ref("leaderboards/memory/" + memoryMode)
+        .once("value")
+        .then((snapshot) => {
+            let scores = [];
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    if (child.val() && child.val().name) {
+                        scores.push(child.val());
+                    }
+                });
+            }
+
+            scores.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+            let top5 = scores.slice(0, 5);
+            let currentUid = auth.currentUser ? auth.currentUser.uid : null;
+
+            view.innerHTML = top5.length > 0 ? top5.map((u, i) => {
+                let isMe = (currentUid && u.uid === currentUid);
+                let style = isMe 
+                    ? `color: #FFD700; font-weight: bold; text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);` 
+                    : `color: #fff;`;
+                
+                return `<div style="${style} margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.score || 0} فوز)</div>`;
+            }).join("") : "لا توجد نتائج مسجلة في هذا المستوى بعد.";
+        })
+        .catch((err) => {
+            console.error(err);
+            view.innerHTML = "<div style='color:#ff4d4d;'>تعذر تحميل النتائج</div>";
+        });
+    }
+
+    // دالة لإرسال الارتفاع الحالي للصفحة الرئيسية
+    function updateParentHeight() {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ gameHeight: height }, '*');
+    }
+
+    // مراقبة أي تغيير يحدث في الصفحة (مثل ظهور لوحة الصدارة أو تغيير الـ Mode)
+    const resizeObserver = new ResizeObserver(() => {
+      updateParentHeight();
+    });
+    resizeObserver.observe(document.body);
+
+    // تحديث الارتفاع أيضاً عند تحميل الصفحة بالكامل
+    window.addEventListener('load', updateParentHeight);
+  </script>
+</body>
+</html>
