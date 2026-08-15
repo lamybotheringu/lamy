@@ -436,6 +436,8 @@ body.modern a, body.modern label {
   max-width: 100%;
   margin: 30px auto;
   color: var(--text-white);
+  text-align: center; /* يضمن توسيط القائمة ككتلة واحدة في منتصف الصفحة */
+  direction: rtl;     /* ضبط الاتجاه من اليمين لليسار */
 }
 
 .updates-box {
@@ -452,14 +454,32 @@ body.modern a, body.modern label {
 }
 
 .updates-list {
-  margin: 0;
-  padding-right: 20px;
+  margin: 0 auto;
+  padding: 0;
   list-style-type: none;
   line-height: 1.8;
+  display: inline-block; /* يجعل القائمة محددة العرض بحجم أطول سطر فقط */
+  text-align: right;     /* يجعل جميع النقاط والأسطر محاذية لخط مستقيم من اليمين */
 }
 
 .updates-list li {
   margin-bottom: 5px;
+}
+
+/* تنسيق الرابط ليكون وردياً بشكل مؤكد */
+.updates-list a.update-link,
+.updates-list a.update-link:visited,
+.updates-list a.update-link:link {
+    color: #ff4fd8 !important; /* لون وردي */
+    font-weight: bold;
+    text-decoration: underline;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+/* عند مرور الماوس على الرابط */
+.updates-list a.update-link:hover {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px #ff4fd8;
 }
 
 /* ==========================================
@@ -532,54 +552,6 @@ body.modern a, body.modern label {
   border-radius: 12px;
   font-weight: bold;
   cursor: pointer;
-}
-
-/* لعبة الذاكرة */
-.memory-controls {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 auto 12px;
-}
-
-.memory-board {
-  display: grid;
-  grid-template-columns: repeat(4, 80px);
-  gap: 12px;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.memory-card {
-  width: 80px;
-  height: 100px;
-  background: #222222;
-  color: var(--primary-pink);
-  border: 2px solid var(--border-dark);
-  border-radius: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 36px;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.memory-card.flipped, 
-.memory-card.matched {
-  background: var(--text-white);
-  color: var(--bg-dark);
-  transform: scale(1.02);
-}
-
-.memory-card.matched {
-  border-color: var(--primary-pink);
-}
-
-.opponent-flip { 
-  border-color: #4fc3f7; 
-  background: rgba(79, 195, 247, 0.15); 
 }
 
 /* لعبة الشجرة والكليكر */
@@ -814,6 +786,36 @@ body.modern a, body.modern label {
   height: 180px;
   border: none;
 }
+
+/* حاوية اللودر */
+.chat-loader-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    min-height: 150px;
+    color: #aaa;
+    font-size: 0.9em;
+    gap: 10px;
+}
+
+/* دائرة التحميل المضيئة */
+.chat-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ff4fd8; /* لون وردي متناسق مع تصميمك */
+    border-radius: 50%;
+    animation: chatSpin 0.8s linear infinite;
+}
+
+/* حركة الدوران */
+@keyframes chatSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* ==========================================
    🔻 الفوتر والوظائف المساعدة (Footer & Utilities)
    ========================================== */
@@ -845,17 +847,6 @@ footer {
 @media (max-width: 720px) {
   nav button {
     flex: 1 1 calc(50% - 8px);
-  }
-
-  .memory-board {
-    grid-template-columns: repeat(4, 64px);
-    gap: 10px;
-  }
-
-  .memory-card {
-    width: 64px;
-    height: 84px;
-    font-size: 28px;
   }
 
   .video-frame iframe {
@@ -917,12 +908,212 @@ footer {
 }
 
 /* إخفاء خيار/زر Online */
-#xoModeOnline,
-#memoryPlayOnline {
+#xoModeOnline {
   display: none !important;
 }
+
 .updates-section, .updates-list li {
   font-weight: bold;
   font-size: 1.07em; 
   text-shadow: -1.5px -1.5px 0 #000, 1.5px -1.5px 0 #000, -1.5px 1.5px 0 #000, 1.5px 1.5px 0 #000;
+}
+
+/* ==========================================
+   🔄 تصميم التحميل المخصص لليدربورد (Leaderboard Loading)
+   ========================================== */
+.leaderboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  color: #ffffff;
+  font-family: 'VT323', 'Courier New', monospace;
+}
+
+.leaderboard-loading-text {
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  animation: pulse-loading 1.2s infinite alternate;
+}
+
+.leaderboard-loading-bar {
+  width: 140px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+  padding: 1px;
+  position: relative;
+  overflow: hidden;
+  background: #000000;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-loading-progress {
+  width: 30%;
+  height: 100%;
+  background: #ffffff;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  border-radius: 1px;
+  animation: move-bar 1.5s infinite ease-in-out;
+}
+
+@keyframes move-bar {
+  0% { left: -30%; width: 30%; }
+  50% { width: 50%; }
+  100% { left: 100%; width: 30%; }
+}
+
+@keyframes pulse-loading {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Pixel Boxing Clicker Styles */
+.boxing-arena {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  height: 180px;
+  margin: 10px auto;
+  background: url('fight.png') no-repeat center/contain;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.pixel-fighter {
+  font-size: 55px;
+  transition: transform 0.08s ease, filter 0.08s ease;
+  user-select: none;
+  margin-top: -20px; /* Centers the fighter nicely inside the ring */
+}
+
+.pixel-fighter.punching {
+  transform: scale(1.2) translateX(15px) rotate(-8deg);
+  filter: drop-shadow(-6px 0px 0px #ff4fd8);
+}
+
+.punch-effect {
+  font-family: 'VT323', monospace, sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff4fd8;
+  text-shadow: 2px 2px 0px #000000;
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.punch-effect.show {
+  opacity: 1;
+}
+
+.punch-effect {
+  position: absolute;
+  top: 25%;
+  font-size: 22px;
+  color: #ffde59;
+  font-weight: bold;
+  text-shadow: 2px 2px #000;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.2s ease-out;
+}
+
+.punch-effect.show {
+  opacity: 1;
+  transform: translateY(-15px) scale(1.2);
+}
+
+.click-score-text {
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  margin: -15px auto 8px auto;
+}
+
+/* تنسيق حاوية لوحة الصدارة المستوحى من التصميم */
+.global-leaderboard-box {
+  margin-top: 20px;
+  width: 100%;
+  background: #141414 !important;
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid var(--primary-pink, #ff4fd8);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  text-align: right;
+}
+
+.leaderboard-heading-pink {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: var(--primary-pink, #ff4fd8);
+  font-family: 'Baloo', cursive, sans-serif;
+  text-align: center;
+}
+
+.leaderboard-view-white {
+  font-size: 13px;
+  text-align: right;
+  color: #ffffff;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* خلفية معتمة */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  image-rendering: pixelated; /* الحفاظ على مظهر البكسل */
+}
+
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 900px;
+  height: 85vh;
+  background: white;
+  /* تغيير الحواف لتكون حادة ونمط بكسل */
+  border: 8px solid #ff9fc8; 
+  border-radius: 0; 
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* إضافة إطار داخلي بكسلي */
+  outline: 4px solid #333; 
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ffb7d5;
+  border: 2px solid #333;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  padding: 4px 10px;
+  z-index: 1010;
+  image-rendering: pixelated;
+  outline: none;
+}
+
+.close-btn:hover {
+  background: #ff8fbd; /* سيبقى يتغير اللون فقط بدون أي حركة صعود */
 }
