@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>♡ Lamy Dress Up ♡</title>
+  <link rel="stylesheet" href="dressup.css">
+</head>
+
+<body>
+
+  <div id="start">
+    <h1>♡ LAMY DRESS UP ♡</h1>
+    <button onclick="startGame()">START ♡</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="gameBox">
+
+      <div class="scene">
+        <div id="colorBackground"></div>
+        <img id="room" src="images/background1.png" style="display:none;">
+        <img id="base" src="images/lamybase.png">
+        <img id="shoes">
+        <img id="bottom">
+        <img id="skirt">
+        <img id="top">
+        <img id="jacket">
+        <img id="bag">
+        <img id="outfit">
+
+        <button id="cameraBtn" onclick="downloadOutfit()">SAVE ₊ ⊹</button>
+      </div>
+
+      <div class="panel">
+
+        <h2>♡ TOPS ♡</h2>
+        <div class="clothes" id="tops"></div>
+
+        <h2>♡ JACKETS ♡</h2>
+        <div class="clothes" id="jackets"></div>
+
+        <h2>♡ SKIRTS ♡</h2>
+        <div class="clothes" id="skirts"></div>
+
+        <h2>♡ BOTTOMS ♡</h2>
+        <div class="clothes" id="bottoms"></div>
+
+        <h2>♡ SHOES ♡</h2>
+        <div class="clothes" id="shoesPanel"></div>
+
+        <h2>♡ BAGS ♡</h2>
+        <div class="clothes" id="bags"></div>
+
+        <h2>♡ OUTFIT ♡</h2>
+        <div class="clothes" id="outfits"></div>
+
+
+        <h2>♡ BACKGROUND ♡</h2>
+        <div class="backgrounds">
+          <!-- Color & Pattern Options -->
+          <div class="bg white" onclick="setBackground('white')"></div>
+          <div class="bg pink" onclick="setBackground('pink')"></div>
+          <div class="bg blue" onclick="setBackground('blue')"></div>
+          <div class="bg green" onclick="setBackground('green')"></div>
+          <div class="bg blackStars" onclick="setBackground('blackStars')"></div>
+          <div class="bg pinkHearts" onclick="setBackground('pinkHearts')"></div>
+          <div class="bg blueDots" onclick="setBackground('blueDots')"></div>
+          <div class="bg greenLines" onclick="setBackground('greenLines')"></div>
+
+          <!-- Image Background Previews -->
+          <img class="roomPreview" src="images/background1.png" onclick="setBackground('background1')">
+          <img class="roomPreview" src="images/background2.png" onclick="setBackground('background2')">
+          <img class="roomPreview" src="images/background3.png" onclick="setBackground('background3')">
+          <img class="roomPreview" src="images/background4.png" onclick="setBackground('background4')">
+          <img class="roomPreview" src="images/background5.png" onclick="setBackground('background5')">
+        </div>
+
+        <div class="gameButtons">
+          <button id="randomBtn" onclick="randomLook()">♡ RANDOM ♡</button>
+          <button id="resetBtn" onclick="resetOutfit()">X</button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+<!-- نافذة خيارات الحفظ المنبثقة -->
+<div id="saveModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#1a1a1a; border:2px solid #ff4fd8; border-radius:12px; padding:20px; text-align:center; box-shadow:0 0 15px rgba(255,79,216,0.5); max-width:300px; width:90%;">
+    <h3 style="color:#ff4fd8; font-family:'VT323', monospace; font-size:22px; margin-bottom:15px;">♡ SAVE OPTIONS ♡</h3>
+    <button onclick="downloadOutfitFile()" style="background:#fbe5ff; color:#000; border:2px solid #000; font-weight:bold; padding:8px 15px; margin:5px; border-radius:6px; cursor:pointer; width:100%;">تحميل الصورة</button>
+    <button onclick="setAsProfileOutfit()" style="background:#f3ceff; color:#000; border:2px solid #000; font-weight:bold; padding:8px 15px; margin:5px; border-radius:6px; cursor:pointer; width:100%;"> تعيين كبروفايل</button>
+    <button onclick="closeSaveModal()" style="background:#333; color:#fff; border:1px solid #555; padding:5px 10px; margin-top:10px; border-radius:4px; cursor:pointer; font-size:12px;">إلغاء</button>
+  </div>
+</div>
+
+<!-- مكتبات الفايربيس -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <!-- ملف المصادقة والتهيئة الخاص بموقعك -->
+  <script src="auth.js"></script>
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script src="dressup.js"></script>
+</body>
+
+</html>

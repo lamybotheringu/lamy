@@ -1,0 +1,353 @@
+body {
+  margin: 0;
+  background: #fff0f7;
+  font-family: "Courier New", monospace;
+  text-align: center;
+  image-rendering: pixelated;
+}
+
+#start {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.panel {
+  width: 260px;
+  height: 600px;
+  background: white;
+  border: 8px solid #ff9fc8;
+  border-radius: 20px;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  image-rendering: pixelated;
+}
+
+/* Pixel style scrollbar */
+.panel::-webkit-scrollbar {
+  width: 14px;
+}
+
+.panel::-webkit-scrollbar-track {
+  background: #ffe5f0;
+  border: 3px solid #ff9fc8;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background: rgb(255, 104, 170);
+  border: 3px solid white;
+  border-radius: 0;
+}
+
+.panel::-webkit-scrollbar-thumb:hover {
+  background: #ff7fb4;
+}
+
+/* Pixel buttons inside panel */
+.panel button {
+  background: #ffb7d5;
+  border: 4px solid #333;
+  border-radius: 0;
+  padding: 10px 18px;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  cursor: pointer;
+  image-rendering: pixelated;
+}
+
+.panel button:hover {
+  background: #ff8fbd;
+  transform: translateY(-2px);
+}
+
+/* Pixel section titles */
+.panel h2 {
+  font-size: 18px;
+  color: #ff8fbd;
+  text-shadow: 2px 2px white;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  color: #ff8fbd;
+  font-size: 38px;
+  text-shadow: 3px 3px white;
+}
+
+button {
+  background: #ffb7d5;
+  border: 4px solid #333;
+  padding: 10px 25px;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.gameBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 42px; 
+}
+
+.scene {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  background: white;
+  border: 8px solid #ff9fc8;
+  border-radius: 20px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.scene img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* --- Base Layer Stacking Order --- */
+#colorBackground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: white;
+}
+
+#base {
+  position: absolute;
+  z-index: 1;
+}
+
+#shoes {
+  position: absolute;
+  z-index: 2; /* Layered under bottoms */
+}
+
+#bottom {
+  position: absolute;
+  z-index: 3;
+}
+
+#top {
+  position: absolute;
+  z-index: 5;
+}
+
+#jacket {
+  position: absolute;
+  z-index: 7;
+}
+
+#bag {
+  position: absolute;
+  z-index: 8;
+}
+
+#outfit {
+  position: absolute;
+  z-index: 9;
+}
+
+/* --- Dynamic Skirt Layer Options --- */
+#skirt {
+  position: absolute;
+}
+
+#skirt.skirt-under {
+  z-index: 4; /* Layered UNDER #top (5), OVER #bottom (3) */
+}
+
+#skirt.skirt-over {
+  z-index: 6; /* Layered OVER #top (5), UNDER #jacket (7) */
+}
+
+.clothes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choice {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;          /* Zooms in to fill the empty space */
+  object-position: center bottom; /* Anchors the zoom to the bottom so shoes stay visible */
+  border: 3px solid #ffd0e5;
+  background: white;
+  cursor: pointer;
+}
+
+.choice:hover {
+  border-color: #ff7fb4;
+}
+
+.backgrounds {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bg {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.white {
+  background: white;
+}
+
+.pink {
+  background: #ffd6e7;
+}
+
+.blue {
+  background: #cde7ff;
+}
+
+.green {
+  background: #d9f7d6;
+}
+
+.pinkHearts {
+  background-color: #ffd6e7;
+  background-image: url("heart.svg");
+  background-size: 40px 40px;
+}
+
+.blackStars {
+  background-color: rgb(5, 5, 5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Ctext x='10' y='35' font-size='25' fill='white'%3E★%3C/text%3E%3C/svg%3E");
+  background-size: 50px 50px;
+}
+
+.blueDots {
+  background-color: #cde7ff;
+  background-image: radial-gradient(white 3px, transparent 4px);
+  background-size: 20px 20px;
+}
+
+.greenLines {
+  background-color: #d9f7d6;
+  background-image: linear-gradient(
+    45deg,
+    transparent 45%,
+    white 45%,
+    white 55%,
+    transparent 55%
+  );
+  background-size: 20px 20px;
+}
+
+.roomPreview {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border: 3px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#randomBtn {
+  margin-top: 25px;
+}
+
+#randomBtn.clicked {
+  animation: pop 0.35s;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#cameraBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 20;
+  font-size: 15px;
+  background: #ff96f8;
+  border: 3px solid #333;
+  border-radius: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+}
+
+
+/* --- Mobile Responsive Styles --- */
+@media screen and (max-width: 768px) {
+  .gameBox {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px; /* Added more space to the top */
+  }
+
+  .scene {
+    width: 350px;
+    height: 350px;
+    border-width: 4px;
+    border-radius: 12px;
+  }
+
+  .panel {
+    width: 350px; /* Widened to match the top scene */
+    height: 240px;
+    border-width: 4px;
+    border-radius: 12px;
+  }
+
+  #cameraBtn {
+    font-size: 11px; /* Scaled down save button */
+    padding: 3px 6px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  #start button {
+    padding: 8px 20px;
+    font-size: 16px;
+  }
+}
+
+/* --- Fix Blurry Pixel Art on Mobile / Small Screens --- */
+img, 
+.scene img, 
+.choice, 
+.roomPreview {
+  image-rendering: -moz-crisp-edges;     /* Firefox */
+  image-rendering: -webkit-optimize-contrast; /* Safari / older Webkit */
+  image-rendering: pixelated;           /* Modern Chrome, Edge, and general standard */
+  image-rendering: crisp-edges;         /* Standard fallback */
+}
