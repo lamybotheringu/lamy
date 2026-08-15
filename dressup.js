@@ -69,17 +69,6 @@ function togglePiece(layerId, imagePath) {
     }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-    // ...
-    createItems("outfits", outfitCount, "outfit", changeOutfit);
-    createItems("tops", topCount, "top", changeTop);
-    createItems("jackets", jacketCount, "jacket", changeJacket);
-    createItems("skirts", skirtCount, "skirt", null);
-    createItems("bottoms", bottomCount, "bottom", changeBottom);
-    createItems("shoesPanel", shoeCount, "shoe", changeShoes);
-    createItems("bags", bagCount, "bag", changeBag);
-});
-
 function changeOutfit(number){
     let outfit = document.getElementById("outfit");
     let imagePath = "images/outfit" + number + ".png";
@@ -97,23 +86,23 @@ function changeOutfit(number){
 }
 
 function changeTop(number){
-    togglePiece("top", "images/Top" + number + ".png");
+    togglePiece("top", "images/top" + number + ".png");
 }
 
 function changeJacket(number){
-    togglePiece("jacket", "images/Jacket" + number + ".png");
+    togglePiece("jacket", "images/jacket" + number + ".png");
 }
 
 function changeBottom(number){
-    togglePiece("bottom", "images/Bottom" + number + ".png");
+    togglePiece("bottom", "images/bottom" + number + ".png");
 }
 
 function changeShoes(number){
-    togglePiece("shoes", "images/Shoe" + number + ".png");
+    togglePiece("shoes", "images/shoe" + number + ".png");
 }
 
 function changeBag(number){
-    togglePiece("bag", "images/Bag" + number + ".png");
+    togglePiece("bag", "images/bag" + number + ".png");
 }
 
 function selectSkirt(skirtSrc){
@@ -230,7 +219,7 @@ function randomLook(){
             let randTop = Math.floor(Math.random() * topCount) + 1;
             let top = document.getElementById("top");
             if (top) {
-                top.src = "images/Top" + randTop + ".png";
+                top.src = "images/top" + randTop + ".png";
                 top.style.display = "block";
             }
         }
@@ -239,7 +228,7 @@ function randomLook(){
             let randJacket = Math.floor(Math.random() * jacketCount) + 1;
             let jacket = document.getElementById("jacket");
             if (jacket) {
-                jacket.src = "images/Jacket" + randJacket + ".png";
+                jacket.src = "images/jacket" + randJacket + ".png";
                 jacket.style.display = "block";
             }
         }
@@ -247,7 +236,7 @@ function randomLook(){
         let chooseSkirt = skirtCount > 0 && (bottomCount === 0 || Math.random() > 0.5);
         if (chooseSkirt) {
             let randSkirt = Math.floor(Math.random() * skirtCount) + 1;
-            let skirtSrc = "images/Skirt" + randSkirt + ".png";
+            let skirtSrc = "images/skirt" + randSkirt + ".png";
             let skirtImg = document.getElementById("skirt");
             if (skirtImg) {
                 currentSkirtSrc = skirtSrc;
@@ -260,7 +249,7 @@ function randomLook(){
             let randBottom = Math.floor(Math.random() * bottomCount) + 1;
             let bottom = document.getElementById("bottom");
             if (bottom) {
-                bottom.src = "images/Bottom" + randBottom + ".png";
+                bottom.src = "images/bottom" + randBottom + ".png";
                 bottom.style.display = "block";
             }
         }
@@ -269,7 +258,7 @@ function randomLook(){
             let randShoe = Math.floor(Math.random() * shoeCount) + 1;
             let shoes = document.getElementById("shoes");
             if (shoes) {
-                shoes.src = "images/Shoe" + randShoe + ".png";
+                shoes.src = "images/shoe" + randShoe + ".png";
                 shoes.style.display = "block";
             }
         }
@@ -278,7 +267,7 @@ function randomLook(){
             let randBag = Math.floor(Math.random() * bagCount) + 1;
             let bag = document.getElementById("bag");
             if (bag) {
-                bag.src = "images/Bag" + randBag + ".png";
+                bag.src = "images/bag" + randBag + ".png";
                 bag.style.display = "block";
             }
         }
@@ -393,6 +382,7 @@ async function setAsProfileOutfit() {
         alert("❌ حدث خطأ أثناء الحفظ!");
     }
 }
+
 window.addEventListener("DOMContentLoaded", () => {
     function createItems(boxID, count, type, changeFunction){
         let box = document.getElementById(boxID);
@@ -404,7 +394,7 @@ window.addEventListener("DOMContentLoaded", () => {
             let imagePath = "images/" + type + i + ".png";
             img.src = imagePath;
 
-            if (type === "Skirt") {
+            if (type === "skirt") {
                 img.onclick = () => selectSkirt(imagePath);
             } else {
                 img.onclick = () => changeFunction(i);
@@ -415,10 +405,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     createItems("outfits", outfitCount, "outfit", changeOutfit);
-    createItems("tops", topCount, "Top", changeTop);
-    createItems("jackets", jacketCount, "Jacket", changeJacket);
-    createItems("skirts", skirtCount, "Skirt", null);
-    createItems("bottoms", bottomCount, "Bottom", changeBottom);
-    createItems("shoesPanel", shoeCount, "Shoe", changeShoes);
-    createItems("bags", bagCount, "Bag", changeBag);
+    createItems("tops", topCount, "top", changeTop);
+    createItems("jackets", jacketCount, "jacket", changeJacket);
+    createItems("skirts", skirtCount, "skirt", null);
+    createItems("bottoms", bottomCount, "bottom", changeBottom);
+    createItems("shoesPanel", shoeCount, "shoe", changeShoes);
+    createItems("bags", bagCount, "bag", changeBag);
 });
