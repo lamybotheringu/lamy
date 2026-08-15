@@ -56,6 +56,23 @@
   <!-- Stylesheets -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="bunny.css">
+
+  <style>
+    /* تخصيص حاوية الألعاب لتكون عريضة وبدون أي سكرول */
+    .wide-memory-item {
+      grid-column: 1 / -1 !important;
+      width: 100% !important;
+      max-width: 750px !important;
+      margin: 0 auto !important;
+    }
+    
+    #memoryFrame, #xoFrame {
+      width: 100% !important;
+      border: none !important;
+      background: transparent !important;
+      overflow: hidden !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -86,8 +103,10 @@
     <button onclick="show('updates')">Updates</button>
     <button onclick="show('youtube')">YouTube</button>
     <button onclick="show('games')">Mini Games</button>
-    <button onclick="show('bunny-game')">🐇<span class="badge-new">(NEW)</span></button>
     <button onclick="show('chat')">Chat</button>
+    <button onclick="show('bunny-game')">🐇 لعبة الأرنب </button>
+    <button onclick="openDressupPopup()">تلبيس لايمي <span class="badge-new">(NEW)</span></button>
+
   </nav>
 
   <!-- Main Content Area -->
@@ -150,18 +169,19 @@
       </div>
     </section>
 
-    <!-- Updates Section -->
-    <section id="updates" class="hidden updates-section">
-      <div class="updates-box">
-        <h2 class="updates-title">الموقع خلف الصيانة 🚧</h2>
-      </div>
-      <ul class="updates-list">
-        <li>• تم تفعيل الشات</li>
-        <li>• تم إضافة لعبة الأرنب 🐰</li>
-        <li>• قائمة الصدارة لا تزال قيد التجربة</li>
-        <li>• إلغاء ألعاب الأونلاين مؤقتا بسبب كثرة المشاكل</li>
-      </ul>
-    </section>
+<!-- Updates Section -->
+<section id="updates" class="hidden updates-section">
+  <div class="updates-box">
+    <h2 class="updates-title">🎉 MAJOR BIRTHDAY UPDATES </h2>
+  </div>
+  <ul class="updates-list">
+    <li>• إضافة لعبة التلبيس</li>
+    <li>• إضافة بروفايلات شخصية لكل حساب</li>
+    <li>• تحديث واجهة الألعاب ونمط اللعب</li>
+    <li>• إضافة نمط اللعب مع البوت في لعبة الكروت</li>
+    <li>• إضافة لعبة جديدة خارج الموقع من <a href="https://x-lamy.vercel.app/basket.html" target="_blank" class="update-link">هنـــا</a></li>
+  </ul>
+</section>
 
     <!-- YouTube Section -->
     <section id="youtube" class="hidden">
@@ -182,89 +202,47 @@
     <section id="games" class="hidden">
       <div class="games-container">
 
-        <!-- XO Game -->
+        <!-- XO Game (مربوط بـ xo.html) -->
         <div class="game-item">
           <h3>❌ XO Game</h3>
-          <div class="mode-controls xo-mode-flex">
-            <button id="xoModeBot" class="toggle-button active" onclick="switchXOMode('bot')">Bot</button>
-            <button id="xoModeOnline" class="toggle-button" onclick="switchXOMode('online')">Online</button>
-          </div>
-          <div id="xoStatusInfo" class="status-info-text">الوضع الحالي: اللعب ضد البوت</div>
-          <div id="xoWins" class="win-counter">Wins: 0</div>
-          <div id="xoBoard"></div>
-          <button id="xoReset" class="game-button hidden" onclick="handleXOResetClick()">play again</button>
-          <div id="xoMessage" class="tree-message hidden"></div>
-
-          <div id="xoSaveNameContainer" class="hidden save-name-box">
-            <p class="save-score-desc">🎉 كفو! حققت فوزاً كبيراً، اكتب اسمك لتسجيله في الصدارة:</p>
-            <input type="text" id="xoLeaderboardNameInput" placeholder="اسمك البطولي" class="leaderboard-input-70">
-            <button class="toggle-button btn-save-small" onclick="submitXOHighScore()">حفظ 🏆</button>
-          </div>
-
-          <div id="gameResultArea" class="hidden">
-            <h2 id="resultText"></h2>
-            <button onclick="playAgain()">Play Again</button>
-          </div>
-
-          <div id="xoLeaderboardContainer" class="hidden global-leaderboard-box">
-            <h4 class="leaderboard-heading">🏆 Global XO Leaderboard</h4>
-            <div id="onlineLeaderboardView" class="leaderboard-view-text">جاري التحميل...</div>
-          </div>
+          <iframe id="xoFrame" src="xo.html" scrolling="no" allowtransparency="true"></iframe>
         </div>
 
-        <!-- Clicker Game -->
+        <!-- Punching Clicker Game -->
         <div class="game-item">
-          <h3>🖱️ Clicker Game</h3>
-          <div id="treeVisualization" class="tree-viz">🌱</div>
+          <h3>🥊 Punching Clicker</h3>
+          <div class="boxing-arena" onclick="clickMe()">
+            <div id="fighterChar" class="pixel-fighter">🥊🧍🏾‍♂️</div>
+            <div id="punchEffect" class="punch-effect">💥 POW!</div>
+          </div>
           <div id="clickScore" class="click-score-text">Score: 0</div>
-          <button class="game-button" onclick="clickMe()">Click me</button>
-          <div id="treeMessage" class="tree-message hidden">أحسنت! نمت الشجرة</div>
-          <button id="treeRetry" class="game-button hidden" onclick="retryTree()">إلعب ثانية</button>
-          <div id="treeCount" class="win-counter">Tree count: --</div>
+          <button class="game-button" onclick="clickMe()">بوكس!</button>
+          <div id="treeMessage" class="tree-message hidden">ضربة قاضية! 🏆</div>
+          <button id="treeRetry" class="game-button hidden" onclick="retryTree()">جولة جديدة</button>
+          <div id="treeCount" class="win-counter">-- :KO count</div>
 
           <div id="clickerLeaderboardContainer" class="global-leaderboard-box">
             <h4 id="clickerLeaderboardTitle" class="leaderboard-heading-pink">🏆 لوحة الصدارة</h4>
-            <div id="clickerOnlineLeaderboardView" class="leaderboard-view-white">جاري التحميل..</div>
+           <div id="clickerOnlineLeaderboardView" class="leaderboard-view-white" style="text-align: center;">⏳جاري التحميل.. </div>
           </div>
         </div>
 
         <!-- Memory Game -->
-        <div class="game-item">
+        <div class="game-item wide-memory-item">
           <h3>🧠 Memory Game</h3>
-          <div class="mode-controls xo-mode-flex">
-            <button id="memoryPlaySolo" class="toggle-button active" onclick="switchMemoryMatchMode('solo')">Solo</button>
-            <button id="memoryPlayOnline" class="toggle-button" onclick="switchMemoryMatchMode('online')">Online</button>
-          </div>
-          <div id="memoryDifficultyControls" class="memory-controls memory-controls-reset">
-            <button id="memoryEasy" class="mode-button" onclick="setMemoryMode('easy')">Easy</button>
-            <button id="memoryMedium" class="mode-button" onclick="setMemoryMode('medium')">Medium</button>
-            <button id="memoryHard" class="mode-button" onclick="setMemoryMode('hard')">Hard</button>
-          </div>
-          <p id="memoryStatus" class="memory-status">اختر مستوى للبدء</p>
-          <div id="memoryBoard" class="memory-board"></div>
-          <button id="memoryRetry" class="game-button hidden" onclick="retryMemoryGame()">Play again</button>
-          <div id="memoryWins" class="win-counter">Wins: 0</div>
-
-          <div id="memorySaveNameContainer" class="hidden save-name-box">
-            <p class="save-score-desc">🎉 رائع! دخلت صدارة الجولة الحالية، اكتب اسمك لتسجيله:</p>
-            <input type="text" id="memoryLeaderboardNameInput" placeholder="اسمك البطولي" class="leaderboard-input-60">
-            <button class="toggle-button btn-save-small" onclick="submitMemoryHighScore()">حفظ 🏆</button>
-          </div>
-
-          <div id="memoryLeaderboardContainer" class="global-leaderboard-box">
-            <h4 id="memoryLeaderboardTitle" class="leaderboard-heading-pink">🏆 لوحة الصدارة (EASY)</h4>
-            <div id="memoryOnlineLeaderboardView" class="leaderboard-view-white">لا توجد نتائج مسجلة في هذه الجلسة.</div>
-          </div>
+          <iframe id="memoryFrame" src="memory.html" scrolling="no" style="width: 100%; height: 550px;" allowtransparency="true"></iframe>
         </div>
 
       </div>
     </section>
 
     <!-- Dress Up Section -->
-    <section id="dressup" class="hidden">
-      <h2>✨ Lamy Dress Up</h2>
-      <iframe src="dressup.html" class="dressup-iframe"></iframe>
-    </section>
+<div id="dressupModal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeDressupPopup()">X</button>
+    <iframe src="dressup.html" width="100%" height="100%" style="border:none;"></iframe>
+  </div>
+</div>
 
     <!-- Bunny Game Section -->
     <section id="bunny-game" class="hidden">
@@ -294,7 +272,13 @@
 
       <div id="bunnyLeaderboardContainer" class="bunny-leaderboard-box">
         <h3 class="bunny-leaderboard-heading">🏆 Bunny Leaderboard</h3>
-        <div id="bunnyLeaderboardView" class="bunny-leaderboard-view">جاري تحميل النتائج...</div>
+        <div id="bunnyLeaderboardView" class="bunny-leaderboard-view">
+          <div class="leaderboard-loading">
+              <div class="leaderboard-loading-bar">
+                  <div class="leaderboard-loading-progress"></div>
+              </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -322,9 +306,31 @@
 
     function toggleTheme(btn) {
       const isModern = document.body.classList.toggle("modern");
+      const theme = isModern ? "modern" : "classic";
+      
       btn.innerText = isModern ? "Modern" : "Classic";
-      localStorage.setItem("theme", isModern ? "modern" : "classic");
+      localStorage.setItem("theme", theme);
+
+      // Send the theme change live to the XO iframe
+      const xoFrame = document.getElementById('xoFrame');
+      if (xoFrame && xoFrame.contentWindow) {
+          xoFrame.contentWindow.postMessage({ theme: theme }, '*');
+      }
     }
+
+    // الاستماع لارتفاع اللعبة وتحديثه فوراً بدون ظهور سكرول
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.gameHeight) {
+        const iframe = document.getElementById('memoryFrame');
+        const xo = document.getElementById('xoFrame');
+        if (iframe && event.source === iframe.contentWindow) {
+          iframe.style.height = (event.data.gameHeight + 15) + 'px';
+        }
+        if (xo && event.source === xo.contentWindow) {
+          xo.style.height = (event.data.gameHeight + 15) + 'px';
+        }
+      }
+    });
   </script>
 
   <!-- Firebase Scripts -->
