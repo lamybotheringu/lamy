@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الملف الشخصي | Lamy</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo:wght@400;700&family=Changa:wght@700;800&family=Orbitron:wght@500;700&family=Tajawal:wght@500;700;800&family=VT323&display=swap" rel="stylesheet">
+
+  <!-- ملفات CSS -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="bunny.css">
+  <link rel="stylesheet" href="profile.css">
+</head>
+
+<body>
+
+  <!-- الهيدر الأصلي -->
+  <header>
+    <div class="brand">
+      <img class="avatar" src="AVATAR01.PNG" alt="Lamy Avatar">
+      <h1 class="logo">LAMY</h1>
+    </div>
+    <p>♡ نورتو يا لايميز ♡</p>
+  </header>
+
+  <!-- شريط التحكم وزر الثيم -->
+  <div class="top-controls-bar">
+    <div id="auth-header"></div>
+    <button id="theme-btn" onclick="toggleTheme(this)">Classic</button>
+  </div>
+
+  
+  <!-- المحتوى الرئيسي -->
+  <main style="margin-top: 25px;">
+    <section id="profile-section">
+      <div class="profile-layout" style="position: relative;">
+
+        <!-- زر العودة -->
+        <button onclick="location.href='index.html'" title="العودة للرئيسية" style="
+          position: absolute;
+          top: -42px;
+          right: 0;
+          background-color: #ff4fd8;
+          color: #000;
+          border: 2px solid #5a0447;
+          box-shadow: 3px 3px 0px #020102;
+          font-family: 'VT323', monospace;
+          font-size: 16px;
+          font-weight: bold;
+          padding: 3px 10px;
+          cursor: pointer;
+          border-radius: 4px;
+          z-index: 10;
+          transition: transform 0.1s, box-shadow 0.1s;
+        " onmousedown="this.style.transform='translate(2px, 2px)'; this.style.boxShadow='1px 1px 0px #ff4fd8';" onmouseup="this.style.transform='translate(0, 0)'; this.style.boxShadow='3px 3px 0px #ff4fd8';">▶ عودة</button>
+
+        <!-- ➡️ العمود الأيمن: المعلومات الشخصية وأرقام الصدارة -->
+        <aside class="profile-sidebar">
+          
+          <div class="sidebar-box user-info-box">
+            
+            <h2 class="user-name" id="profileName">👤 الملف الشخصي</h2>
+
+            <!-- إطار لعبة الـ Dress Up المسمى dressupprofile -->
+            <div id="dressupprofile" style="width: 100%; min-height: 480px; max-height: 560px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 15px 0; border: 2px solid #ff4fd8; border-radius: 8px; background: #0d0d0d; box-shadow: inset 3px 3px 0px #000000; overflow: hidden; box-sizing: border-box; padding: 0;">
+              <span style="font-family: 'VT323', monospace; font-size: 14px; color: #ff4fd8; display: none;">♡ DressUp Profile ♡</span>
+            </div>
+            
+            <!-- تم توحيد التنسيقات وتفريغ العناصر حتى يسحب الكود البيانات بروقان بدون تكرار -->
+            <div class="info-item" id="profileJoinDate"></div>
+
+            <div class="info-item" id="genderDisplay"></div>
+
+            <!-- زر تعديل الحساب -->
+            <button id="editProfileBtn" class="btn-edit-profile hidden">✏️ تعديل الحساب</button>
+          </div>
+
+          <!-- كارت أرقام الصدارة -->
+          <div class="sidebar-box scores-box">
+            <h3 class="box-title">🏆 أعلى الأرقام بالألعاب:</h3>
+            <div id="scoresContainer">
+              <p class="empty-text">لا توجد أرقام مسجلة بعد.</p>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- ⬅️ العمود الأيسر: كتابة وقائمة المنشورات -->
+        <div class="profile-main">
+          
+          <!-- صندوق النشر (للمالك فقط) -->
+          <div id="ownerPostSection" class="post-box hidden">
+            <h3 class="box-title">✍️ إضافة مشاركة جديدة:</h3>
+            <textarea id="postInput" placeholder="اكتب شيئاً في ملفك الشخصي..."></textarea>
+            <button class="post-btn" id="addPostBtn">نشر المشاركة</button>
+          </div>
+
+          <!-- قائمة المنشورات -->
+          <div class="posts-section">
+            <h3 class="section-title">📝 منشورات العضو(ة) :</h3>
+            <div id="postsContainer">
+              <p class="empty-text">لا توجد منشورات لهذا العضو بعد.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- نافذة تعديل الحساب المنبثقة (Modal) -->
+  <div id="editProfileModal" class="edit-modal hidden">
+    <div class="edit-modal-content">
+      <h3>✏️ تعديل البيانات الشخصية</h3>
+      
+      <!-- رسالة التحذير الحمراء وقفل خانة الاسم -->
+      <div id="nameRedWarning" style="color: #ff4d4d; font-size: 12px; margin-bottom: 6px; font-weight: bold; text-align: right;"> بإمكانك طلب تغيير إسمك فقط عبر الإتصال بـ لايمي</div>
+      <input type="text" id="editNameInput" placeholder="أدخل اسمك الجديد" disabled style="background-color: #1a1a1a; color: #aaa; cursor: not-allowed;">
+
+      <label for="genderSelect">الجنس:</label>
+      <select id="genderSelect" class="gender-select">
+        <option value="غير معين">غير معين</option>
+        <option value="أنثى 🌸">أنثى 🌸</option>
+        <option value="ذكر ⚽">ذكر ⚽</option>
+      </select>
+
+      <div class="modal-buttons">
+        <button id="saveProfileBtn" class="btn-save">حفظ</button>
+        <button id="closeEditModalBtn" class="btn-cancel">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- الفوتر -->
+  <footer>© Lamybotheringu - August 2026</footer>
+
+  <!-- سكريبت تبديل الثيم -->
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const isModern = localStorage.getItem("theme") === "modern";
+      if (isModern) document.body.classList.add("modern");
+      const themeBtn = document.getElementById("theme-btn");
+      if (themeBtn) themeBtn.innerText = isModern ? "Modern" : "Classic";
+    });
+
+    function toggleTheme(btn) {
+      const isModern = document.body.classList.toggle("modern");
+      btn.innerText = isModern ? "Modern" : "Classic";
+      localStorage.setItem("theme", isModern ? "modern" : "classic");
+    }
+  </script>
+
+  <!-- مكتبات الفايربيس -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <!-- السكريبتات التنفيذية -->
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+  <script src="profile.js"></script>
+
+</body>
+</html>
