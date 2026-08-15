@@ -1,15 +1,41 @@
+// 0. التهيئة والتحقق الآمن
+if (typeof window.auth === 'undefined') {
+    const firebaseConfig = {
+        apiKey: "AIzaSyApidBgjtaa1JQCw9eg0kHo3HUQf1dXBrU",
+        authDomain: "x-lamy.firebaseapp.com",
+        databaseURL: "https://x-lamy-default-rtdb.firebaseio.com",
+        projectId: "x-lamy",
+        storageBucket: "x-lamy.firebasestorage.app",
+        messagingSenderId: "252824489765",
+        appId: "1:252824489765:web:21428a48ef7de5a0b094cc",
+        measurementId: "G-0Y2S56MG06"
+    };
+
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    if (typeof firebase !== 'undefined') {
+        window.auth = firebase.auth();
+        window.database = firebase.database();
+    }
+}
+
 // 1. تحديث واجهة المستخدم لعرض اسم المستخدم الحقيقي
 window.updateAuthUI = function() {
     const authHeader = document.getElementById("auth-header");
     const chatNameField = document.getElementById("name");
-    const user = auth.currentUser; 
+    const firebaseAuth = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    const user = firebaseAuth ? firebaseAuth.currentUser : null; 
 
     if (user && authHeader) {
-        // نستخدم user.displayName الذي تم حفظه أثناء التسجيل
         const displayName = user.displayName || 'مستخدم'; 
         authHeader.innerHTML = `
-            <div style="text-align: center;">
-                <span style="color:white; font-weight:bold;">مرحباً ${displayName}</span>
+            <div style="text-align: center; font-size: 19px;">
+                <span style="color:white; font-weight:bold;">مرحباً </span>
+                <span style="color: #ff4fd8; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="openProfile('${user.uid}')">
+                    ${displayName}
+                </span>
                 <br>
                 <button onclick="logoutUser()" style="margin-top: 8px; padding: 4px 12px; font-size: 13px; background-color: #2e0026; color: white; border: none; border-radius: 13px; cursor: pointer;">تسجيل خروج</button>
             </div>
@@ -22,10 +48,23 @@ window.updateAuthUI = function() {
     }
 };
 
-// مراقبة تغيرات حالة المصادقة
-auth.onAuthStateChanged((user) => {
-    window.updateAuthUI();
-});
+// مراقبة تغيرات حالة المصادقة + تحديث Realtime DB
+const firebaseAuth = window.auth || (typeof auth !== 'undefined' ? auth : null);
+if (firebaseAuth) {
+    firebaseAuth.onAuthStateChanged((user) => {
+        window.updateAuthUI();
+
+        if (user && window.database) {
+            const userRef = window.database.ref("users/" + user.uid);
+            userRef.update({
+                uid: user.uid,
+                name: user.displayName || "مستخدم جديد",
+                email: user.email || "",
+                lastLogin: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    });
+}
 
 // 2. دالة عرض نافذة تسجيل الدخول/الإنشاء
 window.showAuthOverlay = function(type) {
@@ -64,14 +103,12 @@ window.showAuthOverlay = function(type) {
             const errorDisplay = document.getElementById('authErrorDisplay');
 
             try {
+                const activeAuth = window.auth || auth;
                 if (currentType === 'signup') {
-                    // إنشاء حساب جديد
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    // حفظ الاسم في ملف تعريف المستخدم (Profile)
+                    const userCredential = await activeAuth.createUserWithEmailAndPassword(email, password);
                     await userCredential.user.updateProfile({ displayName: nameInput.value.trim() });
                 } else {
-                    // تسجيل الدخول
-                    await auth.signInWithEmailAndPassword(email, password);
+                    await activeAuth.signInWithEmailAndPassword(email, password);
                 }
                 overlay.remove();
             } catch (error) {
@@ -83,14 +120,20 @@ window.showAuthOverlay = function(type) {
     renderContent(type);
 };
 
+window.openProfile = (targetUid) => {
+    if (targetUid) window.location.href = 'profile.html?uid=' + targetUid;
+};
+
 window.logoutUser = () => {
-    auth.signOut().then(() => {
+    const activeAuth = window.auth || auth;
+    activeAuth.signOut().then(() => {
         location.reload(); 
     });
 };
 
 window.canSaveScore = function() {
-    if (auth.currentUser) return true;
+    const activeAuth = window.auth || auth;
+    if (activeAuth.currentUser) return true;
     window.showAuthOverlay('signup');
     return false;
 };
@@ -98,6 +141,8 @@ window.canSaveScore = function() {
 document.addEventListener('DOMContentLoaded', () => {
     window.updateAuthUI();
 });
+
 window.getCurrentUserName = function() {
-    return (auth.currentUser && auth.currentUser.displayName) ? auth.currentUser.displayName : null;
+    const activeAuth = window.auth || auth;
+    return (activeAuth.currentUser && activeAuth.currentUser.displayName) ? activeAuth.currentUser.displayName : null;
 };
