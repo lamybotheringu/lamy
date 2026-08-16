@@ -188,8 +188,8 @@ function setBackground(type){
             break;
         case "blackStars":
             bg.style.background = "#131313";
-            // Updated to use mobile-friendly SVG paths instead of text nodes
-            bg.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cpath d='M20,15 L23,22 L31,23 L25,28 L27,36 L20,31 L13,36 L15,28 L9,23 L17,22 Z' fill='white'/%3E%3Cpath d='M120,65 L122,70 L128,71 L124,74 L125,80 L120,77 L115,80 L116,74 L112,71 L118,70 Z' fill='white'/%3E%3Cpath d='M70,100 L74,110 L85,111 L77,118 L79,128 L70,123 L61,128 L63,118 L55,111 L66,110 Z' fill='white'/%3E%3C/svg%3E\")";
+            let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><text x='20' y='45' font-size='25' fill='white'>★</text><text x='120' y='90' font-size='15' fill='white'>★</text><text x='70' y='150' font-size='35' fill='white'>★</text></svg>";
+            bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(starSvg)}")`;
             bg.style.backgroundSize = "180px 180px";
             break;
         default:
@@ -304,11 +304,11 @@ function downloadOutfit(){
     scene.style.border = "none";
     scene.style.borderRadius = "0";
 
-    // Fix relative heart.svg path for mobile html2canvas rendering
+    // Make heart.svg mobile-safe by embedding it as an encoded Data URI in the clone
     let bgEl = scene.querySelector("#colorBackground");
     if (bgEl && bgEl.style.backgroundImage.includes("heart.svg")) {
-        let absUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + "heart.svg";
-        bgEl.style.backgroundImage = `url("${absUrl}")`;
+        let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
+        bgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
     }
 
     let targetWidth = base.naturalWidth || 600;
@@ -389,11 +389,11 @@ async function setAsProfileOutfit() {
         let tempScene = scene.cloneNode(true);
         tempScene.querySelector("#cameraBtn")?.remove();
 
-        // Fix relative heart.svg path for mobile html2canvas rendering
+        // Make heart.svg mobile-safe by embedding it as an encoded Data URI in the clone
         let tempBgEl = tempScene.querySelector("#colorBackground");
         if (tempBgEl && tempBgEl.style.backgroundImage.includes("heart.svg")) {
-            let absUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + "heart.svg";
-            tempBgEl.style.backgroundImage = `url("${absUrl}")`;
+            let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
+            tempBgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
         }
 
         tempScene.style.cssText = `position:absolute; top:0; left:0; opacity:1; z-index:99998; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
