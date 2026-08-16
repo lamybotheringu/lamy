@@ -2,9 +2,9 @@
 /* 🎀 تخصيص البروفايل - الثيم الريترو المعتمد 🎀 */
 /* ================================================= */
 
-/* 📌 معالجة انزياح الحاوية الرئيسية في وضع RTL */
 #profile-section {
-    display: block !important;
+    display: flex;
+    justify-content: center;
     width: 100%;
     padding: 20px 10px;
     box-sizing: border-box;
@@ -13,12 +13,10 @@
 
 .profile-layout {
     display: grid;
-    grid-template-columns: minmax(280px, 365px) 1fr;
+    grid-template-columns: 365px 1fr;
     gap: 20px;
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto !important; /* ضمان التوسط الحسابي في المنتصف تماماً */
-    box-sizing: border-box;
 }
 
 .profile-sidebar {
@@ -26,7 +24,6 @@
     flex-direction: column;
     gap: 15px;
     width: 100%;
-    box-sizing: border-box;
 }
 
 /* 📌 الصناديق الرئيسية (إشعاع نيون أعلى بدرجة واحدة ومضبوط بدقة) */
@@ -37,7 +34,6 @@
     padding: 20px;
     box-sizing: border-box;
     box-shadow: 0 0 12px rgba(255, 79, 216, 0.55), 3px 3px 0px #000000;
-    max-width: 100%;
 }
 
 /* 📌 مطابقة خط وتصميم العناوين */
@@ -136,8 +132,6 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    box-sizing: border-box;
-    width: 100%;
 }
 
 textarea {
@@ -174,7 +168,7 @@ textarea:focus {
     justify-content: center !important;
     align-items: center !important;
     overflow: hidden !important;
-    margin: 15px auto !important;
+    margin: 15px 0 !important;
     box-shadow: 0 0 12px rgba(255, 79, 216, 0.55), inset 3px 3px 0px #000000 !important;
     box-sizing: border-box !important;
     padding: 0 !important;
@@ -204,7 +198,6 @@ textarea:focus {
     margin-bottom: 12px;
     text-align: right;
     box-shadow: 2px 2px 0px #000;
-    box-sizing: border-box;
 }
 
 .post-item p { margin: 0; font-size: 14px; line-height: 1.5; }
@@ -406,7 +399,7 @@ textarea:focus {
     box-sizing: border-box;
 }
 
-/* حاوية الأزرار */
+/* حاوية الأزرار: في الجهة اليمنى وبمسافة 3px تماماً عن الخط السفلي */
 .edit-modal-content .modal-buttons,
 .edit-modal-content div:last-child {
     display: flex;
@@ -539,12 +532,6 @@ textarea:focus {
     box-shadow: none;
 }
 
-/* ==========================================
-   📱 الاستجابة للشاشات المتغيرة والصغيرة
-========================================== */
-
-@media (max-width: 850px) {
-    .profile-layout { 
-        grid-template-columns: 1fr; 
-    }
+@media (max-width: 768px) {
+    .profile-layout { grid-template-columns: 1fr; }
 }
