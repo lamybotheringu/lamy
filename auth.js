@@ -21,17 +21,19 @@ if (typeof window.auth === 'undefined') {
     }
 }
 
-// إضافة تنسيق CSS متجاوب لتصغير حجم اسم المستخدم على الجوال
-if (!document.getElementById('mobile-auth-style')) {
+// إضافة تنسيقات الاستجابة للجوال تلقائياً
+if (!document.getElementById('auth-responsive-style')) {
     const style = document.createElement('style');
-    style.id = 'mobile-auth-style';
+    style.id = 'auth-responsive-style';
     style.innerHTML = `
         @media (max-width: 768px) {
-            .mobile-username {
+            #auth-header .auth-container {
                 font-size: 14px !important;
             }
-            .mobile-auth-container {
-                font-size: 15px !important;
+            #auth-header .auth-logout-btn {
+                padding: 2px 8px !important;
+                font-size: 11px !important;
+                margin-top: 4px !important;
             }
         }
     `;
@@ -48,13 +50,13 @@ window.updateAuthUI = function() {
     if (user && authHeader) {
         const displayName = user.displayName || 'مستخدم'; 
         authHeader.innerHTML = `
-            <div class="mobile-auth-container" style="text-align: center; font-size: 19px;">
+            <div class="auth-container" style="text-align: center; font-size: 19px;">
                 <span style="color:white; font-weight:bold;">مرحباً </span>
-                <span class="mobile-username" style="color: #ff4fd8; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="openProfile('${user.uid}')">
+                <span style="color: #ff4fd8; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="openProfile('${user.uid}')">
                     ${displayName}
                 </span>
                 <br>
-                <button onclick="logoutUser()" style="margin-top: 8px; padding: 4px 12px; font-size: 13px; background-color: #2e0026; color: white; border: none; border-radius: 13px; cursor: pointer;">تسجيل خروج</button>
+                <button class="auth-logout-btn" onclick="logoutUser()" style="margin-top: 8px; padding: 4px 12px; font-size: 13px; background-color: #2e0026; color: white; border: none; border-radius: 13px; cursor: pointer;">تسجيل خروج</button>
             </div>
         `;
     }
