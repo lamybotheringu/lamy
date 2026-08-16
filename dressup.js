@@ -27,9 +27,8 @@ let backgrounds = [
 let outfitNumber = 1;
 let generatedDataUrl = "";
 
-// Skirt 3-State Toggle Tracking
 let currentSkirtSrc = null;
-let skirtState = 0; // 0 = unselected, 1 = over top, 2 = under top
+let skirtState = 0; 
 
 function startGame(){
     document.getElementById("start").style.display = "none";
@@ -49,7 +48,6 @@ function hidePieces(){
     skirtState = 0;
 }
 
-// Helper function to toggle items on/off
 function togglePiece(layerId, imagePath) {
     let outfit = document.getElementById("outfit");
     if (outfit) {
@@ -85,25 +83,11 @@ function changeOutfit(number){
     }
 }
 
-function changeTop(number){
-    togglePiece("top", "images/top" + number + ".png");
-}
-
-function changeJacket(number){
-    togglePiece("jacket", "images/jacket" + number + ".png");
-}
-
-function changeBottom(number){
-    togglePiece("bottom", "images/bottom" + number + ".png");
-}
-
-function changeShoes(number){
-    togglePiece("shoes", "images/shoe" + number + ".png");
-}
-
-function changeBag(number){
-    togglePiece("bag", "images/bag" + number + ".png");
-}
+function changeTop(number){ togglePiece("top", "images/top" + number + ".png"); }
+function changeJacket(number){ togglePiece("jacket", "images/jacket" + number + ".png"); }
+function changeBottom(number){ togglePiece("bottom", "images/bottom" + number + ".png"); }
+function changeShoes(number){ togglePiece("shoes", "images/shoe" + number + ".png"); }
+function changeBag(number){ togglePiece("bag", "images/bag" + number + ".png"); }
 
 function selectSkirt(skirtSrc){
     let outfit = document.getElementById("outfit");
@@ -146,67 +130,61 @@ function useRoom(){
     setBackground("background1");
 }
 
+// دالة جديدة وعبقرية لرسم الخلفيات المعقدة كصورة PNG مباشرة لتجنب أخطاء الموبايل
 function setBackground(type){
     let bg = document.getElementById("colorBackground");
     let room = document.getElementById("room");
-
     if (room) room.style.display = "none";
 
     bg.style.background = "";
     bg.style.backgroundImage = "none";
-    bg.removeAttribute("data-bg-type");
 
-    bg.setAttribute("data-bg-type", type);
+    if (type === "white") bg.style.backgroundColor = "white";
+    else if (type === "black") bg.style.backgroundColor = "black";
+    else if (type === "pink") bg.style.backgroundColor = "#ffd6e7";
+    else if (type === "blue") bg.style.backgroundColor = "#cde7ff";
+    else if (type === "green") bg.style.backgroundColor = "#d9f7d6";
+    else if (["blueDots", "greenLines", "pinkHearts", "blackStars"].includes(type)) {
+        // إنشاء لوحة رسم خفية وتحويلها لـ PNG فوراً 
+        let c = document.createElement("canvas");
+        let ctx = c.getContext("2d");
 
-    switch(type){
-        case "white":
-            bg.style.background = "white";
-            break;
-        case "black":
-            bg.style.background = "black";
-            break;
-        case "pink":
-            bg.style.background = "#ffd6e7";
-            break;
-        case "blue":
-            bg.style.background = "#cde7ff";
-            break;
-        case "green":
-            bg.style.background = "#d9f7d6";
-            break;
-        case "pinkHearts":
-            bg.style.background = "#ffd6e7";
-            bg.style.backgroundImage = "url('heart.svg')";
-            bg.style.backgroundSize = "50px 50px";
-            bg.style.backgroundRepeat = "repeat";
-            break;
-        case "blueDots":
-            bg.style.background = "#cde7ff";
-            let dotSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' viewBox='0 0 25 25'><circle cx='12.5' cy='12.5' r='3' fill='white'/></svg>";
-            bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(dotSvg)}")`;
-            bg.style.backgroundSize = "25px 25px";
-            bg.style.backgroundRepeat = "repeat";
-            break;
-        case "greenLines":
-            bg.style.background = "#d9f7d6";
-            bg.style.backgroundImage = "linear-gradient(45deg, transparent 45%, white 45%, white 55%, transparent 55%)";
-            bg.style.backgroundSize = "25px 25px";
-            break;
-        case "blackStars":
-            bg.style.background = "#131313";
-            let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><path d='M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z' fill='white'/><path d='M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z' fill='white'/><path d='M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z' fill='white'/></svg>";
-            bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(starSvg)}")`;
-            bg.style.backgroundSize = "180px 180px";
-            bg.style.backgroundRepeat = "repeat";
-            break;
-        default:
-            if (type.startsWith("background")) {
-                bg.style.backgroundImage = `url('images/${type}.png')`;
-                bg.style.backgroundSize = "cover";
-                bg.style.backgroundPosition = "center 75%"; 
-                bg.style.backgroundRepeat = "no-repeat";
-            }
-            break;
+        if (type === "blueDots") {
+            c.width = 25; c.height = 25;
+            ctx.fillStyle = "#cde7ff"; ctx.fillRect(0,0,25,25);
+            ctx.fillStyle = "white"; 
+            ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI*2); ctx.fill();
+        } 
+        else if (type === "greenLines") {
+            c.width = 25; c.height = 25;
+            ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0,0,25,25);
+            ctx.strokeStyle = "white"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(-5, 30); ctx.lineTo(30, -5); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(20, 30); ctx.lineTo(30, 20); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-5, 5); ctx.lineTo(5, -5); ctx.stroke();
+        } 
+        else if (type === "pinkHearts") {
+            c.width = 50; c.height = 50;
+            ctx.fillStyle = "#ffd6e7"; ctx.fillRect(0,0,50,50);
+            ctx.fillStyle = "white"; ctx.font = "24px Arial"; 
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText("❤", 25, 27);
+        } 
+        else if (type === "blackStars") {
+            c.width = 100; c.height = 100;
+            ctx.fillStyle = "#131313"; ctx.fillRect(0,0,100,100);
+            ctx.fillStyle = "white"; ctx.font = "20px Arial";
+            ctx.fillText("★", 20, 30); ctx.fillText("★", 70, 80);
+        }
+        // استخدام صورة الـ PNG الجاهزة (لا تسبب أي خطأ في التصوير)
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundRepeat = "repeat";
+    }
+    else if (type.startsWith("background")) {
+        bg.style.backgroundImage = `url('images/${type}.png')`;
+        bg.style.backgroundSize = "cover";
+        bg.style.backgroundPosition = "center 75%"; 
+        bg.style.backgroundRepeat = "no-repeat";
     }
 }
 
@@ -363,11 +341,12 @@ async function setAsProfileOutfit() {
 
     let box = document.createElement("div");
     box.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center;";
+    // تم تغيير لون شريط التحميل إلى الأبيض #ffffff
     box.innerHTML = `
         <div style="background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; text-align:center; color:#fff; font-family:monospace;">
             <div id="txt" style="margin-bottom:10px;">Loading...</div>
             <div style="width:180px; height:15px; border:1px solid #fff; padding:2px; margin:0 auto;">
-                <div id="bar" style="width:70%; height:100%; background:#ff4fd8; transition:width 0.3s;"></div>
+                <div id="bar" style="width:70%; height:100%; background:#ffffff; transition:width 0.3s;"></div>
             </div>
         </div>
     `;
