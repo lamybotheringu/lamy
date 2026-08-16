@@ -175,6 +175,7 @@ function setBackground(type){
             bg.style.background = "#ffd6e7";
             bg.style.backgroundImage = "url('heart.svg')";
             bg.style.backgroundSize = "50px 50px";
+            bg.style.backgroundRepeat = "repeat";
             break;
         case "blueDots":
             bg.style.background = "#cde7ff";
@@ -188,9 +189,10 @@ function setBackground(type){
             break;
         case "blackStars":
             bg.style.background = "#131313";
-            let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><path d='M20,18 L22,23 L27,24 L23,27 L24,32 L20,29 L16,32 L17,27 L13,24 L18,23 Z' fill='white'/><path d='M120,72 L121,75 L125,76 L122,78 L123,82 L120,80 L117,82 L118,78 L115,76 L119,75 Z' fill='white'/><path d='M70,115 L73,123 L81,124 L75,129 L77,137 L70,132 L63,137 L65,129 L59,124 L67,123 Z' fill='white'/></svg>";
+            let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><path d='M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z' fill='white'/><path d='M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z' fill='white'/><path d='M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z' fill='white'/></svg>";
             bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(starSvg)}")`;
             bg.style.backgroundSize = "180px 180px";
+            bg.style.backgroundRepeat = "repeat";
             break;
         default:
             if (type.startsWith("background")) {
@@ -304,13 +306,14 @@ function downloadOutfit(){
     scene.style.border = "none";
     scene.style.borderRadius = "0";
 
-    // Safe background handling for mobile html2canvas (Hearts, Stars & Gradients)
     let bgEl = scene.querySelector("#colorBackground");
     if (bgEl) {
         let bgImg = bgEl.style.backgroundImage;
-        if (bgImg.includes("heart.svg")) {
-            let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
+        if (bgImg.includes("heart.svg") || (bgEl.style.backgroundColor && bgEl.style.backgroundColor.includes("255, 214, 231"))) {
+            let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
             bgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
+            bgEl.style.backgroundSize = "50px 50px";
+            bgEl.style.backgroundRepeat = "repeat";
         } else if (bgImg.includes("gradient") || bgImg.includes("radial") || bgImg.includes("linear")) {
             let computedBg = window.getComputedStyle(bgEl).backgroundColor;
             bgEl.style.backgroundImage = "none";
@@ -384,7 +387,6 @@ async function setAsProfileOutfit() {
     let scene = document.querySelector(".scene"), base = document.getElementById("base");
     if (!scene || !base) return alert("⚠️ لم يتم العثور على المشهد!");
 
-    // 1. إظهار نافذة التحميل
     let box = document.createElement("div");
     box.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center;";
     box.innerHTML = `
@@ -398,7 +400,6 @@ async function setAsProfileOutfit() {
     document.body.appendChild(box);
 
     try {
-        // 2. التقاط الصورة
         document.getElementById("bar").style.width = "50%";
         let tempScene = scene.cloneNode(true);
         tempScene.querySelector("#cameraBtn")?.remove();
@@ -406,9 +407,11 @@ async function setAsProfileOutfit() {
         let tempBgEl = tempScene.querySelector("#colorBackground");
         if (tempBgEl) {
             let bgImg = tempBgEl.style.backgroundImage;
-            if (bgImg.includes("heart.svg")) {
-                let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
+            if (bgImg.includes("heart.svg") || (tempBgEl.style.backgroundColor && tempBgEl.style.backgroundColor.includes("255, 214, 231"))) {
+                let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
                 tempBgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
+                tempBgEl.style.backgroundSize = "50px 50px";
+                tempBgEl.style.backgroundRepeat = "repeat";
             } else if (bgImg.includes("gradient") || bgImg.includes("radial") || bgImg.includes("linear")) {
                 let computedBg = window.getComputedStyle(tempBgEl).backgroundColor;
                 tempBgEl.style.backgroundImage = "none";
@@ -428,12 +431,10 @@ async function setAsProfileOutfit() {
             timeoutPromise
         ]);
         
-        // 3. الحفظ في قاعدة البيانات
         document.getElementById("bar").style.width = "85%";
         await firebase.database().ref('users/' + user.uid).update({ profileImg: canvas.toDataURL("image/png") });
         tempScene.remove();
 
-        // 4. الإكتمال ورسالة النجاح
         document.getElementById("bar").style.width = "100%";
         document.getElementById("txt").innerText = "تم تعيين الصورة بنجاح";
         document.getElementById("txt").style.color = "#ff4fd8";
