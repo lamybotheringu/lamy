@@ -269,7 +269,7 @@ const assets = {
   player: Object.assign(new Image(), { src: 'minilamy.png' }),
   apple: Object.assign(new Image(), { src: 'apple.png' }),
   carrot: Object.assign(new Image(), { src: 'carrot.png' }),
-  heart: Object.assign(new Image(), { src: 'heart.svg' })
+  heart: Object.assign(new Image(), { src: 'basket-heart.svg' }) 
 };
 const isLoaded = img => img.complete && img.naturalWidth !== 0;
 
@@ -388,7 +388,8 @@ function updateUI() {
     }
   });
 
-  document.getElementById('hearts').innerHTML = Array.from({ length: lives }, () => '<img src="heart.svg" alt="heart">').join('');
+  // تم التحديث هنا لاستخدام basket-heart.svg
+  document.getElementById('hearts').innerHTML = Array.from({ length: lives }, () => '<img src="basket-heart.svg" alt="heart">').join('');
 }
 
 function takeDamage() {
