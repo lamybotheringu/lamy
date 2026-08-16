@@ -130,39 +130,83 @@ function useRoom(){
     setBackground("background1");
 }
 
-const bgColors = { white: "white", black: "black", pink: "#ffd6e7", blue: "#cde7ff", green: "#d9f7d6" };
+const bgColors = { 
+    white: "white", 
+    black: "black", 
+    pink: "#ffd6e7", 
+    blue: "#cde7ff", 
+    green: "#d9f7d6" 
+};
 
 const bgPatterns = {
     blueDots: () => {
-        let c = document.createElement("canvas"), ctx = (c.width = 25, c.height = 25, c.getContext("2d"));
-        ctx.fillStyle = "#cde7ff"; ctx.fillRect(0, 0, 25, 25);
-        ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI * 2); ctx.fill();
+        let c = document.createElement("canvas");
+        c.width = 25; 
+        c.height = 25;
+        let ctx = c.getContext("2d");
+        ctx.fillStyle = "#cde7ff"; 
+        ctx.fillRect(0, 0, 25, 25);
+        ctx.fillStyle = "white"; 
+        ctx.beginPath(); 
+        ctx.arc(12.5, 12.5, 3, 0, Math.PI * 2); 
+        ctx.fill();
         return { url: c.toDataURL(), size: "25px 25px" };
     },
     greenLines: () => {
-        let c = document.createElement("canvas"), ctx = (c.width = 25, c.height = 25, c.getContext("2d"));
-        ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0, 0, 25, 25);
+        let c = document.createElement("canvas");
+        c.width = 25; 
+        c.height = 25;
+        let ctx = c.getContext("2d");
+        ctx.fillStyle = "#d9f7d6"; 
+        ctx.fillRect(0, 0, 25, 25);
         let grad = ctx.createLinearGradient(0, 25, 25, 0);
-        grad.addColorStop(0, "rgba(255,255,255,0)"); grad.addColorStop(0.45, "rgba(255,255,255,0)");
-        grad.addColorStop(0.45, "white"); grad.addColorStop(0.55, "white");
-        grad.addColorStop(0.55, "rgba(255,255,255,0)"); grad.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, 25, 25);
+        grad.addColorStop(0, "rgba(255,255,255,0)");
+        grad.addColorStop(0.45, "rgba(255,255,255,0)");
+        grad.addColorStop(0.45, "white");
+        grad.addColorStop(0.55, "white");
+        grad.addColorStop(0.55, "rgba(255,255,255,0)");
+        grad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = grad; 
+        ctx.fillRect(0, 0, 25, 25);
         return { url: c.toDataURL(), size: "25px 25px" };
     },
     pinkHearts: () => {
-        let c = document.createElement("canvas"), ctx = (c.width = 60, c.height = 60, c.getContext("2d"));
-        ctx.fillStyle = "#ffd6e7"; ctx.fillRect(0, 0, 60, 60);
-        ctx.strokeStyle = "#ff75b5"; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
-        ctx.stroke(new Path2D("M30 34C30 34 19 25 19 18C19 14.5 22 12 25.5 14C27.5 15 30 18 30 18C30 18 32.5 15 34.5 14C38 12 41 14.5 41 18C41 25 30 34 30 34Z"));
-        return { url: c.toDataURL(), size: "60px 60px", color: "#ffd6e7" };
+        let c = document.createElement("canvas");
+        c.width = 50; 
+        c.height = 50;
+        let ctx = c.getContext("2d");
+        
+        ctx.fillStyle = "#ffd6e7"; 
+        ctx.fillRect(0, 0, 50, 50);
+        
+        ctx.strokeStyle = "#ff75b5"; 
+        ctx.lineWidth = 3.0; 
+        ctx.lineCap = "round"; 
+        ctx.lineJoin = "round";
+        
+        ctx.save();
+        ctx.translate(25, 25);
+        ctx.scale(0.75, 0.75);
+        ctx.translate(-30, -23);
+        
+        let heartPath = new Path2D("M30 34C30 34 19 25 19 18C19 14.5 22 12 25.5 14C27.5 15 30 18 30 18C30 18 32.5 15 34.5 14C38 12 41 14.5 41 18C41 25 30 34 30 34Z");
+        ctx.stroke(heartPath);
+        ctx.restore();
+
+        return { url: c.toDataURL(), size: "50px 50px", color: "#ffd6e7" };
     },
     blackStars: () => {
-        let c = document.createElement("canvas"), ctx = (c.width = 180, c.height = 180, c.getContext("2d"));
-        ctx.fillStyle = "#131313"; ctx.fillRect(0, 0, 180, 180);
+        let c = document.createElement("canvas");
+        c.width = 180; 
+        c.height = 180;
+        let ctx = c.getContext("2d");
+        ctx.fillStyle = "#131313"; 
+        ctx.fillRect(0, 0, 180, 180);
         ctx.fillStyle = "white";
         ctx.fill(new Path2D("M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"));
         ctx.fill(new Path2D("M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z"));
         ctx.fill(new Path2D("M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z"));
+        
         return { url: c.toDataURL(), size: "180px 180px", color: "#131313" };
     }
 };
@@ -344,7 +388,6 @@ async function setAsProfileOutfit() {
 
     let box = document.createElement("div");
     box.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center;";
-    // لون الشريط أبيض #ffffff بالكامل 
     box.innerHTML = `
         <div style="background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; text-align:center; color:#fff; font-family:monospace;">
             <div id="txt" style="margin-bottom:10px;">Loading...</div>
