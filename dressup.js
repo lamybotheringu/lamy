@@ -188,7 +188,8 @@ function setBackground(type){
             break;
         case "blackStars":
             bg.style.background = "#131313";
-            let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><text x='20' y='45' font-size='25' fill='white'>★</text><text x='120' y='90' font-size='15' fill='white'>★</text><text x='70' y='150' font-size='35' fill='white'>★</text></svg>";
+            // Converted to mobile-safe SVG vector paths instead of text nodes
+            let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><path d='M20,18 L22,23 L27,24 L23,27 L24,32 L20,29 L16,32 L17,27 L13,24 L18,23 Z' fill='white'/><path d='M120,72 L121,75 L125,76 L122,78 L123,82 L120,80 L117,82 L118,78 L115,76 L119,75 Z' fill='white'/><path d='M70,115 L73,123 L81,124 L75,129 L77,137 L70,132 L63,137 L65,129 L59,124 L67,123 Z' fill='white'/></svg>";
             bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(starSvg)}")`;
             bg.style.backgroundSize = "180px 180px";
             break;
