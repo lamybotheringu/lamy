@@ -13,7 +13,6 @@ let backgrounds = [
     "blue",
     "green",
     "pinkHearts",
-    "pngHearts",
     "blueDots",
     "greenLines",
     "blackStars",
@@ -87,23 +86,23 @@ function changeOutfit(number){
 }
 
 function changeTop(number){
-    togglePiece("top", "images/Top" + number + ".png");
+    togglePiece("top", "images/top" + number + ".png");
 }
 
 function changeJacket(number){
-    togglePiece("jacket", "images/Jacket" + number + ".png");
+    togglePiece("jacket", "images/jacket" + number + ".png");
 }
 
 function changeBottom(number){
-    togglePiece("bottom", "images/Bottom" + number + ".png");
+    togglePiece("bottom", "images/bottom" + number + ".png");
 }
 
 function changeShoes(number){
-    togglePiece("shoes", "images/Shoe" + number + ".png");
+    togglePiece("shoes", "images/shoe" + number + ".png");
 }
 
 function changeBag(number){
-    togglePiece("bag", "images/Bag" + number + ".png");
+    togglePiece("bag", "images/bag" + number + ".png");
 }
 
 function selectSkirt(skirtSrc){
@@ -177,14 +176,9 @@ function setBackground(type){
             bg.style.backgroundImage = "url('heart.svg')";
             bg.style.backgroundSize = "50px 50px";
             break;
-        case "pngHearts":
-            bg.style.background = "#ffd6e7";
-            bg.style.backgroundImage = "url('heart.png')";
-            bg.style.backgroundSize = "50px 50px";
-            break;
         case "blueDots":
             bg.style.background = "#cde7ff";
-            bg.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='25' height='25'%3E%3Ccircle cx='12.5' cy='12.5' r='3' fill='white'/%3E%3C/svg%3E\")";
+            bg.style.backgroundImage = "radial-gradient(white 3px, transparent 3px)";
             bg.style.backgroundSize = "25px 25px";
             break;
         case "greenLines":
@@ -225,7 +219,7 @@ function randomLook(){
             let randTop = Math.floor(Math.random() * topCount) + 1;
             let top = document.getElementById("top");
             if (top) {
-                top.src = "images/Top" + randTop + ".png";
+                top.src = "images/top" + randTop + ".png";
                 top.style.display = "block";
             }
         }
@@ -234,7 +228,7 @@ function randomLook(){
             let randJacket = Math.floor(Math.random() * jacketCount) + 1;
             let jacket = document.getElementById("jacket");
             if (jacket) {
-                jacket.src = "images/Jacket" + randJacket + ".png";
+                jacket.src = "images/jacket" + randJacket + ".png";
                 jacket.style.display = "block";
             }
         }
@@ -242,7 +236,7 @@ function randomLook(){
         let chooseSkirt = skirtCount > 0 && (bottomCount === 0 || Math.random() > 0.5);
         if (chooseSkirt) {
             let randSkirt = Math.floor(Math.random() * skirtCount) + 1;
-            let skirtSrc = "images/Skirt" + randSkirt + ".png";
+            let skirtSrc = "images/skirt" + randSkirt + ".png";
             let skirtImg = document.getElementById("skirt");
             if (skirtImg) {
                 currentSkirtSrc = skirtSrc;
@@ -255,7 +249,7 @@ function randomLook(){
             let randBottom = Math.floor(Math.random() * bottomCount) + 1;
             let bottom = document.getElementById("bottom");
             if (bottom) {
-                bottom.src = "images/Bottom" + randBottom + ".png";
+                bottom.src = "images/bottom" + randBottom + ".png";
                 bottom.style.display = "block";
             }
         }
@@ -264,7 +258,7 @@ function randomLook(){
             let randShoe = Math.floor(Math.random() * shoeCount) + 1;
             let shoes = document.getElementById("shoes");
             if (shoes) {
-                shoes.src = "images/Shoe" + randShoe + ".png";
+                shoes.src = "images/shoe" + randShoe + ".png";
                 shoes.style.display = "block";
             }
         }
@@ -273,7 +267,7 @@ function randomLook(){
             let randBag = Math.floor(Math.random() * bagCount) + 1;
             let bag = document.getElementById("bag");
             if (bag) {
-                bag.src = "images/Bag" + randBag + ".png";
+                bag.src = "images/bag" + randBag + ".png";
                 bag.style.display = "block";
             }
         }
@@ -300,25 +294,20 @@ function drawContain(ctx, img, w, h){
     ctx.drawImage(img, x, y, width, height);
 }
 
-// Direct capture in-place without cloning or extra canvas creation
 async function downloadOutfit(){
-    const scene = document.querySelector(".scene");
-    const btn = document.getElementById("cameraBtn");
-    
-    if (btn) btn.style.visibility = "hidden";
+    let scene = document.querySelector(".scene");
+    let cameraBtn = document.getElementById("cameraBtn");
+
+    if (cameraBtn) cameraBtn.style.visibility = "hidden";
 
     try {
-        const canvas = await html2canvas(scene, {
-            useCORS: true,
-            logging: false,
-            scale: 2
-        });
+        let canvas = await html2canvas(scene, { useCORS: true, allowTaint: true, scale: 2 });
         generatedDataUrl = canvas.toDataURL("image/png");
         document.getElementById("saveModal").style.display = "flex";
     } catch (err) {
-        alert("❌ حدث خطأ أثناء الحفظ!");
+        alert("❌ حدث خطأ أثناء إعداد الصورة!");
     } finally {
-        if (btn) btn.style.visibility = "visible";
+        if (cameraBtn) cameraBtn.style.visibility = "visible";
     }
 }
 
@@ -329,12 +318,23 @@ function closeSaveModal() {
 function downloadOutfitFile() {
     if (!generatedDataUrl) return;
 
-    let link = document.createElement("a");
-    link.download = "LamyOutfit" + outfitNumber + ".png";
-    link.href = generatedDataUrl;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (isIOS) {
+        const newTab = window.open();
+        if (newTab) {
+            newTab.document.write(`<img src="${generatedDataUrl}" style="width:100%; height:auto;" />`);
+        } else {
+            window.location.href = generatedDataUrl;
+        }
+    } else {
+        let link = document.createElement("a");
+        link.download = "LamyOutfit" + outfitNumber + ".png";
+        link.href = generatedDataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 
     outfitNumber++;
     closeSaveModal();
@@ -347,6 +347,7 @@ async function setAsProfileOutfit() {
     let scene = document.querySelector(".scene");
     if (!scene) return alert("⚠️ لم يتم العثور على المشهد!");
 
+    // 1. إظهار نافذة التحميل
     let box = document.createElement("div");
     box.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; z-index:9999; text-align:center; color:#fff; font-family:monospace;";
     box.innerHTML = `
@@ -357,20 +358,19 @@ async function setAsProfileOutfit() {
     `;
     document.body.appendChild(box);
 
-    const btn = document.getElementById("cameraBtn");
-    if (btn) btn.style.visibility = "hidden";
+    let cameraBtn = document.getElementById("cameraBtn");
+    if (cameraBtn) cameraBtn.style.visibility = "hidden";
 
     try {
+        // 2. التقاط الصورة
         document.getElementById("bar").style.width = "50%";
-        const canvas = await html2canvas(scene, {
-            useCORS: true,
-            logging: false,
-            scale: 2
-        });
-
+        const canvas = await html2canvas(scene, { useCORS: true, allowTaint: true, scale: 2 });
+        
+        // 3. الحفظ في قاعدة البيانات
         document.getElementById("bar").style.width = "85%";
         await firebase.database().ref('users/' + user.uid).update({ profileImg: canvas.toDataURL("image/png") });
 
+        // 4. الإكتمال ورسالة النجاح
         document.getElementById("bar").style.width = "100%";
         document.getElementById("txt").innerText = "تم تعيين الصورة بنجاح";
         document.getElementById("txt").style.color = "#ff4fd8";
@@ -384,7 +384,7 @@ async function setAsProfileOutfit() {
         box.remove();
         alert("❌ حدث خطأ أثناء الحفظ!");
     } finally {
-        if (btn) btn.style.visibility = "visible";
+        if (cameraBtn) cameraBtn.style.visibility = "visible";
     }
 }
 
@@ -399,7 +399,7 @@ window.addEventListener("DOMContentLoaded", () => {
             let imagePath = "images/" + type + i + ".png";
             img.src = imagePath;
 
-            if (type === "Skirt") {
+            if (type === "skirt") {
                 img.onclick = () => selectSkirt(imagePath);
             } else {
                 img.onclick = () => changeFunction(i);
@@ -410,10 +410,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     createItems("outfits", outfitCount, "outfit", changeOutfit);
-    createItems("tops", topCount, "Top", changeTop);
-    createItems("jackets", jacketCount, "Jacket", changeJacket);
-    createItems("skirts", skirtCount, "Skirt", null);
-    createItems("bottoms", bottomCount, "Bottom", changeBottom);
-    createItems("shoesPanel", shoeCount, "Shoe", changeShoes);
-    createItems("bags", bagCount, "Bag", changeBag);
+    createItems("tops", topCount, "top", changeTop);
+    createItems("jackets", jacketCount, "jacket", changeJacket);
+    createItems("skirts", skirtCount, "skirt", null);
+    createItems("bottoms", bottomCount, "bottom", changeBottom);
+    createItems("shoesPanel", shoeCount, "shoe", changeShoes);
+    createItems("bags", bagCount, "bag", changeBag);
 });
