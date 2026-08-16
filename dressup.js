@@ -130,7 +130,44 @@ function useRoom(){
     setBackground("background1");
 }
 
-function setBackground(type){
+const bgColors = { white: "white", black: "black", pink: "#ffd6e7", blue: "#cde7ff", green: "#d9f7d6" };
+
+const bgPatterns = {
+    blueDots: () => {
+        let c = document.createElement("canvas"), ctx = (c.width = 25, c.height = 25, c.getContext("2d"));
+        ctx.fillStyle = "#cde7ff"; ctx.fillRect(0, 0, 25, 25);
+        ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI * 2); ctx.fill();
+        return { url: c.toDataURL(), size: "25px 25px" };
+    },
+    greenLines: () => {
+        let c = document.createElement("canvas"), ctx = (c.width = 25, c.height = 25, c.getContext("2d"));
+        ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0, 0, 25, 25);
+        let grad = ctx.createLinearGradient(0, 25, 25, 0);
+        grad.addColorStop(0, "rgba(255,255,255,0)"); grad.addColorStop(0.45, "rgba(255,255,255,0)");
+        grad.addColorStop(0.45, "white"); grad.addColorStop(0.55, "white");
+        grad.addColorStop(0.55, "rgba(255,255,255,0)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, 25, 25);
+        return { url: c.toDataURL(), size: "25px 25px" };
+    },
+    pinkHearts: () => {
+        let c = document.createElement("canvas"), ctx = (c.width = 60, c.height = 60, c.getContext("2d"));
+        ctx.fillStyle = "#ffd6e7"; ctx.fillRect(0, 0, 60, 60);
+        ctx.strokeStyle = "#ff75b5"; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+        ctx.stroke(new Path2D("M30 34C30 34 19 25 19 18C19 14.5 22 12 25.5 14C27.5 15 30 18 30 18C30 18 32.5 15 34.5 14C38 12 41 14.5 41 18C41 25 30 34 30 34Z"));
+        return { url: c.toDataURL(), size: "60px 60px", color: "#ffd6e7" };
+    },
+    blackStars: () => {
+        let c = document.createElement("canvas"), ctx = (c.width = 180, c.height = 180, c.getContext("2d"));
+        ctx.fillStyle = "#131313"; ctx.fillRect(0, 0, 180, 180);
+        ctx.fillStyle = "white";
+        ctx.fill(new Path2D("M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"));
+        ctx.fill(new Path2D("M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z"));
+        ctx.fill(new Path2D("M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z"));
+        return { url: c.toDataURL(), size: "180px 180px", color: "#131313" };
+    }
+};
+
+function setBackground(type) {
     let bg = document.getElementById("colorBackground");
     let room = document.getElementById("room");
     if (room) room.style.display = "none";
@@ -138,81 +175,18 @@ function setBackground(type){
     bg.style.background = "";
     bg.style.backgroundImage = "none";
 
-    if (type === "white") bg.style.backgroundColor = "white";
-    else if (type === "black") bg.style.backgroundColor = "black";
-    else if (type === "pink") bg.style.backgroundColor = "#ffd6e7";
-    else if (type === "blue") bg.style.backgroundColor = "#cde7ff";
-    else if (type === "green") bg.style.backgroundColor = "#d9f7d6";
-    else if (type === "blueDots") {
-        let c = document.createElement("canvas");
-        c.width = 25; c.height = 25;
-        let ctx = c.getContext("2d");
-        ctx.fillStyle = "#cde7ff"; ctx.fillRect(0,0,25,25);
-        ctx.fillStyle = "white"; 
-        ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI*2); ctx.fill();
-        
-        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
-        bg.style.backgroundSize = "25px 25px";
+    if (bgColors[type]) {
+        bg.style.backgroundColor = bgColors[type];
+    } else if (bgPatterns[type]) {
+        let p = bgPatterns[type]();
+        if (p.color) bg.style.backgroundColor = p.color;
+        bg.style.backgroundImage = `url(${p.url})`;
+        bg.style.backgroundSize = p.size;
         bg.style.backgroundRepeat = "repeat";
-    } 
-    else if (type === "greenLines") {
-        let c = document.createElement("canvas");
-        c.width = 25; c.height = 25;
-        let ctx = c.getContext("2d");
-        ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0,0,25,25);
-        let grad = ctx.createLinearGradient(0, 25, 25, 0);
-        grad.addColorStop(0, "rgba(255,255,255,0)");
-        grad.addColorStop(0.45, "rgba(255,255,255,0)");
-        grad.addColorStop(0.45, "white");
-        grad.addColorStop(0.55, "white");
-        grad.addColorStop(0.55, "rgba(255,255,255,0)");
-        grad.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0,0,25,25);
-        
-        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
-        bg.style.backgroundSize = "25px 25px";
-        bg.style.backgroundRepeat = "repeat";
-    } 
-    else if (type === "pinkHearts") {
-        // 1. عرض الـ SVG الأصلي الخاص بك فوراً على الشاشة
-        bg.style.backgroundColor = "#ffd6e7";
-        bg.style.backgroundImage = "url('heart.svg')";
-        bg.style.backgroundSize = "50px 50px";
-        bg.style.backgroundRepeat = "repeat";
-
-        // 2. تحويله إلى PNG في الخلفية لمنع توقف الكاميرا عن العمل
-        let img = new Image();
-        img.onload = () => {
-            let c = document.createElement("canvas");
-            c.width = 50; c.height = 50;
-            let ctx = c.getContext("2d");
-            ctx.fillStyle = "#ffd6e7"; ctx.fillRect(0,0,50,50);
-            ctx.drawImage(img, 0, 0, 50, 50);
-            bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
-        };
-        img.src = "heart.svg";
-    }
-    else if (type === "blackStars") {
-        // رسم النجوم باستخدام نفس المسارات (paths) الأصلية الخاصة بك بالضبط
-        let c = document.createElement("canvas");
-        c.width = 180; c.height = 180;
-        let ctx = c.getContext("2d");
-        ctx.fillStyle = "#131313"; ctx.fillRect(0,0,180,180);
-        ctx.fillStyle = "white";
-        ctx.fill(new Path2D("M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"));
-        ctx.fill(new Path2D("M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z"));
-        ctx.fill(new Path2D("M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z"));
-        
-        bg.style.backgroundColor = "#131313";
-        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
-        bg.style.backgroundSize = "180px 180px";
-        bg.style.backgroundRepeat = "repeat";
-    }
-    else if (type.startsWith("background")) {
+    } else if (type.startsWith("background")) {
         bg.style.backgroundImage = `url('images/${type}.png')`;
         bg.style.backgroundSize = "cover";
-        bg.style.backgroundPosition = "center 75%"; 
+        bg.style.backgroundPosition = "center 75%";
         bg.style.backgroundRepeat = "no-repeat";
     }
 }
