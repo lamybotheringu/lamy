@@ -235,7 +235,7 @@
       color: var(--text-white);
     }
 
-    /* 🔒 نافذة التنبيه في الأعلى (منزلة 50 بكسل إضافية) بتصميم بكسل أصغر */
+    /* 🔒 نافذة التنبيه في الأعلى بتصميم بكسل */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -383,7 +383,6 @@
           const data = snapshot.val() || {};
           memoryWins = data.memoryWins || 0;
           
-          // جلب نقاط مستوى السهولة الافتراضي (easy) مباشرة عند التحميل
           database.ref("leaderboards/memory/" + memoryMode + "/" + user.uid)
             .once("value")
             .then((scoreSnapshot) => {
@@ -501,27 +500,31 @@
       }
     }
 
-    function startMemoryGame() {
-      const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
-      let emojis = memoryEmojis.slice(0, count);
-      const pairs = [...emojis, ...emojis];
-      memoryBoardState = pairs.sort(() => Math.random() - 0.5);
-      memoryFlipped = []; 
-      memoryMatched = []; 
-      memoryLocked = false;
-      botKnownCards = {};
-      
-      const retryEl = document.getElementById("memoryRetry");
-      if (retryEl) retryEl.classList.add("hidden");
+function startMemoryGame() {
+  const count = memoryMode === "easy" ? 4 : (memoryMode === "medium" ? 6 : 10);
+  let emojis = memoryEmojis.slice(0, count);
+  const pairs = [...emojis, ...emojis];
+  memoryBoardState = pairs.sort(() => Math.random() - 0.5);
+  memoryFlipped = []; 
+  memoryMatched = []; 
+  memoryLocked = false;
+  botKnownCards = {};
+  
+  // 1. إخفاء زر إعادة اللعب
+  const retryEl = document.getElementById("memoryRetry");
+  if (retryEl) retryEl.classList.add("hidden");
 
-      if (activeMemoryMode === "bot") {
-        botTurn = false;
-        botScores = { human: 0, bot: 0 };
-        updateMemoryStatus(`🟢 دورك أنت! (أنت: 0 | البوت: 0)`);
-      }
+  // 2. تفريغ أو تحديث رسالة الحالة فوراً
+  if (activeMemoryMode === "bot") {
+    botTurn = false;
+    botScores = { human: 0, bot: 0 };
+    updateMemoryStatus(`🟢 دورك أنت! (أنت: 0 | البوت: 0)`);
+  } else if (activeMemoryMode === "solo") {
+    updateMemoryStatus(""); // 👈 مسح كلمة "كفو انتهيت اللعبة بنجاح" عند اللعب مجدداً
+  }
 
-      renderMemoryBoard();
-    }
+  renderMemoryBoard();
+}
 
     function renderMemoryBoard() {
       const boardEl = document.getElementById("memoryBoard");
@@ -940,45 +943,74 @@
       database.ref('users/' + user.uid + '/memoryWins').set(memoryWins);
     }
 
-    function updateMemoryLeaderboardView() {
-      const view = document.getElementById("memoryOnlineLeaderboardView");
-      if (!view) return;
+    function checkMemoryLeaderboardEligibility() {
+      const user = auth.currentUser;
+      if (!user || user.isAnonymous) return;
 
-      view.innerHTML = "<div style='color:#aaa; text-align:center;'>⏳ جاري التحميل...</div>";
-
-      database.ref("leaderboards/memory/" + memoryMode)
-        .once("value")
-        .then((snapshot) => {
-            let scores = [];
-            if (snapshot.exists()) {
-                snapshot.forEach(child => {
-                    if (child.val() && child.val().name) {
-                        scores.push(child.val());
-                    }
-                });
-            }
-
-            scores.sort((a, b) => (b.score || 0) - (a.score || 0));
-
-            let top5 = scores.slice(0, 5);
-            let currentUid = auth.currentUser ? auth.currentUser.uid : null;
-
-            view.innerHTML = top5.length > 0 ? top5.map((u, i) => {
-                let isMe = (currentUid && u.uid === currentUid);
-                let style = isMe 
-                    ? `color: #FFD700; font-weight: bold; text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);` 
-                    : `color: #fff;`;
-                
-                return `<div style="${style} margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.score || 0} فوز)</div>`;
-            }).join("") : "لا توجد نتائج مسجلة في هذا المستوى بعد.";
-        })
-        .catch((err) => {
-            console.error(err);
-            view.innerHTML = "<div style='color:#ff4d4d;'>تعذر تحميل النتائج</div>";
+      const userRef = database.ref("leaderboards/memory/" + memoryMode + "/" + user.uid);
+      userRef.once("value").then((snapshot) => {
+        let currentScore = 0;
+        if (snapshot.exists() && snapshot.val().score) {
+          currentScore = snapshot.val().score;
+        }
+        const newScore = currentScore + 1;
+        const name = user.displayName || "لاعب";
+        
+        userRef.set({
+          name: name,
+          score: newScore,
+          uid: user.uid,
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+          updateMemoryLeaderboardView();
+          const winsEl = document.getElementById("memoryWins");
+          if (winsEl) winsEl.textContent = "Wins: " + newScore;
         });
+      }).catch(err => console.error(err));
     }
 
-    // دالة لإرسال الارتفاع الحالي للصفحة الرئيسية
+function updateMemoryLeaderboardView(isModeSwitch = false) {
+  const view = document.getElementById("memoryOnlineLeaderboardView");
+  if (!view || !database) return;
+
+  // يظهر "جاري التحميل" فقط عند تغيير المستوى أو إذا كانت القائمة فارغة تماماً
+  if (isModeSwitch || !view.children.length) {
+    view.innerHTML = "<div style='color:#aaa; text-align:center;'>⏳ جاري التحميل...</div>";
+  }
+
+  database.ref("leaderboards/memory/" + memoryMode)
+    .orderByChild("score")
+    .limitToLast(5)
+    .once("value")
+    .then((snapshot) => {
+        let scores = [];
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                if (child.val() && child.val().name) {
+                    scores.push(child.val());
+                }
+            });
+        }
+
+        scores.reverse();
+        let currentUid = (auth && auth.currentUser) ? auth.currentUser.uid : null;
+
+        view.innerHTML = scores.length > 0 ? scores.map((u, i) => {
+            let isMe = (currentUid && u.uid === currentUid);
+            let style = isMe 
+                ? `color: #FFD700; font-weight: bold; text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);` 
+                : `color: #fff;`;
+            
+            return `<div style="${style} margin-bottom: 5px;">${i + 1}. <b>${u.name}</b> (${u.score || 0} فوز)</div>`;
+        }).join("") : "لا توجد نتائج مسجلة في هذا المستوى بعد.";
+    })
+    .catch((err) => {
+        console.error(err);
+        if (view) view.innerHTML = "حدث خطأ أثناء جلب النتائج.";
+    });
+}
+
+        // دالة لإرسال الارتفاع الحالي للصفحة الرئيسية
     function updateParentHeight() {
       const height = document.body.scrollHeight;
       window.parent.postMessage({ gameHeight: height }, '*');
@@ -992,6 +1024,9 @@
 
     // تحديث الارتفاع أيضاً عند تحميل الصفحة بالكامل
     window.addEventListener('load', updateParentHeight);
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
