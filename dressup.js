@@ -294,21 +294,30 @@ function drawContain(ctx, img, w, h){
     ctx.drawImage(img, x, y, width, height);
 }
 
-async function downloadOutfit(){
-    let scene = document.querySelector(".scene");
-    let cameraBtn = document.getElementById("cameraBtn");
+function downloadOutfit(){
+    let scene = document.querySelector(".scene").cloneNode(true);
+    let base = document.getElementById("base");
 
-    if (cameraBtn) cameraBtn.style.visibility = "hidden";
+    let btn = scene.querySelector("#cameraBtn");
+    if(btn) btn.remove();
+    scene.style.border = "none";
+    scene.style.borderRadius = "0";
 
-    try {
-        let canvas = await html2canvas(scene, { useCORS: true, allowTaint: true, scale: 2 });
+    let targetWidth = base.naturalWidth || 600;
+    let targetHeight = base.naturalHeight || 600;
+
+    scene.style.width = targetWidth + "px";
+    scene.style.height = targetHeight + "px";
+    scene.style.position = "absolute";
+    scene.style.left = "-9999px";
+
+    document.body.appendChild(scene);
+
+    html2canvas(scene, { useCORS: true }).then(canvas => {
         generatedDataUrl = canvas.toDataURL("image/png");
+        scene.remove();
         document.getElementById("saveModal").style.display = "flex";
-    } catch (err) {
-        alert("❌ حدث خطأ أثناء إعداد الصورة!");
-    } finally {
-        if (cameraBtn) cameraBtn.style.visibility = "visible";
-    }
+    });
 }
 
 function closeSaveModal() {
@@ -338,6 +347,23 @@ function downloadOutfitFile() {
 
     outfitNumber++;
     closeSaveModal();
+}
+
+async function downloadOutfit(){
+    let scene = document.querySelector(".scene");
+    let cameraBtn = document.getElementById("cameraBtn");
+
+    if (cameraBtn) cameraBtn.style.visibility = "hidden";
+
+    try {
+        let canvas = await html2canvas(scene, { useCORS: true, allowTaint: true, scale: 2 });
+        generatedDataUrl = canvas.toDataURL("image/png");
+        document.getElementById("saveModal").style.display = "flex";
+    } catch (err) {
+        alert("❌ حدث خطأ أثناء إعداد الصورة!");
+    } finally {
+        if (cameraBtn) cameraBtn.style.visibility = "visible";
+    }
 }
 
 async function setAsProfileOutfit() {
