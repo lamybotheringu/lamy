@@ -21,6 +21,23 @@ if (typeof window.auth === 'undefined') {
     }
 }
 
+// إضافة تنسيق CSS متجاوب لتصغير حجم اسم المستخدم على الجوال
+if (!document.getElementById('mobile-auth-style')) {
+    const style = document.createElement('style');
+    style.id = 'mobile-auth-style';
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            .mobile-username {
+                font-size: 14px !important;
+            }
+            .mobile-auth-container {
+                font-size: 15px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // 1. تحديث واجهة المستخدم لعرض اسم المستخدم الحقيقي
 window.updateAuthUI = function() {
     const authHeader = document.getElementById("auth-header");
@@ -31,9 +48,9 @@ window.updateAuthUI = function() {
     if (user && authHeader) {
         const displayName = user.displayName || 'مستخدم'; 
         authHeader.innerHTML = `
-            <div style="text-align: center; font-size: 19px;">
+            <div class="mobile-auth-container" style="text-align: center; font-size: 19px;">
                 <span style="color:white; font-weight:bold;">مرحباً </span>
-                <span style="color: #ff4fd8; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="openProfile('${user.uid}')">
+                <span class="mobile-username" style="color: #ff4fd8; font-weight: bold; cursor: pointer; text-decoration: underline;" onclick="openProfile('${user.uid}')">
                     ${displayName}
                 </span>
                 <br>
