@@ -287,77 +287,52 @@ function randomLook(){
     }
 }
 
-function drawContain(ctx, img, w, h){
-    let ratio = Math.min(w / img.naturalWidth, h / img.naturalHeight);
-    let width = img.naturalWidth * ratio;
-    let height = img.naturalHeight * ratio;
-    let x = (w - width) / 2;
-    let y = (h - height) / 2;
+// دالة الالتقاط البسيطة والسريعة بدون تعقيد الخلفيات
+function captureOutfitScene(callback) {
+    let scene = document.querySelector(".scene");
+    if (!scene) return;
 
-    ctx.drawImage(img, x, y, width, height);
+    // استنساخ المشهد للتصوير بدون التأثير على الصفحة الأصلية
+    let clone = scene.cloneNode(true);
+    let btn = clone.querySelector("#cameraBtn");
+    if(btn) btn.remove();
+
+    let base = document.getElementById("base");
+    let targetWidth = base ? base.naturalWidth || 600 : 600;
+    let targetHeight = base ? base.naturalHeight || 600 : 600;
+
+    clone.style.cssText = `position: absolute; top: -9999px; left: -9999px; width: ${targetWidth}px; height: ${targetHeight}px; border: none; border-radius: 0; opacity: 1; z-index: -999;`;
+    document.body.appendChild(clone);
+
+    // استخدام html2canvas بإعدادات سريعة وآمنة للموبايل
+    html2canvas(clone, {
+        useCORS: true,
+        allowTaint: true,
+        scale: 1,
+        logging: false
+    }).then(canvas => {
+        clone.remove();
+        callback(canvas);
+    }).catch(err => {
+        clone.remove();
+        console.error(err);
+        alert("⚠️ حدث خطأ أثناء التقاط الصورة، يرجى المحاولة مرة أخرى.");
+    });
 }
 
 function downloadOutfit(){
-    let scene = document.querySelector(".scene").cloneNode(true);
-    let base = document.getElementById("base");
-
-    let btn = scene.querySelector("#cameraBtn");
-    if(btn) btn.remove();
-    scene.style.border = "none";
-    scene.style.borderRadius = "0";
-
-    let bgEl = scene.querySelector("#colorBackground");
-    if (bgEl) {
-        let bgImg = bgEl.style.backgroundImage;
-        if (bgImg.includes("heart.svg") || (bgEl.style.backgroundColor && bgEl.style.backgroundColor.includes("255, 214, 231"))) {
-            let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
-            bgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
-            bgEl.style.backgroundSize = "50px 50px";
-            bgEl.style.backgroundRepeat = "repeat";
-        } else if (bgImg.includes("gradient") || bgImg.includes("radial") || bgImg.includes("linear")) {
-            let computedBg = window.getComputedStyle(bgEl).backgroundColor;
-            bgEl.style.backgroundImage = "none";
-            bgEl.style.backgroundColor = computedBg || "#ffffff";
-        }
-    }
-
-    let targetWidth = base.naturalWidth || 600;
-    let targetHeight = base.naturalHeight || 600;
-
-    scene.style.width = targetWidth + "px";
-    scene.style.height = targetHeight + "px";
-    scene.style.position = "absolute";
-    scene.style.top = "0";
-    scene.style.left = "0";
-    scene.style.opacity = "1";
-    scene.style.zIndex = "99998";
-
     let overlay = document.createElement("div");
-    overlay.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0d0d0d; z-index:999999; display:flex; justify-content:center; align-items:center; color:#fff; font-family:monospace;";
+    overlay.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:999999; display:flex; justify-content:center; align-items:center; color:#fff; font-family:monospace;";
     overlay.innerText = "Generating...";
     document.body.appendChild(overlay);
-    document.body.appendChild(scene);
 
-    const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Timeout")), 10000)
-    );
-
-    Promise.race([
-        html2canvas(scene, { useCORS: true, scale: 1 }),
-        timeoutPromise
-    ]).then(canvas => {
-        scene.remove();
+    captureOutfitScene(canvas => {
         overlay.remove();
         canvas.toBlob(blob => {
             if (!blob) return;
             generatedDataUrl = URL.createObjectURL(blob);
             document.getElementById("saveModal").style.display = "flex";
         }, "image/png");
-    }).catch(err => {
-        scene.remove();
-        overlay.remove();
-        console.error(err);
-        alert("⚠️ حدث خطأ أو استغرق التقاط الصورة وقتاً طويلاً!");
     });
 }
 
@@ -384,71 +359,38 @@ async function setAsProfileOutfit() {
     let user = firebase.auth()?.currentUser;
     if (!user) return alert("⚠️ يرجى تسجيل الدخول أولاً!");
 
-    let scene = document.querySelector(".scene"), base = document.getElementById("base");
-    if (!scene || !base) return alert("⚠️ لم يتم العثور على المشهد!");
-
     let box = document.createElement("div");
     box.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center;";
     box.innerHTML = `
         <div style="background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; text-align:center; color:#fff; font-family:monospace;">
             <div id="txt" style="margin-bottom:10px;">Loading...</div>
             <div style="width:180px; height:15px; border:1px solid #fff; padding:2px; margin:0 auto;">
-                <div id="bar" style="width:10%; height:100%; background:#fff; transition:width 0.3s;"></div>
+                <div id="bar" style="width:30%; height:100%; background:#ff4fd8; transition:width 0.3s;"></div>
             </div>
         </div>
     `;
     document.body.appendChild(box);
 
-    try {
-        document.getElementById("bar").style.width = "50%";
-        let tempScene = scene.cloneNode(true);
-        tempScene.querySelector("#cameraBtn")?.remove();
+    captureOutfitScene(async canvas => {
+        try {
+            document.getElementById("bar").style.width = "70%";
+            let dataUrl = canvas.toDataURL("image/png");
+            
+            await firebase.database().ref('users/' + user.uid).update({ profileImg: dataUrl });
 
-        let tempBgEl = tempScene.querySelector("#colorBackground");
-        if (tempBgEl) {
-            let bgImg = tempBgEl.style.backgroundImage;
-            if (bgImg.includes("heart.svg") || (tempBgEl.style.backgroundColor && tempBgEl.style.backgroundColor.includes("255, 214, 231"))) {
-                let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
-                tempBgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
-                tempBgEl.style.backgroundSize = "50px 50px";
-                tempBgEl.style.backgroundRepeat = "repeat";
-            } else if (bgImg.includes("gradient") || bgImg.includes("radial") || bgImg.includes("linear")) {
-                let computedBg = window.getComputedStyle(tempBgEl).backgroundColor;
-                tempBgEl.style.backgroundImage = "none";
-                tempBgEl.style.backgroundColor = computedBg || "#ffffff";
-            }
-        }
+            document.getElementById("bar").style.width = "100%";
+            document.getElementById("txt").innerText = "تم تعيين الصورة بنجاح!";
 
-        tempScene.style.cssText = `position:absolute; top:0; left:0; opacity:1; z-index:99998; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
-        document.body.appendChild(tempScene);
-
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Timeout")), 10000)
-        );
-
-        const canvas = await Promise.race([
-            html2canvas(tempScene, { useCORS: true, scale: 1 }),
-            timeoutPromise
-        ]);
-        
-        document.getElementById("bar").style.width = "85%";
-        await firebase.database().ref('users/' + user.uid).update({ profileImg: canvas.toDataURL("image/png") });
-        tempScene.remove();
-
-        document.getElementById("bar").style.width = "100%";
-        document.getElementById("txt").innerText = "تم تعيين الصورة بنجاح";
-        document.getElementById("txt").style.color = "#ff4fd8";
-
-        setTimeout(() => {
+            setTimeout(() => {
+                box.remove();
+                closeSaveModal();
+            }, 1000);
+        } catch (err) {
             box.remove();
-            if (typeof closeSaveModal === 'function') closeSaveModal();
-        }, 1200);
-
-    } catch (err) {
-        box.remove();
-        console.error(err);
-        alert("⚠️ حدث خطأ أو استغرق الحفظ وقتاً طويلاً!");
-    }
+            console.error(err);
+            alert("⚠️ حدث خطأ أثناء الحفظ في قاعدة البيانات!");
+        }
+    });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
