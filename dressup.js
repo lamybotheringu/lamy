@@ -154,6 +154,9 @@ function setBackground(type){
 
     bg.style.background = "";
     bg.style.backgroundImage = "none";
+    bg.removeAttribute("data-bg-type");
+
+    bg.setAttribute("data-bg-type", type);
 
     switch(type){
         case "white":
@@ -179,8 +182,10 @@ function setBackground(type){
             break;
         case "blueDots":
             bg.style.background = "#cde7ff";
-            bg.style.backgroundImage = "radial-gradient(white 3px, transparent 3px)";
+            let dotSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' viewBox='0 0 25 25'><circle cx='12.5' cy='12.5' r='3' fill='white'/></svg>";
+            bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(dotSvg)}")`;
             bg.style.backgroundSize = "25px 25px";
+            bg.style.backgroundRepeat = "repeat";
             break;
         case "greenLines":
             bg.style.background = "#d9f7d6";
@@ -287,12 +292,10 @@ function randomLook(){
     }
 }
 
-// دالة الالتقاط البسيطة والسريعة بدون تعقيد الخلفيات
 function captureOutfitScene(callback) {
     let scene = document.querySelector(".scene");
     if (!scene) return;
 
-    // استنساخ المشهد للتصوير بدون التأثير على الصفحة الأصلية
     let clone = scene.cloneNode(true);
     let btn = clone.querySelector("#cameraBtn");
     if(btn) btn.remove();
@@ -304,7 +307,6 @@ function captureOutfitScene(callback) {
     clone.style.cssText = `position: absolute; top: -9999px; left: -9999px; width: ${targetWidth}px; height: ${targetHeight}px; border: none; border-radius: 0; opacity: 1; z-index: -999;`;
     document.body.appendChild(clone);
 
-    // استخدام html2canvas بإعدادات سريعة وآمنة للموبايل
     html2canvas(clone, {
         useCORS: true,
         allowTaint: true,
@@ -365,7 +367,7 @@ async function setAsProfileOutfit() {
         <div style="background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; text-align:center; color:#fff; font-family:monospace;">
             <div id="txt" style="margin-bottom:10px;">Loading...</div>
             <div style="width:180px; height:15px; border:1px solid #fff; padding:2px; margin:0 auto;">
-                <div id="bar" style="width:30%; height:100%; background:#ff4fd8; transition:width 0.3s;"></div>
+                <div id="bar" style="width:70%; height:100%; background:#ff4fd8; transition:width 0.3s;"></div>
             </div>
         </div>
     `;
@@ -373,9 +375,7 @@ async function setAsProfileOutfit() {
 
     captureOutfitScene(async canvas => {
         try {
-            document.getElementById("bar").style.width = "70%";
             let dataUrl = canvas.toDataURL("image/png");
-            
             await firebase.database().ref('users/' + user.uid).update({ profileImg: dataUrl });
 
             document.getElementById("bar").style.width = "100%";
