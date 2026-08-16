@@ -188,7 +188,8 @@ function setBackground(type){
             break;
         case "blackStars":
             bg.style.background = "#131313";
-            bg.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Ctext x='20' y='45' font-size='25' fill='white'%3E★%3C/text%3E%3Ctext x='120' y='90' font-size='15' fill='white'%3E★%3C/text%3E%3Ctext x='70' y='150' font-size='35' fill='white'%3E★%3C/text%3E%3C/svg%3E\")";
+            // Updated to use mobile-friendly SVG paths instead of text nodes
+            bg.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cpath d='M20,15 L23,22 L31,23 L25,28 L27,36 L20,31 L13,36 L15,28 L9,23 L17,22 Z' fill='white'/%3E%3Cpath d='M120,65 L122,70 L128,71 L124,74 L125,80 L120,77 L115,80 L116,74 L112,71 L118,70 Z' fill='white'/%3E%3Cpath d='M70,100 L74,110 L85,111 L77,118 L79,128 L70,123 L61,128 L63,118 L55,111 L66,110 Z' fill='white'/%3E%3C/svg%3E\")";
             bg.style.backgroundSize = "180px 180px";
             break;
         default:
@@ -303,6 +304,13 @@ function downloadOutfit(){
     scene.style.border = "none";
     scene.style.borderRadius = "0";
 
+    // Fix relative heart.svg path for mobile html2canvas rendering
+    let bgEl = scene.querySelector("#colorBackground");
+    if (bgEl && bgEl.style.backgroundImage.includes("heart.svg")) {
+        let absUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + "heart.svg";
+        bgEl.style.backgroundImage = `url("${absUrl}")`;
+    }
+
     let targetWidth = base.naturalWidth || 600;
     let targetHeight = base.naturalHeight || 600;
 
@@ -380,6 +388,14 @@ async function setAsProfileOutfit() {
         document.getElementById("bar").style.width = "50%";
         let tempScene = scene.cloneNode(true);
         tempScene.querySelector("#cameraBtn")?.remove();
+
+        // Fix relative heart.svg path for mobile html2canvas rendering
+        let tempBgEl = tempScene.querySelector("#colorBackground");
+        if (tempBgEl && tempBgEl.style.backgroundImage.includes("heart.svg")) {
+            let absUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + "heart.svg";
+            tempBgEl.style.backgroundImage = `url("${absUrl}")`;
+        }
+
         tempScene.style.cssText = `position:absolute; top:0; left:0; opacity:1; z-index:99998; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
         document.body.appendChild(tempScene);
 
