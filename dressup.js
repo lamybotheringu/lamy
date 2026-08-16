@@ -308,19 +308,21 @@ function downloadOutfit(){
 
     scene.style.width = targetWidth + "px";
     scene.style.height = targetHeight + "px";
-    // Fixed positioning keeps it in the viewport for mobile rendering while remaining invisible
-    scene.style.position = "fixed";
+    scene.style.position = "absolute";
     scene.style.top = "0";
     scene.style.left = "0";
-    scene.style.opacity = "0";
-    scene.style.pointerEvents = "none";
-    scene.style.zIndex = "-9999";
+    scene.style.opacity = "1";
+    scene.style.zIndex = "99998";
 
+    let overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0d0d0d; z-index:999999; display:flex; justify-content:center; align-items:center; color:#fff; font-family:monospace;";
+    overlay.innerText = "Generating...";
+    document.body.appendChild(overlay);
     document.body.appendChild(scene);
 
     html2canvas(scene, { useCORS: true, scale: 1 }).then(canvas => {
         scene.remove();
-        // Use Blob and Object URL for mobile / iOS Safari compatibility
+        overlay.remove();
         canvas.toBlob(blob => {
             if (!blob) return;
             generatedDataUrl = URL.createObjectURL(blob);
@@ -328,6 +330,7 @@ function downloadOutfit(){
         }, "image/png");
     }).catch(err => {
         scene.remove();
+        overlay.remove();
         console.error(err);
         alert("⚠️ حدث خطأ أثناء التقاط الصورة!");
     });
@@ -361,11 +364,13 @@ async function setAsProfileOutfit() {
 
     // 1. إظهار نافذة التحميل
     let box = document.createElement("div");
-    box.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; z-index:9999; text-align:center; color:#fff; font-family:monospace;";
+    box.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center;";
     box.innerHTML = `
-        <div id="txt" style="margin-bottom:10px;">Loading...</div>
-        <div style="width:180px; height:15px; border:1px solid #fff; padding:2px; margin:0 auto;">
-            <div id="bar" style="width:10%; height:100%; background:#fff; transition:width 0.3s;"></div>
+        <div style="background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; text-align:center; color:#fff; font-family:monospace;">
+            <div id="txt" style="margin-bottom:10px;">Loading...</div>
+            <div style="width:180px; height:15px; border:1px solid #fff; padding:2px; margin:0 auto;">
+                <div id="bar" style="width:10%; height:100%; background:#fff; transition:width 0.3s;"></div>
+            </div>
         </div>
     `;
     document.body.appendChild(box);
@@ -375,7 +380,7 @@ async function setAsProfileOutfit() {
         document.getElementById("bar").style.width = "50%";
         let tempScene = scene.cloneNode(true);
         tempScene.querySelector("#cameraBtn")?.remove();
-        tempScene.style.cssText = `position:fixed; top:0; left:0; opacity:0; pointer-events:none; z-index:-9999; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
+        tempScene.style.cssText = `position:absolute; top:0; left:0; opacity:1; z-index:99998; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
         document.body.appendChild(tempScene);
 
         const canvas = await html2canvas(tempScene, { useCORS: true, scale: 1 });
