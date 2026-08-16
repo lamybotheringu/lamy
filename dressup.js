@@ -188,7 +188,6 @@ function setBackground(type){
             break;
         case "blackStars":
             bg.style.background = "#131313";
-            // Converted to mobile-safe SVG vector paths instead of text nodes
             let starSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><path d='M20,18 L22,23 L27,24 L23,27 L24,32 L20,29 L16,32 L17,27 L13,24 L18,23 Z' fill='white'/><path d='M120,72 L121,75 L125,76 L122,78 L123,82 L120,80 L117,82 L118,78 L115,76 L119,75 Z' fill='white'/><path d='M70,115 L73,123 L81,124 L75,129 L77,137 L70,132 L63,137 L65,129 L59,124 L67,123 Z' fill='white'/></svg>";
             bg.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(starSvg)}")`;
             bg.style.backgroundSize = "180px 180px";
@@ -305,11 +304,18 @@ function downloadOutfit(){
     scene.style.border = "none";
     scene.style.borderRadius = "0";
 
-    // Make heart.svg mobile-safe by embedding it as an encoded Data URI in the clone
+    // Safe background handling for mobile html2canvas (Hearts, Stars & Gradients)
     let bgEl = scene.querySelector("#colorBackground");
-    if (bgEl && bgEl.style.backgroundImage.includes("heart.svg")) {
-        let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
-        bgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
+    if (bgEl) {
+        let bgImg = bgEl.style.backgroundImage;
+        if (bgImg.includes("heart.svg")) {
+            let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
+            bgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
+        } else if (bgImg.includes("gradient") || bgImg.includes("radial") || bgImg.includes("linear")) {
+            let computedBg = window.getComputedStyle(bgEl).backgroundColor;
+            bgEl.style.backgroundImage = "none";
+            bgEl.style.backgroundColor = computedBg || "#ffffff";
+        }
     }
 
     let targetWidth = base.naturalWidth || 600;
@@ -329,7 +335,14 @@ function downloadOutfit(){
     document.body.appendChild(overlay);
     document.body.appendChild(scene);
 
-    html2canvas(scene, { useCORS: true, scale: 1 }).then(canvas => {
+    const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Timeout")), 10000)
+    );
+
+    Promise.race([
+        html2canvas(scene, { useCORS: true, scale: 1 }),
+        timeoutPromise
+    ]).then(canvas => {
         scene.remove();
         overlay.remove();
         canvas.toBlob(blob => {
@@ -341,7 +354,7 @@ function downloadOutfit(){
         scene.remove();
         overlay.remove();
         console.error(err);
-        alert("⚠️ حدث خطأ أثناء التقاط الصورة!");
+        alert("⚠️ حدث خطأ أو استغرق التقاط الصورة وقتاً طويلاً!");
     });
 }
 
@@ -390,17 +403,30 @@ async function setAsProfileOutfit() {
         let tempScene = scene.cloneNode(true);
         tempScene.querySelector("#cameraBtn")?.remove();
 
-        // Make heart.svg mobile-safe by embedding it as an encoded Data URI in the clone
         let tempBgEl = tempScene.querySelector("#colorBackground");
-        if (tempBgEl && tempBgEl.style.backgroundImage.includes("heart.svg")) {
-            let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
-            tempBgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
+        if (tempBgEl) {
+            let bgImg = tempBgEl.style.backgroundImage;
+            if (bgImg.includes("heart.svg")) {
+                let heartSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z' fill='white'/></svg>";
+                tempBgEl.style.backgroundImage = `url("data:image/svg+xml,${encodeURIComponent(heartSvg)}")`;
+            } else if (bgImg.includes("gradient") || bgImg.includes("radial") || bgImg.includes("linear")) {
+                let computedBg = window.getComputedStyle(tempBgEl).backgroundColor;
+                tempBgEl.style.backgroundImage = "none";
+                tempBgEl.style.backgroundColor = computedBg || "#ffffff";
+            }
         }
 
         tempScene.style.cssText = `position:absolute; top:0; left:0; opacity:1; z-index:99998; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
         document.body.appendChild(tempScene);
 
-        const canvas = await html2canvas(tempScene, { useCORS: true, scale: 1 });
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Timeout")), 10000)
+        );
+
+        const canvas = await Promise.race([
+            html2canvas(tempScene, { useCORS: true, scale: 1 }),
+            timeoutPromise
+        ]);
         
         // 3. الحفظ في قاعدة البيانات
         document.getElementById("bar").style.width = "85%";
@@ -420,7 +446,7 @@ async function setAsProfileOutfit() {
     } catch (err) {
         box.remove();
         console.error(err);
-        alert("⚠️ حدث خطأ أثناء الحفظ!");
+        alert("⚠️ حدث خطأ أو استغرق الحفظ وقتاً طويلاً!");
     }
 }
 
