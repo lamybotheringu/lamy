@@ -1079,7 +1079,7 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 100000; /* تم رفع القيمة لتكون أعلى من أزرار الثيم وتسجيل الدخول (99999) */
   image-rendering: pixelated; /* الحفاظ على مظهر البكسل */
 }
 
