@@ -308,15 +308,28 @@ function downloadOutfit(){
 
     scene.style.width = targetWidth + "px";
     scene.style.height = targetHeight + "px";
-    scene.style.position = "absolute";
-    scene.style.left = "-9999px";
+    // Fixed positioning keeps it in the viewport for mobile rendering while remaining invisible
+    scene.style.position = "fixed";
+    scene.style.top = "0";
+    scene.style.left = "0";
+    scene.style.opacity = "0";
+    scene.style.pointerEvents = "none";
+    scene.style.zIndex = "-9999";
 
     document.body.appendChild(scene);
 
-    html2canvas(scene, { useCORS: true }).then(canvas => {
-        generatedDataUrl = canvas.toDataURL("image/png");
+    html2canvas(scene, { useCORS: true, scale: 1 }).then(canvas => {
         scene.remove();
-        document.getElementById("saveModal").style.display = "flex";
+        // Use Blob and Object URL for mobile / iOS Safari compatibility
+        canvas.toBlob(blob => {
+            if (!blob) return;
+            generatedDataUrl = URL.createObjectURL(blob);
+            document.getElementById("saveModal").style.display = "flex";
+        }, "image/png");
+    }).catch(err => {
+        scene.remove();
+        console.error(err);
+        alert("⚠️ حدث خطأ أثناء التقاط الصورة!");
     });
 }
 
@@ -326,52 +339,25 @@ function closeSaveModal() {
 
 function downloadOutfitFile() {
     if (!generatedDataUrl) return;
-
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-    if (isIOS) {
-        const newTab = window.open();
-        if (newTab) {
-            newTab.document.write(`<img src="${generatedDataUrl}" style="width:100%; height:auto;" />`);
-        } else {
-            window.location.href = generatedDataUrl;
-        }
-    } else {
-        let link = document.createElement("a");
-        link.download = "LamyOutfit" + outfitNumber + ".png";
-        link.href = generatedDataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    let link = document.createElement("a");
+    link.download = "LamyOutfit" + outfitNumber + ".png";
+    link.href = generatedDataUrl;
+    link.click();
+    
+    if (generatedDataUrl.startsWith("blob:")) {
+        setTimeout(() => URL.revokeObjectURL(generatedDataUrl), 1000);
     }
-
+    
     outfitNumber++;
     closeSaveModal();
-}
-
-async function downloadOutfit(){
-    let scene = document.querySelector(".scene");
-    let cameraBtn = document.getElementById("cameraBtn");
-
-    if (cameraBtn) cameraBtn.style.visibility = "hidden";
-
-    try {
-        let canvas = await html2canvas(scene, { useCORS: true, allowTaint: true, scale: 2 });
-        generatedDataUrl = canvas.toDataURL("image/png");
-        document.getElementById("saveModal").style.display = "flex";
-    } catch (err) {
-        alert("❌ حدث خطأ أثناء إعداد الصورة!");
-    } finally {
-        if (cameraBtn) cameraBtn.style.visibility = "visible";
-    }
 }
 
 async function setAsProfileOutfit() {
     let user = firebase.auth()?.currentUser;
     if (!user) return alert("⚠️ يرجى تسجيل الدخول أولاً!");
 
-    let scene = document.querySelector(".scene");
-    if (!scene) return alert("⚠️ لم يتم العثور على المشهد!");
+    let scene = document.querySelector(".scene"), base = document.getElementById("base");
+    if (!scene || !base) return alert("⚠️ لم يتم العثور على المشهد!");
 
     // 1. إظهار نافذة التحميل
     let box = document.createElement("div");
@@ -384,17 +370,20 @@ async function setAsProfileOutfit() {
     `;
     document.body.appendChild(box);
 
-    let cameraBtn = document.getElementById("cameraBtn");
-    if (cameraBtn) cameraBtn.style.visibility = "hidden";
-
     try {
         // 2. التقاط الصورة
         document.getElementById("bar").style.width = "50%";
-        const canvas = await html2canvas(scene, { useCORS: true, allowTaint: true, scale: 2 });
+        let tempScene = scene.cloneNode(true);
+        tempScene.querySelector("#cameraBtn")?.remove();
+        tempScene.style.cssText = `position:fixed; top:0; left:0; opacity:0; pointer-events:none; z-index:-9999; width:${base.naturalWidth || 600}px; height:${base.naturalHeight || 600}px; border:none; border-radius:0;`;
+        document.body.appendChild(tempScene);
+
+        const canvas = await html2canvas(tempScene, { useCORS: true, scale: 1 });
         
         // 3. الحفظ في قاعدة البيانات
         document.getElementById("bar").style.width = "85%";
         await firebase.database().ref('users/' + user.uid).update({ profileImg: canvas.toDataURL("image/png") });
+        tempScene.remove();
 
         // 4. الإكتمال ورسالة النجاح
         document.getElementById("bar").style.width = "100%";
@@ -408,9 +397,8 @@ async function setAsProfileOutfit() {
 
     } catch (err) {
         box.remove();
-        alert("❌ حدث خطأ أثناء الحفظ!");
-    } finally {
-        if (cameraBtn) cameraBtn.style.visibility = "visible";
+        console.error(err);
+        alert("⚠️ حدث خطأ أثناء الحفظ!");
     }
 }
 
