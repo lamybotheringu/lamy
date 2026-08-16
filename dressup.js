@@ -1,556 +1,419 @@
-window.addEventListener("DOMContentLoaded", () => {
-  // --- 1. العناصر والبيانات الأساسية ---
-  const BASE_WIDTH = 800;
-  const BASE_HEIGHT = 400;
+// --- Asset Counts ---
+const outfitCount = 5;
+const topCount = 7;
+const jacketCount = 2;
+const skirtCount = 3;
+const bottomCount = 7;
+const shoeCount = 5;
+const bagCount = 3;
 
-  const elements = {
-    game: document.getElementById("game"),
-    bunny: document.getElementById("bunny"),
-    obstacle: document.getElementById("obstacle"),
-    heartTemplate: document.getElementById("heartTemplate"),
-    score: document.getElementById("score"),
-    gameOverUI: document.getElementById("gameOver"),
-    finalScore: document.getElementById("finalScore"),
-    startScreen: document.getElementById("startScreen"),
-    restartBtn: document.getElementById("restartBtn")
-  };
+let backgrounds = [
+    "white",
+    "pink",
+    "blue",
+    "green",
+    "pinkHearts",
+    "pngHearts",
+    "blueDots",
+    "greenLines",
+    "blackStars",
+    "background1",
+    "background2",
+    "background3",
+    "background4",
+    "background5",
+    "background6"
+];
 
-  // تعيين صورة القلب إلى bunnyheart.png
-  if (elements.heartTemplate) {
-    if (elements.heartTemplate.tagName === "IMG") {
-      elements.heartTemplate.src = "bunnyheart.png";
+let outfitNumber = 1;
+let generatedDataUrl = "";
+
+// Skirt 3-State Toggle Tracking
+let currentSkirtSrc = null;
+let skirtState = 0; // 0 = unselected, 1 = over top, 2 = under top
+
+function startGame(){
+    document.getElementById("start").style.display = "none";
+    document.getElementById("game").classList.remove("hidden");
+}
+
+function hidePieces(){
+    ["outfit", "top", "jacket", "skirt", "bag", "bottom", "shoes"].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) {
+            el.removeAttribute("src");
+            el.style.display = "none";
+            el.className = "";
+        }
+    });
+    currentSkirtSrc = null;
+    skirtState = 0;
+}
+
+// Helper function to toggle items on/off
+function togglePiece(layerId, imagePath) {
+    let outfit = document.getElementById("outfit");
+    if (outfit) {
+        outfit.removeAttribute("src");
+        outfit.style.display = "none";
+    }
+
+    let item = document.getElementById(layerId);
+    if (!item) return;
+
+    if (item.src.includes(imagePath) && item.style.display !== "none") {
+        item.removeAttribute("src");
+        item.style.display = "none";
     } else {
-      elements.heartTemplate.style.backgroundImage = "url('bunnyheart.png')";
+        item.src = imagePath;
+        item.style.display = "block";
     }
-  }
+}
 
-  // وضع شريط التحميل فوراً عند بدء تشغيل الملف
-  document.addEventListener("DOMContentLoaded", () => {
-    const bunnyView = document.getElementById("bunnyLeaderboardView");
-    if (bunnyView && !bunnyView.innerHTML.trim()) {
-      bunnyView.innerHTML = getLoadingHTML();
-    }
-  });
+function changeOutfit(number){
+    let outfit = document.getElementById("outfit");
+    let imagePath = "images/outfit" + number + ".png";
 
-  // فحص ما إذا كان المستخدم يستخدم الجوال أو اللابتوب/الحاسوب
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth <= 768);
-  
-  // تحديد السرعة الأساسية حسب نوع الجهاز (أسرع بقليل للابتوب)
-  const defaultObsSpeed = isMobile ? 0.28 : 0.33;
-  const defaultHeartSpeed = isMobile ? 0.23 : 0.27;
-
-  const state = {
-    running: false,
-    started: false,
-    isMuted: false,
-    isCustomFullscreen: false,
-    heartsCount: 0,
-    distanceScore: 0,
-    y: 0,
-    velocity: 0,
-    gravity: -0.0031,
-    jumpPower: 0.78,
-    baseObsSpeed: defaultObsSpeed,   
-    baseHeartSpeed: defaultHeartSpeed, 
-    obsSpeed: defaultObsSpeed,
-    heartSpeed: defaultHeartSpeed,
-    obsX: 600,
-    jumps: 2,
-    hearts: [],
-    heartTimer: 0,
-    lastTime: 0,
-    upperPlatformActive: false,
-    upperPlatformX: 0,
-    platformHearts: [],
-    obstacleCountSinceLastPlatform: 0,
-    hasTriggeredFirstPlatform: false,
-    activeTimeouts: []
-  };
-
-  elements.game.style.overflow = "hidden";
-  elements.game.style.position = "relative";
-
-  // --- 2. إعداد عناصر الواجهة الديناميكية ---
-  const distanceScoreEl = document.createElement("div");
-  distanceScoreEl.style.cssText = "position:absolute; top:32px; left:10px; color:#ff4fd8; font-family:'Courier New',monospace; font-size:14px; z-index:10; image-rendering:pixelated;";
-  distanceScoreEl.textContent = "Score: 0";
-  elements.game.appendChild(distanceScoreEl);
-
-  const controlsContainer = document.createElement("div");
-  controlsContainer.style.cssText = "position:absolute; top:10px; right:10px; display:flex; gap:6px; z-index:20;";
-  const btnStyle = "background:rgba(30,20,40,0.75); border:1px solid #d8b4fe; color:#fff; padding:5px 8px; font-family:'Courier New',monospace; font-size:14px; cursor:pointer; outline:none; image-rendering:pixelated;";
-  
-  const muteBtn = createButton("🔊", btnStyle);
-  const fullscreenBtn = createButton("⛶", btnStyle);
-  controlsContainer.append(fullscreenBtn, muteBtn);
-  elements.game.appendChild(controlsContainer);
-
-  const vnBox = document.createElement("div");
-  vnBox.style.cssText = "position:absolute; top:15%; left:50%; transform:translateX(-50%); width:80%; max-width:300px; background:rgba(30,20,40,0.75); border:1px solid #d8b4fe; padding:6px 10px; z-index:10; pointer-events:none; opacity:0; transition:opacity 0.5s ease; display:none;";
-  const quoteEl = document.createElement("div");
-  quoteEl.style.cssText = "color:#fff; font-family:'Courier New',monospace; font-size:12px; text-align:center; word-break:break-word;";
-  vnBox.appendChild(quoteEl);
-  elements.game.appendChild(vnBox);
-
-  // المنصة العلوية والأشواك
-  const upperPlatform = document.createElement("div");
-  upperPlatform.style.cssText = "position:absolute; bottom:120px; width:320px; height:18px; border:1px solid #d8b4fe; box-shadow:inset 0 0 0 1px #1e1428; background:repeating-linear-gradient(45deg, rgba(216,180,254,0.25), rgba(216,180,254,0.25) 8px, rgba(30,20,40,0.85) 8px, rgba(30,20,40,0.85) 16px); display:none; z-index:4; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
-  elements.game.appendChild(upperPlatform);
-
-  const spikeContainer = document.createElement("div");
-  spikeContainer.style.cssText = "position:absolute; bottom:0px; width:320px; height:45px; display:none; z-index:5; pointer-events:none; overflow:hidden; image-rendering:pixelated; transform:translateZ(0); will-change:left;";
-  spikeContainer.innerHTML = `<svg width="100%" height="100%"><defs><pattern id="pixelSpikePattern" width="18" height="45" patternUnits="userSpaceOnUse"><polygon points="0,45 9,0 18,45" fill="#252730" stroke="#121318" stroke-width="1.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#pixelSpikePattern)"/></svg>`;
-  elements.game.appendChild(spikeContainer);
-
-  function createButton(text, style) {
-    const btn = document.createElement("button");
-    btn.textContent = text;
-    btn.setAttribute("tabindex", "-1");
-    btn.style.cssText = style;
-    return btn;
-  }
-
-  const overlay = document.getElementById("gameOverlay") || Object.assign(document.body.appendChild(document.createElement("div")), {
-    id: "gameOverlay", style: "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;display:none;z-index:2147483646;"
-  });
-
-  // --- 3. Full Screen ---
-  function updateGameScale() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
-    overlay.style.display = isFS ? "block" : "none";
-    document.body.style.overflow = isFS ? "hidden" : "";
-
-    if (isFS) {
-      const scale = window.innerHeight / BASE_HEIGHT;
-      Object.assign(elements.game.style, {
-        width: `${window.innerWidth / scale}px`, height: `${BASE_HEIGHT}px`,
-        position: "fixed", left: "50%", top: "50%",
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        margin: "0", border: "none", borderRadius: "0px", boxShadow: "none", zIndex: "2147483647"
-      });
+    if (outfit && outfit.src.includes(imagePath) && outfit.style.display !== "none") {
+        outfit.removeAttribute("src");
+        outfit.style.display = "none";
     } else {
-      Object.assign(elements.game.style, { width: "", height: "", position: "relative", left: "", top: "", transform: "", margin: "", zIndex: "", border: "", borderRadius: "", boxShadow: "" });
+        hidePieces();
+        if (outfit) {
+            outfit.src = imagePath;
+            outfit.style.display = "block";
+        }
     }
-  }
+}
 
-  window.addEventListener("resize", updateGameScale);
-  window.addEventListener("orientationchange", () => setTimeout(updateGameScale, 200));
-  document.addEventListener("fullscreenchange", updateGameScale);
+function changeTop(number){
+    togglePiece("top", "images/Top" + number + ".png");
+}
 
-  fullscreenBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    fullscreenBtn.blur();
-    if (!document.fullscreenElement && !state.isCustomFullscreen) {
-      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
-      state.isCustomFullscreen = true;
+function changeJacket(number){
+    togglePiece("jacket", "images/Jacket" + number + ".png");
+}
+
+function changeBottom(number){
+    togglePiece("bottom", "images/Bottom" + number + ".png");
+}
+
+function changeShoes(number){
+    togglePiece("shoes", "images/Shoe" + number + ".png");
+}
+
+function changeBag(number){
+    togglePiece("bag", "images/Bag" + number + ".png");
+}
+
+function selectSkirt(skirtSrc){
+    let outfit = document.getElementById("outfit");
+    if(outfit) {
+        outfit.removeAttribute("src");
+        outfit.style.display = "none";
+    }
+
+    const skirtImg = document.getElementById("skirt");
+
+    if (currentSkirtSrc !== skirtSrc) {
+        currentSkirtSrc = skirtSrc;
+        skirtState = 1;
     } else {
-      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
-      state.isCustomFullscreen = false;
+        skirtState = (skirtState + 1) % 3;
     }
-    updateGameScale();
-  });
 
-  // --- 4. الصوت والمؤثرات ---
-  let audioCtx = null, bgmInterval = null;
+    if (skirtState === 1) {
+        skirtImg.src = skirtSrc;
+        skirtImg.style.display = "block";
+        skirtImg.className = "skirt-over";
+    } else if (skirtState === 2) {
+        skirtImg.src = skirtSrc;
+        skirtImg.style.display = "block";
+        skirtImg.className = "skirt-under";
+    } else {
+        skirtImg.removeAttribute("src");
+        skirtImg.style.display = "none";
+        skirtImg.className = "";
+        currentSkirtSrc = null;
+    }
+}
 
-  function beep(freq, duration, type = 'sine', vol = 1.0, ignoreMute = false) {
-    if (state.isMuted && !ignoreMute) return;
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+function resetOutfit(){
+    hidePieces();
+    setBackground("white");
+}
+
+function useRoom(){
+    setBackground("background1");
+}
+
+function setBackground(type){
+    let bg = document.getElementById("colorBackground");
+    let room = document.getElementById("room");
+
+    if (room) room.style.display = "none";
+
+    bg.style.background = "";
+    bg.style.backgroundImage = "none";
+
+    switch(type){
+        case "white":
+            bg.style.background = "white";
+            break;
+        case "black":
+            bg.style.background = "black";
+            break;
+        case "pink":
+            bg.style.background = "#ffd6e7";
+            break;
+        case "blue":
+            bg.style.background = "#cde7ff";
+            break;
+        case "green":
+            bg.style.background = "#d9f7d6";
+            break;
+        case "pinkHearts":
+            bg.style.background = "#ffd6e7";
+            bg.style.backgroundImage = "url('heart.svg')";
+            bg.style.backgroundSize = "50px 50px";
+            break;
+        case "pngHearts":
+            bg.style.background = "#ffd6e7";
+            bg.style.backgroundImage = "url('heart.png')";
+            bg.style.backgroundSize = "50px 50px";
+            break;
+        case "blueDots":
+            bg.style.background = "#cde7ff";
+            bg.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='25' height='25'%3E%3Ccircle cx='12.5' cy='12.5' r='3' fill='white'/%3E%3C/svg%3E\")";
+            bg.style.backgroundSize = "25px 25px";
+            break;
+        case "greenLines":
+            bg.style.background = "#d9f7d6";
+            bg.style.backgroundImage = "linear-gradient(45deg, transparent 45%, white 45%, white 55%, transparent 55%)";
+            bg.style.backgroundSize = "25px 25px";
+            break;
+        case "blackStars":
+            bg.style.background = "#131313";
+            bg.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Ctext x='20' y='45' font-size='25' fill='white'%3E★%3C/text%3E%3Ctext x='120' y='90' font-size='15' fill='white'%3E★%3C/text%3E%3Ctext x='70' y='150' font-size='35' fill='white'%3E★%3C/text%3E%3C/svg%3E\")";
+            bg.style.backgroundSize = "180px 180px";
+            break;
+        default:
+            if (type.startsWith("background")) {
+                bg.style.backgroundImage = `url('images/${type}.png')`;
+                bg.style.backgroundSize = "cover";
+                bg.style.backgroundPosition = "center 75%"; 
+                bg.style.backgroundRepeat = "no-repeat";
+            }
+            break;
+    }
+}
+
+function randomLook(){
+    hidePieces();
+
+    let isFullOutfit = Math.random() < 0.20;
+
+    if (isFullOutfit && outfitCount > 0) {
+        let randomOutfitNum = Math.floor(Math.random() * outfitCount) + 1;
+        let outfit = document.getElementById("outfit");
+        if (outfit) {
+            outfit.src = "images/outfit" + randomOutfitNum + ".png";
+            outfit.style.display = "block";
+        }
+    } else {
+        if (topCount > 0) {
+            let randTop = Math.floor(Math.random() * topCount) + 1;
+            let top = document.getElementById("top");
+            if (top) {
+                top.src = "images/Top" + randTop + ".png";
+                top.style.display = "block";
+            }
+        }
+
+        if (jacketCount > 0 && Math.random() > 0.5) {
+            let randJacket = Math.floor(Math.random() * jacketCount) + 1;
+            let jacket = document.getElementById("jacket");
+            if (jacket) {
+                jacket.src = "images/Jacket" + randJacket + ".png";
+                jacket.style.display = "block";
+            }
+        }
+
+        let chooseSkirt = skirtCount > 0 && (bottomCount === 0 || Math.random() > 0.5);
+        if (chooseSkirt) {
+            let randSkirt = Math.floor(Math.random() * skirtCount) + 1;
+            let skirtSrc = "images/Skirt" + randSkirt + ".png";
+            let skirtImg = document.getElementById("skirt");
+            if (skirtImg) {
+                currentSkirtSrc = skirtSrc;
+                skirtState = Math.random() > 0.5 ? 1 : 2;
+                skirtImg.src = skirtSrc;
+                skirtImg.style.display = "block";
+                skirtImg.className = skirtState === 1 ? "skirt-over" : "skirt-under";
+            }
+        } else if (bottomCount > 0) {
+            let randBottom = Math.floor(Math.random() * bottomCount) + 1;
+            let bottom = document.getElementById("bottom");
+            if (bottom) {
+                bottom.src = "images/Bottom" + randBottom + ".png";
+                bottom.style.display = "block";
+            }
+        }
+
+        if (shoeCount > 0 && Math.random() < 0.8) {
+            let randShoe = Math.floor(Math.random() * shoeCount) + 1;
+            let shoes = document.getElementById("shoes");
+            if (shoes) {
+                shoes.src = "images/Shoe" + randShoe + ".png";
+                shoes.style.display = "block";
+            }
+        }
+
+        if (bagCount > 0 && Math.random() > 0.5) {
+            let randBag = Math.floor(Math.random() * bagCount) + 1;
+            let bag = document.getElementById("bag");
+            if (bag) {
+                bag.src = "images/Bag" + randBag + ".png";
+                bag.style.display = "block";
+            }
+        }
+    }
+
+    let randomBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    setBackground(randomBackground);
+
+    let btn = document.getElementById("randomBtn");
+    if(btn){
+        btn.classList.remove("clicked");
+        void btn.offsetWidth;
+        btn.classList.add("clicked");
+    }
+}
+
+function drawContain(ctx, img, w, h){
+    let ratio = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+    let width = img.naturalWidth * ratio;
+    let height = img.naturalHeight * ratio;
+    let x = (w - width) / 2;
+    let y = (h - height) / 2;
+
+    ctx.drawImage(img, x, y, width, height);
+}
+
+// Direct capture in-place without cloning or extra canvas creation
+async function downloadOutfit(){
+    const scene = document.querySelector(".scene");
+    const btn = document.getElementById("cameraBtn");
+    
+    if (btn) btn.style.visibility = "hidden";
 
     try {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    } catch (e) {}
-  }
-
-  const audio = {
-    jump: () => beep(350, 0.1, 'sine', 0.6, true),
-    keyboard: () => beep(state.isMuted ? 400 : 1200, 0.015, state.isMuted ? 'sine' : 'triangle', 0.25, true),
-    heart: () => beep(650, 0.08, 'triangle', 0.7),
-    gameOver: () => {
-      beep(450, 0.15, 'sine', 0.7, true);
-      setTimeout(() => beep(350, 0.2, 'sine', 0.7, true), 120);
-      setTimeout(() => beep(250, 0.35, 'sine', 0.7, true), 260);
+        const canvas = await html2canvas(scene, {
+            useCORS: true,
+            logging: false,
+            scale: 2
+        });
+        generatedDataUrl = canvas.toDataURL("image/png");
+        document.getElementById("saveModal").style.display = "flex";
+    } catch (err) {
+        alert("❌ حدث خطأ أثناء الحفظ!");
+    } finally {
+        if (btn) btn.style.visibility = "visible";
     }
-  };
+}
 
-  function startBGM() {
-    if (state.isMuted || bgmInterval) return;
-    const notes = [220, 261, 329, 392];
-    let i = 0;
-    bgmInterval = setInterval(() => {
-      if (state.running && !state.isMuted) {
-        beep(notes[i], 0.45, 'sine', 1.0);
-        i = (i + 1) % notes.length;
-      }
-    }, 700);
-  }
+function closeSaveModal() {
+    document.getElementById("saveModal").style.display = "none";
+}
 
-  function stopBGM() {
-    clearInterval(bgmInterval);
-    bgmInterval = null;
-  }
+function downloadOutfitFile() {
+    if (!generatedDataUrl) return;
 
-  muteBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    muteBtn.blur();
-    state.isMuted = !state.isMuted;
-    muteBtn.textContent = state.isMuted ? "🔇" : "🔊";
-    state.isMuted ? stopBGM() : (state.running && startBGM());
-  });
+    let link = document.createElement("a");
+    link.download = "LamyOutfit" + outfitNumber + ".png";
+    link.href = generatedDataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-  // --- 5. نظام الحِكم والتكست ---
-  const quotes = [
-    "استمر ولا توقف قفزاتك 🌸",
-    "الخطوة الصغيرة تصنع طريقاً طويلاً 🌿",
-    "الوقت الممتع لا يُحسب بالساعة ☕",
-    "كل سقوط هو مجرد تمهيد للقفزة الأكبر 🐰",
-    "كل خطوة للأمام تقربك لحلمك البراق 🌟",
-    "صنع السعادة هو فن أتقنته اليوم 🎨",
-    "استمتع بالرحلة ولا تستعجل الوصول 🌙"
-  ];
-  let quoteIndex = 0;
+    outfitNumber++;
+    closeSaveModal();
+}
 
-  function clearQuoteTimers() {
-    state.activeTimeouts.forEach(clearTimeout);
-    state.activeTimeouts = [];
-  }
+async function setAsProfileOutfit() {
+    let user = firebase.auth()?.currentUser;
+    if (!user) return alert("⚠️ يرجى تسجيل الدخول أولاً!");
 
-  function scheduleQuote(delay) {
-    if (!state.running) return;
-    state.activeTimeouts.push(setTimeout(() => { if (state.running) showQuote(); }, delay));
-  }
+    let scene = document.querySelector(".scene");
+    if (!scene) return alert("⚠️ لم يتم العثور على المشهد!");
 
-  function showQuote() {
-    if (!state.running) return;
-    const text = quotes[quoteIndex];
-    quoteIndex = (quoteIndex + 1) % quotes.length;
-
-    quoteEl.textContent = "";
-    vnBox.style.display = "block";
-    state.activeTimeouts.push(setTimeout(() => { if (state.running) vnBox.style.opacity = "1"; }, 10));
-
-    let i = 0;
-    function typeNextChar() {
-      if (!state.running) return;
-      if (i < text.length) {
-        quoteEl.textContent += text[i++];
-        audio.keyboard();
-        state.activeTimeouts.push(setTimeout(typeNextChar, 50));
-      } else {
-        state.activeTimeouts.push(setTimeout(() => {
-          if (!state.running) return;
-          vnBox.style.opacity = "0";
-          state.activeTimeouts.push(setTimeout(() => {
-            if (!state.running) return;
-            vnBox.style.display = "none";
-            scheduleQuote(9000);
-          }, 500));
-        }, 3000));
-      }
-    }
-    typeNextChar();
-  }
-
-  // --- 6. آليات المنصة العلوية والقلوب ---
-  function triggerUpperPlatform() {
-    state.upperPlatformActive = true;
-    state.upperPlatformX = BASE_WIDTH + 50;
-    state.obstacleCountSinceLastPlatform = 0;
-
-    state.platformHearts.forEach(h => h.element.remove());
-    state.platformHearts = [];
-
-    upperPlatform.style.left = `${state.upperPlatformX}px`;
-    spikeContainer.style.left = `${state.upperPlatformX}px`;
-    upperPlatform.style.display = "block";
-    spikeContainer.style.display = "block";
-    elements.obstacle.style.display = "none";
-
-    [60, 160, 260].forEach(pos => {
-      const clone = elements.heartTemplate.cloneNode(true);
-      if (clone.tagName === "IMG") clone.src = "bunnyheart.png";
-      clone.classList.remove("hidden");
-      Object.assign(clone.style, { position: "absolute", left: `${pos}px`, bottom: "22px" });
-      upperPlatform.appendChild(clone);
-      state.platformHearts.push({ element: clone, collected: false });
-    });
-  }
-
-  function resetUpperPlatform() {
-    state.upperPlatformActive = false;
-    state.platformHearts.forEach(h => h.element.remove());
-    state.platformHearts = [];
-    upperPlatform.style.display = "none";
-    spikeContainer.style.display = "none";
-    elements.obstacle.style.display = "block";
-  }
-
-  function isColliding(a, b) {
-    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-  }
-
-  // --- 7. بدء اللعبة والـ Game Loop ---
-  function startGame() {
-    if (state.running) return;
-    
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    startBGM();
-    Object.assign(state, {
-      running: true, started: true, heartsCount: 0, distanceScore: 0,
-      y: 0, velocity: 0, obsSpeed: state.baseObsSpeed, heartSpeed: state.baseHeartSpeed,
-      obstacleCountSinceLastPlatform: 0, hasTriggeredFirstPlatform: false,
-      obsX: BASE_WIDTH + 100, jumps: 2, lastTime: performance.now(), heartTimer: 0
-    });
-
-    quoteIndex = 0;
-    clearQuoteTimers();
-    vnBox.style.display = "none";
-    vnBox.style.opacity = "0";
-    scheduleQuote(5000);
-
-    resetUpperPlatform();
-    elements.score.textContent = "Hearts: 0";
-    distanceScoreEl.textContent = "Score: 0";
-    elements.gameOverUI.classList.add("hidden");
-    elements.startScreen.classList.add("hidden");
-
-    state.hearts.forEach(h => h.element.remove());
-    state.hearts = [];
-
-    requestAnimationFrame(loop);
-  }
-
-  function loop(time) {
-    if (!state.running) return;
-    const dt = time - state.lastTime;
-    state.lastTime = time;
-
-    // تتزايد السرعة تدريجياً فقط حتى الوصول إلى 100 قلب، ثم تثبت تماماً
-    if (state.heartsCount < 100) {
-      const speedBonus = Math.max(0, state.distanceScore - 1000) * 0.00007; 
-      state.obsSpeed = state.baseObsSpeed + speedBonus;
-      state.heartSpeed = state.baseHeartSpeed + (speedBonus * 0.8);
-    }
-
-    state.distanceScore += dt * state.obsSpeed * 0.1;
-    distanceScoreEl.textContent = `Score: ${Math.floor(state.distanceScore)}`;
-
-    state.velocity += state.gravity * dt;
-    state.y += state.velocity * dt;
-
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement) || state.isCustomFullscreen;
-    const scale = isFS ? (window.innerHeight / BASE_HEIGHT) : 1;
-
-    const bunnyBox = elements.bunny.getBoundingClientRect();
-    const gameBox = elements.game.getBoundingClientRect();
-    
-    const bunnyLeftRel = (bunnyBox.left - gameBox.left) / scale;
-    const bunnyRightRel = (bunnyBox.right - gameBox.left) / scale;
-
-    let currentGround = 0;
-
-    if (state.upperPlatformActive) {
-      const platLeft = state.upperPlatformX;
-      const platRight = state.upperPlatformX + 320;
-      const platBottom = 100;
-      const platTop = 120;
-
-      if (bunnyRightRel > platLeft + 15 && bunnyLeftRel < platRight - 15) {
-        if (state.y > platBottom - 20 && state.y < platTop && state.velocity > 0) {
-          state.y = platBottom - 20;
-          state.velocity = -0.1;
-        } 
-        else if (state.y >= platTop - 15 && state.velocity <= 0) {
-          currentGround = platTop;
-        }
-      }
-    }
-
-    if (state.y > 220) { 
-      state.y = 220; 
-      state.velocity = Math.min(0, state.velocity); 
-    }
-
-    if (state.y <= currentGround) { 
-      state.y = currentGround; 
-      state.velocity = 0; 
-      state.jumps = 2; 
-    }
-
-    elements.bunny.style.bottom = `${state.y}px`;
-
-    if (state.upperPlatformActive) {
-      state.upperPlatformX -= state.obsSpeed * dt;
-      upperPlatform.style.left = `${state.upperPlatformX}px`;
-      spikeContainer.style.left = `${state.upperPlatformX}px`;
-
-      state.platformHearts.forEach(h => {
-        if (!h.collected && isColliding(bunnyBox, h.element.getBoundingClientRect())) {
-          h.collected = true;
-          state.heartsCount++;
-          elements.score.textContent = `Hearts: ${state.heartsCount}`;
-          audio.heart();
-          h.element.style.display = "none";
-        }
-      });
-
-      if (state.upperPlatformX < -350) {
-        resetUpperPlatform();
-        state.obsX = BASE_WIDTH + 100;
-      }
-    } else {
-      state.obsX -= state.obsSpeed * dt;
-      if (state.obsX < -50) {
-        state.obsX = BASE_WIDTH + 100;
-        state.obstacleCountSinceLastPlatform++;
-
-        if (!state.hasTriggeredFirstPlatform) {
-          if (state.heartsCount >= 15) {
-            state.hasTriggeredFirstPlatform = true;
-            triggerUpperPlatform();
-          }
-        } else if (state.heartsCount >= 15 && state.obstacleCountSinceLastPlatform >= 3 && Math.random() < 0.25) {
-          triggerUpperPlatform();
-        }
-      }
-      elements.obstacle.style.left = `${state.obsX}px`;
-
-      state.heartTimer += dt;
-      if (state.heartTimer > 1200) {
-        const clone = elements.heartTemplate.cloneNode(true);
-        if (clone.tagName === "IMG") clone.src = "bunnyheart.png";
-        clone.classList.remove("hidden");
-        clone.style.position = "absolute";
-        elements.game.appendChild(clone);
-        state.hearts.push({ element: clone, x: BASE_WIDTH, y: Math.random() * 80 + 30 });
-        state.heartTimer = 0;
-      }
-    }
-
-    for (let i = state.hearts.length - 1; i >= 0; i--) {
-      const h = state.hearts[i];
-      h.x -= state.heartSpeed * dt;
-      h.element.style.left = `${h.x}px`;
-      h.element.style.bottom = `${h.y}px`;
-
-      if (isColliding(bunnyBox, h.element.getBoundingClientRect())) {
-        state.heartsCount++;
-        elements.score.textContent = `Hearts: ${state.heartsCount}`;
-        audio.heart();
-        h.element.remove();
-        state.hearts.splice(i, 1);
-      } else if (h.x < -50) {
-        h.element.remove();
-        state.hearts.splice(i, 1);
-      }
-    }
-
-    if (state.upperPlatformActive) {
-      if (state.y < 115 && isColliding(bunnyBox, spikeContainer.getBoundingClientRect())) {
-        gameOver();
-        return;
-      }
-    } else {
-      if (isColliding(bunnyBox, elements.obstacle.getBoundingClientRect())) {
-        gameOver();
-        return;
-      }
-    }
-
-    requestAnimationFrame(loop);
-  }
-
-  function jump() {
-    if (!state.running || state.jumps <= 0) return;
-    state.velocity = state.jumpPower;
-    state.jumps--;
-    audio.jump();
-  }
-
-  function gameOver() {
-    state.running = false;
-    stopBGM();
-    clearQuoteTimers();
-    vnBox.style.opacity = "0";
-    vnBox.style.display = "none";
-    audio.gameOver();
-
-    elements.gameOverUI.classList.remove("hidden");
-    const finalVal = Math.floor(state.distanceScore);
-
-    elements.finalScore.innerHTML = `
-      <div style="font-size:22px; color:#fff; font-weight:bold; margin-bottom:10px;">القلوب المجمعة: ${state.heartsCount}</div>
-      <div style="font-size:16px; color:#ff4fd8; font-family:'Courier New',monospace; margin-bottom:15px;">Score: ${finalVal}</div>
+    let box = document.createElement("div");
+    box.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; z-index:9999; text-align:center; color:#fff; font-family:monospace;";
+    box.innerHTML = `
+        <div id="txt" style="margin-bottom:10px;">Loading...</div>
+        <div style="width:180px; height:15px; border:1px solid #fff; padding:2px; margin:0 auto;">
+            <div id="bar" style="width:10%; height:100%; background:#fff; transition:width 0.3s;"></div>
+        </div>
     `;
+    document.body.appendChild(box);
 
-    if (navigator.onLine && typeof database !== 'undefined' && window.getCurrentUserName) {
-      const name = window.getCurrentUserName();
-      if (name) {
-        const heartsScore = state.heartsCount;
-        database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).once("value", snap => {
-          const oldScore = snap.val() ? snap.val().score : 0;
-          if (heartsScore > oldScore) {
-            database.ref(`leaderboards/bunny/${encodeURIComponent(name)}`).set({
-              name, score: heartsScore, timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => { 
-              if (window.updateBunnyLeaderboardView) window.updateBunnyLeaderboardView(); 
-            }).catch(() => {});
-          }
-        }).catch(() => {});
-      } else {
-        elements.finalScore.innerHTML += `<div style="color:#ff4fd8; font-size:14px;">سجل دخولك لحفظ نتيجتك!</div>`;
-      }
+    const btn = document.getElementById("cameraBtn");
+    if (btn) btn.style.visibility = "hidden";
+
+    try {
+        document.getElementById("bar").style.width = "50%";
+        const canvas = await html2canvas(scene, {
+            useCORS: true,
+            logging: false,
+            scale: 2
+        });
+
+        document.getElementById("bar").style.width = "85%";
+        await firebase.database().ref('users/' + user.uid).update({ profileImg: canvas.toDataURL("image/png") });
+
+        document.getElementById("bar").style.width = "100%";
+        document.getElementById("txt").innerText = "تم تعيين الصورة بنجاح";
+        document.getElementById("txt").style.color = "#ff4fd8";
+
+        setTimeout(() => {
+            box.remove();
+            if (typeof closeSaveModal === 'function') closeSaveModal();
+        }, 1200);
+
+    } catch (err) {
+        box.remove();
+        alert("❌ حدث خطأ أثناء الحفظ!");
+    } finally {
+        if (btn) btn.style.visibility = "visible";
     }
-  }
+}
 
-  // --- 8. التحكم والمدخلات ---
-  const handleInput = (e) => {
-    if (controlsContainer.contains(e.target) || e.target.id === "restartBtn") return;
-    e.preventDefault();
+window.addEventListener("DOMContentLoaded", () => {
+    function createItems(boxID, count, type, changeFunction){
+        let box = document.getElementById(boxID);
+        if(!box) return;
 
-    if (!state.started) {
-      startGame();
-    } else if (state.running) {
-      jump();
+        for(let i = 1; i <= count; i++){
+            let img = document.createElement("img");
+            img.className = "choice";
+            let imagePath = "images/" + type + i + ".png";
+            img.src = imagePath;
+
+            if (type === "Skirt") {
+                img.onclick = () => selectSkirt(imagePath);
+            } else {
+                img.onclick = () => changeFunction(i);
+            }
+
+            box.appendChild(img);
+        }
     }
-  };
 
-  elements.game.addEventListener("touchstart", handleInput, { passive: false });
-  elements.game.addEventListener("mousedown", handleInput);
-  if (elements.restartBtn) {
-    elements.restartBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      startGame();
-    });
-  }
-
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      const bunnySection = document.getElementById("bunny-game");
-      if (bunnySection && bunnySection.classList.contains("hidden")) {
-        return;
-      }
-
-      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
-      if (activeTag === "input" || activeTag === "textarea") {
-        return;
-      }
-
-      e.preventDefault();
-      handleInput(e);
-    }
-  });
+    createItems("outfits", outfitCount, "outfit", changeOutfit);
+    createItems("tops", topCount, "Top", changeTop);
+    createItems("jackets", jacketCount, "Jacket", changeJacket);
+    createItems("skirts", skirtCount, "Skirt", null);
+    createItems("bottoms", bottomCount, "Bottom", changeBottom);
+    createItems("shoesPanel", shoeCount, "Shoe", changeShoes);
+    createItems("bags", bagCount, "Bag", changeBag);
 });
