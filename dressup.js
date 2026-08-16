@@ -130,7 +130,6 @@ function useRoom(){
     setBackground("background1");
 }
 
-// دالة جديدة وعبقرية لرسم الخلفيات المعقدة كصورة PNG مباشرة لتجنب أخطاء الموبايل
 function setBackground(type){
     let bg = document.getElementById("colorBackground");
     let room = document.getElementById("room");
@@ -144,40 +143,70 @@ function setBackground(type){
     else if (type === "pink") bg.style.backgroundColor = "#ffd6e7";
     else if (type === "blue") bg.style.backgroundColor = "#cde7ff";
     else if (type === "green") bg.style.backgroundColor = "#d9f7d6";
-    else if (["blueDots", "greenLines", "pinkHearts", "blackStars"].includes(type)) {
-        // إنشاء لوحة رسم خفية وتحويلها لـ PNG فوراً 
+    else if (type === "blueDots") {
         let c = document.createElement("canvas");
+        c.width = 25; c.height = 25;
         let ctx = c.getContext("2d");
-
-        if (type === "blueDots") {
-            c.width = 25; c.height = 25;
-            ctx.fillStyle = "#cde7ff"; ctx.fillRect(0,0,25,25);
-            ctx.fillStyle = "white"; 
-            ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI*2); ctx.fill();
-        } 
-        else if (type === "greenLines") {
-            c.width = 25; c.height = 25;
-            ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0,0,25,25);
-            ctx.strokeStyle = "white"; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(-5, 30); ctx.lineTo(30, -5); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(20, 30); ctx.lineTo(30, 20); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(-5, 5); ctx.lineTo(5, -5); ctx.stroke();
-        } 
-        else if (type === "pinkHearts") {
-            c.width = 50; c.height = 50;
-            ctx.fillStyle = "#ffd6e7"; ctx.fillRect(0,0,50,50);
-            ctx.fillStyle = "white"; ctx.font = "24px Arial"; 
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText("❤", 25, 27);
-        } 
-        else if (type === "blackStars") {
-            c.width = 100; c.height = 100;
-            ctx.fillStyle = "#131313"; ctx.fillRect(0,0,100,100);
-            ctx.fillStyle = "white"; ctx.font = "20px Arial";
-            ctx.fillText("★", 20, 30); ctx.fillText("★", 70, 80);
-        }
-        // استخدام صورة الـ PNG الجاهزة (لا تسبب أي خطأ في التصوير)
+        ctx.fillStyle = "#cde7ff"; ctx.fillRect(0,0,25,25);
+        ctx.fillStyle = "white"; 
+        ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI*2); ctx.fill();
+        
         bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "25px 25px";
+        bg.style.backgroundRepeat = "repeat";
+    } 
+    else if (type === "greenLines") {
+        let c = document.createElement("canvas");
+        c.width = 25; c.height = 25;
+        let ctx = c.getContext("2d");
+        ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0,0,25,25);
+        let grad = ctx.createLinearGradient(0, 25, 25, 0);
+        grad.addColorStop(0, "rgba(255,255,255,0)");
+        grad.addColorStop(0.45, "rgba(255,255,255,0)");
+        grad.addColorStop(0.45, "white");
+        grad.addColorStop(0.55, "white");
+        grad.addColorStop(0.55, "rgba(255,255,255,0)");
+        grad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0,0,25,25);
+        
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "25px 25px";
+        bg.style.backgroundRepeat = "repeat";
+    } 
+    else if (type === "pinkHearts") {
+        // 1. عرض الـ SVG الأصلي الخاص بك فوراً على الشاشة
+        bg.style.backgroundColor = "#ffd6e7";
+        bg.style.backgroundImage = "url('heart.svg')";
+        bg.style.backgroundSize = "50px 50px";
+        bg.style.backgroundRepeat = "repeat";
+
+        // 2. تحويله إلى PNG في الخلفية لمنع توقف الكاميرا عن العمل
+        let img = new Image();
+        img.onload = () => {
+            let c = document.createElement("canvas");
+            c.width = 50; c.height = 50;
+            let ctx = c.getContext("2d");
+            ctx.fillStyle = "#ffd6e7"; ctx.fillRect(0,0,50,50);
+            ctx.drawImage(img, 0, 0, 50, 50);
+            bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        };
+        img.src = "heart.svg";
+    }
+    else if (type === "blackStars") {
+        // رسم النجوم باستخدام نفس المسارات (paths) الأصلية الخاصة بك بالضبط
+        let c = document.createElement("canvas");
+        c.width = 180; c.height = 180;
+        let ctx = c.getContext("2d");
+        ctx.fillStyle = "#131313"; ctx.fillRect(0,0,180,180);
+        ctx.fillStyle = "white";
+        ctx.fill(new Path2D("M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"));
+        ctx.fill(new Path2D("M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z"));
+        ctx.fill(new Path2D("M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z"));
+        
+        bg.style.backgroundColor = "#131313";
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "180px 180px";
         bg.style.backgroundRepeat = "repeat";
     }
     else if (type.startsWith("background")) {
@@ -341,7 +370,7 @@ async function setAsProfileOutfit() {
 
     let box = document.createElement("div");
     box.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:999999; display:flex; justify-content:center; align-items:center;";
-    // تم تغيير لون شريط التحميل إلى الأبيض #ffffff
+    // لون الشريط أبيض #ffffff بالكامل 
     box.innerHTML = `
         <div style="background:#0d0d0d; border:2px solid #ff4fd8; padding:20px; text-align:center; color:#fff; font-family:monospace;">
             <div id="txt" style="margin-bottom:10px;">Loading...</div>
