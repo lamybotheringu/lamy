@@ -180,7 +180,7 @@ const bgPatterns = {
         ctx.fillRect(0, 0, 50, 50);
         
         ctx.strokeStyle = "#ff75b5"; 
-        ctx.lineWidth = 3.0; 
+        ctx.lineWidth = 2.5; 
         ctx.lineCap = "round"; 
         ctx.lineJoin = "round";
         
