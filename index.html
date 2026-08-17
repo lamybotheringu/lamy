@@ -88,7 +88,8 @@
 
   <!-- Control & Auth Bar -->
   <div class="top-controls-bar">
-    <div id="auth-header">
+    <!-- تم إضافة style="display: none;" هنا لمنع ظهور أزرار تسجيل الدخول الافتراضية لجزء من الثانية -->
+    <div id="auth-header" style="display: none;">
       <button id="loginTriggerBtn" onclick="showAuthOverlay('login')">تسجيل الدخول</button>
       <button id="signupTriggerBtn" onclick="showAuthOverlay('signup')">إنشاء حساب</button>
     </div>
@@ -106,7 +107,6 @@
     <button onclick="show('chat')">Chat</button>
     <button onclick="show('bunny-game')">🐇 لعبة الأرنب </button>
     <button onclick="openDressupPopup()">تلبيس لايمي <span class="badge-new">(NEW)</span></button>
-
   </nav>
 
   <!-- Main Content Area -->
@@ -169,19 +169,19 @@
       </div>
     </section>
 
-<!-- Updates Section -->
-<section id="updates" class="hidden updates-section">
-  <div class="updates-box">
-    <h2 class="updates-title">🎉 MAJOR BIRTHDAY UPDATES </h2>
-  </div>
-  <ul class="updates-list">
-    <li>• إضافة لعبة التلبيس</li>
-    <li>• إضافة بروفايلات شخصية لكل حساب</li>
-    <li>• تحديث واجهة الألعاب ونمط اللعب</li>
-    <li>• إضافة نمط اللعب مع البوت في لعبة الكروت</li>
-    <li>• إضافة لعبة جديدة خارج الموقع من <a href="https://x-lamy.vercel.app/basket.html" target="_blank" class="update-link">هنـــا</a></li>
-  </ul>
-</section>
+    <!-- Updates Section -->
+    <section id="updates" class="hidden updates-section">
+      <div class="updates-box">
+        <h2 class="updates-title">🎉 MAJOR BIRTHDAY UPDATES </h2>
+      </div>
+      <ul class="updates-list">
+        <li>• إضافة لعبة التلبيس</li>
+        <li>• إضافة بروفايلات شخصية لكل حساب</li>
+        <li>• تحديث واجهة الألعاب ونمط اللعب</li>
+        <li>• إضافة نمط اللعب مع البوت في لعبة الكروت</li>
+        <li>• إضافة لعبة جديدة خارج الموقع من <a href="https://x-lamy.vercel.app/basket.html" target="_blank" class="update-link">هنـــا</a></li>
+      </ul>
+    </section>
 
     <!-- YouTube Section -->
     <section id="youtube" class="hidden">
@@ -202,7 +202,7 @@
     <section id="games" class="hidden">
       <div class="games-container">
 
-        <!-- XO Game (مربوط بـ xo.html) -->
+        <!-- XO Game -->
         <div class="game-item">
           <h3>❌ XO Game</h3>
           <iframe id="xoFrame" src="xo.html" scrolling="no" allowtransparency="true"></iframe>
@@ -237,12 +237,12 @@
     </section>
 
     <!-- Dress Up Section -->
-<div id="dressupModal" class="modal-overlay hidden">
-  <div class="modal-content">
-    <button class="close-btn" onclick="closeDressupPopup()">X</button>
-    <iframe src="dressup.html" width="100%" height="100%" style="border:none;"></iframe>
-  </div>
-</div>
+    <div id="dressupModal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <button class="close-btn" onclick="closeDressupPopup()">X</button>
+        <iframe src="dressup.html" width="100%" height="100%" style="border:none;"></iframe>
+      </div>
+    </div>
 
     <!-- Bunny Game Section -->
     <section id="bunny-game" class="hidden">
@@ -311,14 +311,12 @@
       btn.innerText = isModern ? "Modern" : "Classic";
       localStorage.setItem("theme", theme);
 
-      // Send the theme change live to the XO iframe
       const xoFrame = document.getElementById('xoFrame');
       if (xoFrame && xoFrame.contentWindow) {
           xoFrame.contentWindow.postMessage({ theme: theme }, '*');
       }
     }
 
-    // الاستماع لارتفاع اللعبة وتحديثه فوراً بدون ظهور سكرول
     window.addEventListener('message', (event) => {
       if (event.data && event.data.gameHeight) {
         const iframe = document.getElementById('memoryFrame');
