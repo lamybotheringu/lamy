@@ -6,6 +6,7 @@ const skirtCount = 3;
 const bottomCount = 7;
 const shoeCount = 5;
 const bagCount = 3;
+const dressCount = 1;
 
 let backgrounds = [
     "white",
@@ -36,7 +37,7 @@ function startGame(){
 }
 
 function hidePieces(){
-    ["outfit", "top", "jacket", "skirt", "bag", "bottom", "shoes"].forEach(id => {
+    ["outfit", "top", "jacket", "dress", "skirt", "bag", "bottom", "shoes"].forEach(id => {
         let el = document.getElementById(id);
         if(el) {
             el.removeAttribute("src");
@@ -83,9 +84,57 @@ function changeOutfit(number){
     }
 }
 
-function changeTop(number){ togglePiece("top", "images/top" + number + ".png"); }
+function changeDress(number){
+    let outfit = document.getElementById("outfit");
+    if (outfit) {
+        outfit.removeAttribute("src");
+        outfit.style.display = "none";
+    }
+
+    let top = document.getElementById("top");
+    if (top) {
+        top.removeAttribute("src");
+        top.style.display = "none";
+    }
+
+    let bottom = document.getElementById("bottom");
+    if (bottom) {
+        bottom.removeAttribute("src");
+        bottom.style.display = "none";
+    }
+
+    let skirt = document.getElementById("skirt");
+    if (skirt) {
+        skirt.removeAttribute("src");
+        skirt.style.display = "none";
+        skirt.className = "";
+        currentSkirtSrc = null;
+        skirtState = 0;
+    }
+
+    togglePiece("dress", "images/dress" + number + ".png");
+}
+
+function changeTop(number){ 
+    let dress = document.getElementById("dress");
+    if (dress) {
+        dress.removeAttribute("src");
+        dress.style.display = "none";
+    }
+    togglePiece("top", "images/top" + number + ".png"); 
+}
+
 function changeJacket(number){ togglePiece("jacket", "images/jacket" + number + ".png"); }
-function changeBottom(number){ togglePiece("bottom", "images/bottom" + number + ".png"); }
+
+function changeBottom(number){ 
+    let dress = document.getElementById("dress");
+    if (dress) {
+        dress.removeAttribute("src");
+        dress.style.display = "none";
+    }
+    togglePiece("bottom", "images/bottom" + number + ".png"); 
+}
+
 function changeShoes(number){ togglePiece("shoes", "images/shoe" + number + ".png"); }
 function changeBag(number){ togglePiece("bag", "images/bag" + number + ".png"); }
 
@@ -94,6 +143,12 @@ function selectSkirt(skirtSrc){
     if(outfit) {
         outfit.removeAttribute("src");
         outfit.style.display = "none";
+    }
+
+    let dress = document.getElementById("dress");
+    if (dress) {
+        dress.removeAttribute("src");
+        dress.style.display = "none";
     }
 
     const skirtImg = document.getElementById("skirt");
@@ -130,35 +185,36 @@ function useRoom(){
     setBackground("background1");
 }
 
-const bgColors = { 
-    white: "white", 
-    black: "black", 
-    pink: "#ffd6e7", 
-    blue: "#cde7ff", 
-    green: "#d9f7d6" 
-};
+function setBackground(type){
+    let bg = document.getElementById("colorBackground");
+    let room = document.getElementById("room");
+    if (room) room.style.display = "none";
 
-const bgPatterns = {
-    blueDots: () => {
+    bg.style.background = "";
+    bg.style.backgroundImage = "none";
+
+    if (type === "white") bg.style.backgroundColor = "white";
+    else if (type === "black") bg.style.backgroundColor = "black";
+    else if (type === "pink") bg.style.backgroundColor = "#ffd6e7";
+    else if (type === "blue") bg.style.backgroundColor = "#cde7ff";
+    else if (type === "green") bg.style.backgroundColor = "#d9f7d6";
+    else if (type === "blueDots") {
         let c = document.createElement("canvas");
-        c.width = 25; 
-        c.height = 25;
+        c.width = 25; c.height = 25;
         let ctx = c.getContext("2d");
-        ctx.fillStyle = "#cde7ff"; 
-        ctx.fillRect(0, 0, 25, 25);
+        ctx.fillStyle = "#cde7ff"; ctx.fillRect(0,0,25,25);
         ctx.fillStyle = "white"; 
-        ctx.beginPath(); 
-        ctx.arc(12.5, 12.5, 3, 0, Math.PI * 2); 
-        ctx.fill();
-        return { url: c.toDataURL(), size: "25px 25px" };
-    },
-    greenLines: () => {
+        ctx.beginPath(); ctx.arc(12.5, 12.5, 3, 0, Math.PI*2); ctx.fill();
+        
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "25px 25px";
+        bg.style.backgroundRepeat = "repeat";
+    } 
+    else if (type === "greenLines") {
         let c = document.createElement("canvas");
-        c.width = 25; 
-        c.height = 25;
+        c.width = 25; c.height = 25;
         let ctx = c.getContext("2d");
-        ctx.fillStyle = "#d9f7d6"; 
-        ctx.fillRect(0, 0, 25, 25);
+        ctx.fillStyle = "#d9f7d6"; ctx.fillRect(0,0,25,25);
         let grad = ctx.createLinearGradient(0, 25, 25, 0);
         grad.addColorStop(0, "rgba(255,255,255,0)");
         grad.addColorStop(0.45, "rgba(255,255,255,0)");
@@ -166,11 +222,14 @@ const bgPatterns = {
         grad.addColorStop(0.55, "white");
         grad.addColorStop(0.55, "rgba(255,255,255,0)");
         grad.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = grad; 
-        ctx.fillRect(0, 0, 25, 25);
-        return { url: c.toDataURL(), size: "25px 25px" };
-    },
-    pinkHearts: () => {
+        ctx.fillStyle = grad;
+        ctx.fillRect(0,0,25,25);
+        
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "25px 25px";
+        bg.style.backgroundRepeat = "repeat";
+    } 
+    else if (type === "pinkHearts") {
         let c = document.createElement("canvas");
         c.width = 50; 
         c.height = 50;
@@ -180,7 +239,7 @@ const bgPatterns = {
         ctx.fillRect(0, 0, 50, 50);
         
         ctx.strokeStyle = "#ff75b5"; 
-        ctx.lineWidth = 2.5; 
+        ctx.lineWidth = 2.7; 
         ctx.lineCap = "round"; 
         ctx.lineJoin = "round";
         
@@ -193,44 +252,30 @@ const bgPatterns = {
         ctx.stroke(heartPath);
         ctx.restore();
 
-        return { url: c.toDataURL(), size: "50px 50px", color: "#ffd6e7" };
-    },
-    blackStars: () => {
+        bg.style.backgroundColor = "#ffd6e7";
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "50px 50px";
+        bg.style.backgroundRepeat = "repeat";
+    }
+    else if (type === "blackStars") {
         let c = document.createElement("canvas");
-        c.width = 180; 
-        c.height = 180;
+        c.width = 180; c.height = 180;
         let ctx = c.getContext("2d");
-        ctx.fillStyle = "#131313"; 
-        ctx.fillRect(0, 0, 180, 180);
+        ctx.fillStyle = "#131313"; ctx.fillRect(0,0,180,180);
         ctx.fillStyle = "white";
         ctx.fill(new Path2D("M30 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"));
         ctx.fill(new Path2D("M130 90l2 5 5 .5-3.5 3.5.5 5-4-2-4 2 .5-5-3.5-3.5 5-.5z"));
         ctx.fill(new Path2D("M70 140l3.5 7.5 7.5 1-5.5 5.5 1.5 7.5-6.5-3.5-6.5 3.5 1.5-7.5-5.5-5.5 7.5-1z"));
         
-        return { url: c.toDataURL(), size: "180px 180px", color: "#131313" };
-    }
-};
-
-function setBackground(type) {
-    let bg = document.getElementById("colorBackground");
-    let room = document.getElementById("room");
-    if (room) room.style.display = "none";
-
-    bg.style.background = "";
-    bg.style.backgroundImage = "none";
-
-    if (bgColors[type]) {
-        bg.style.backgroundColor = bgColors[type];
-    } else if (bgPatterns[type]) {
-        let p = bgPatterns[type]();
-        if (p.color) bg.style.backgroundColor = p.color;
-        bg.style.backgroundImage = `url(${p.url})`;
-        bg.style.backgroundSize = p.size;
+        bg.style.backgroundColor = "#131313";
+        bg.style.backgroundImage = `url(${c.toDataURL("image/png")})`;
+        bg.style.backgroundSize = "180px 180px";
         bg.style.backgroundRepeat = "repeat";
-    } else if (type.startsWith("background")) {
+    }
+    else if (type.startsWith("background")) {
         bg.style.backgroundImage = `url('images/${type}.png')`;
         bg.style.backgroundSize = "cover";
-        bg.style.backgroundPosition = "center 75%";
+        bg.style.backgroundPosition = "center 75%"; 
         bg.style.backgroundRepeat = "no-repeat";
     }
 }
@@ -248,12 +293,43 @@ function randomLook(){
             outfit.style.display = "block";
         }
     } else {
-        if (topCount > 0) {
-            let randTop = Math.floor(Math.random() * topCount) + 1;
-            let top = document.getElementById("top");
-            if (top) {
-                top.src = "images/top" + randTop + ".png";
-                top.style.display = "block";
+        let chooseDress = dressCount > 0 && Math.random() < 0.3;
+        if (chooseDress) {
+            let randDress = Math.floor(Math.random() * dressCount) + 1;
+            let dress = document.getElementById("dress");
+            if (dress) {
+                dress.src = "images/dress" + randDress + ".png";
+                dress.style.display = "block";
+            }
+        } else {
+            if (topCount > 0) {
+                let randTop = Math.floor(Math.random() * topCount) + 1;
+                let top = document.getElementById("top");
+                if (top) {
+                    top.src = "images/top" + randTop + ".png";
+                    top.style.display = "block";
+                }
+            }
+
+            let chooseSkirt = skirtCount > 0 && (bottomCount === 0 || Math.random() > 0.5);
+            if (chooseSkirt) {
+                let randSkirt = Math.floor(Math.random() * skirtCount) + 1;
+                let skirtSrc = "images/skirt" + randSkirt + ".png";
+                let skirtImg = document.getElementById("skirt");
+                if (skirtImg) {
+                    currentSkirtSrc = skirtSrc;
+                    skirtState = Math.random() > 0.5 ? 1 : 2;
+                    skirtImg.src = skirtSrc;
+                    skirtImg.style.display = "block";
+                    skirtImg.className = skirtState === 1 ? "skirt-over" : "skirt-under";
+                }
+            } else if (bottomCount > 0) {
+                let randBottom = Math.floor(Math.random() * bottomCount) + 1;
+                let bottom = document.getElementById("bottom");
+                if (bottom) {
+                    bottom.src = "images/bottom" + randBottom + ".png";
+                    bottom.style.display = "block";
+                }
             }
         }
 
@@ -263,27 +339,6 @@ function randomLook(){
             if (jacket) {
                 jacket.src = "images/jacket" + randJacket + ".png";
                 jacket.style.display = "block";
-            }
-        }
-
-        let chooseSkirt = skirtCount > 0 && (bottomCount === 0 || Math.random() > 0.5);
-        if (chooseSkirt) {
-            let randSkirt = Math.floor(Math.random() * skirtCount) + 1;
-            let skirtSrc = "images/skirt" + randSkirt + ".png";
-            let skirtImg = document.getElementById("skirt");
-            if (skirtImg) {
-                currentSkirtSrc = skirtSrc;
-                skirtState = Math.random() > 0.5 ? 1 : 2;
-                skirtImg.src = skirtSrc;
-                skirtImg.style.display = "block";
-                skirtImg.className = skirtState === 1 ? "skirt-over" : "skirt-under";
-            }
-        } else if (bottomCount > 0) {
-            let randBottom = Math.floor(Math.random() * bottomCount) + 1;
-            let bottom = document.getElementById("bottom");
-            if (bottom) {
-                bottom.src = "images/bottom" + randBottom + ".png";
-                bottom.style.display = "block";
             }
         }
 
@@ -439,6 +494,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    createItems("dresses", dressCount, "dress", changeDress);
     createItems("outfits", outfitCount, "outfit", changeOutfit);
     createItems("tops", topCount, "top", changeTop);
     createItems("jackets", jacketCount, "jacket", changeJacket);
